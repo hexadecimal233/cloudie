@@ -1,0 +1,41 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@plugin "daisyui/theme" {
+  name: "cloudie";
+  default: true;
+  prefersdark: false;
+  color-scheme: "light";
+  --color-base-100: oklch(98% 0.003 247.858);
+  --color-base-200: oklch(94% 0.03 12.58);
+  --color-base-300: oklch(89% 0.058 10.001);
+  --color-base-content: oklch(0.515 0.370 360.0);
+  --color-primary: oklch(0.651 0.208 13.0);
+  --color-primary-content: oklch(100% 0 0);
+  --color-secondary: oklch(0.651 0.208 13.0);
+  --color-secondary-content: oklch(100% 0 0);
+  --color-accent: oklch(0.651 0.208 13.0);
+  --color-accent-content: oklch(100% 0 0);
+  --color-neutral: oklch(0.651 0.208 13.0);
+  --color-neutral-content: oklch(100% 0 0);
+  --color-info: oklch(70% 0.165 254.624);
+  --color-info-content: oklch(28% 0.091 267.935);
+  --color-success: oklch(76% 0.177 163.223);
+  --color-success-content: oklch(26% 0.051 172.552);
+  --color-warning: oklch(82% 0.189 84.429);
+  --color-warning-content: oklch(27% 0.077 45.635);
+  --color-error: oklch(70% 0.191 22.216);
+  --color-error-content: oklch(25% 0.092 26.042);
+  --radius-selector: 0.5rem;
+  --radius-field: 1rem;
+  --radius-box: 1rem;
+  --size-selector: 0.28125rem;
+  --size-field: 0.28125rem;
+  --border: 2px;
+  --depth: 1;
+  --noise: 0;
+}
+
+:root {
+  @apply select-none
+}
