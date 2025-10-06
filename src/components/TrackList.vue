@@ -19,14 +19,7 @@
           :aria-label="genre" />
       </form>
     </div>
-    <button class="btn btn-primary" @click="selectAll" :disabled="filteredItems.length === 0">
-      {{
-        selectedIds.length === filteredItems.length && filteredItems.length > 0
-          ? "取消全选"
-          : "全选"
-      }}
-    </button>
-    <div class="btn btn-ghost btn-sm">已选: {{ selectedIds.length }}</div>
+    <span>已选: {{ selectedIds.length }}</span>
   </div>
 
   <!-- 加载状态 -->
@@ -39,39 +32,84 @@
     </div>
 
     <span v-if="searchQuery">{{ filteredItems.length }} 个结果</span>
-    
-    <!-- 歌曲 -->
-    <div
-      v-for="item in filteredItems"
-      :key="item.track.id"
-      class="h-20 bg-base-200 w-full p-2 flex gap-2 items-center even:bg-base-100 hover:opacity-70 transition-opacity">
-      <input type="checkbox" class="checkbox" v-model="selectedIds" :value="item.track.id" />
-      <img
-        :src="item.track.artwork_url || item.track.user?.avatar_url || ''"
-        alt="cover"
-        class="size-16 object-contain rounded-md flex-none" />
 
-      <div class="flex-1 flex gap-2 items-center overflow-hidden">
-        <div class="flex w-full flex-col text-md min-w-0">
-          <div class="flex items-center gap-2">
-            <div class="font-bold truncate">{{ item.track.title }}</div>
+    <table class="table w-full table-fixed">
+      <thead>
+        <tr>
+          <th>
+            <input
+              type="checkbox"
+              class="checkbox"
+              @change="selectAll"
+              :checked="selectedIds.length === filteredItems.length && filteredItems.length > 0" />
+          </th>
+          <th>#</th>
+          <th>标题</th>
+          <th>风格</th>
+          <th>时长</th>
+          <th>可下载性</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="(item, index) in filteredItems"
+          :key="item.track.id"
+          class="hover:opacity-70 transition-opacity">
+          <td>
+            <input type="checkbox" class="checkbox" v-model="selectedIds" :value="item.track.id" />
+          </td>
 
-            <div class="flex-1"></div>
+          <td>{{ index + 1 }}</td>
 
-            <span class="text-base-content/70">{{ formatMillis(item.track.duration) }}</span>
-            <div v-if="item.track.genre" class="badge badge-primary truncate flex-none">
-              # {{ item.track.genre }}
+          <td>
+            <div class="flex gap-2">
+              <img
+                :src="item.track.artwork_url || item.track.user?.avatar_url || ''"
+                alt="cover"
+                class="size-16 object-contain rounded-md" />
+
+              <div class="flex w-full flex-col justify-center">
+                <div class="font-bold truncate">
+                  {{ item.track.title }}
+                </div>
+
+                <div class="text-sm truncate text-base-content/70">
+                  {{ item.track.publisher_metadata?.artist || item.track.user?.username }}
+                </div>
+              </div>
             </div>
-          </div>
+          </td>
 
-          <div class="text-sm truncate text-base-content/70">
-            {{ item.track.publisher_metadata?.artist || item.track.user?.username }}
-          </div>
-        </div>
-      </div>
+          <td class="truncate text-base-content/70">{{ item.track.genre }}</td>
 
-      <button class="btn btn-primary flex-none" @click="download(item.track)">下载</button>
-    </div>
+          <td class="text-base-content/70">
+            {{ formatMillis(item.track.full_duration || item.track.duration) }}
+          </td>
+
+          <td>
+            <div class="flex gap-2">
+              <div v-if="item.track.downloadable" class="badge badge-success">直链</div>
+              <div v-else-if="item.track.policy === 'BLOCK'" class="badge badge-warning">地区</div>
+              <div v-else-if="item.track.policy === 'SNIP'" class="badge badge-warning">会员</div>
+              <div v-else class="badge">{{ item.track.media.transcodings.length }} 轨</div>
+              <!-- 未知：MONETIZE-->
+            </div>
+          </td>
+
+          <td>
+            <div class="flex">
+              <button class="btn btn-ghost btn-sm" @click="download(item.track)">
+                <Icon icon="mdi:download" height="auto" />
+              </button>
+              <button class="btn btn-ghost btn-sm" @click="openUrl(item.track.permalink_url)">
+                <Icon icon="mdi:open-in-new" height="auto" />
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
     <div class="flex justify-center items-center pt-4">
       <slot name="bottom"></slot>
@@ -82,12 +120,16 @@
 <script setup lang="ts">
 import { ref, computed } from "vue"
 import { formatMillis } from "../utils/utils"
+import { downloadTrack } from "../utils/download"
+import { invoke } from "@tauri-apps/api/core"
+import { Icon } from "@iconify/vue"
+import { openUrl } from "@tauri-apps/plugin-opener"
 
 // 音乐显示
 
 const selectedIds = ref<number[]>([])
 const searchQuery = ref("")
-const selectedGenres = ref<string[]>([])
+const selectedGenres = ref<string[]>([]) // TODO: 获取tag_list
 
 const filteredItems = computed(() => {
   let items = props.tracks
@@ -142,12 +184,94 @@ function resetFilters() {
   selectedGenres.value = []
 }
 
-function download(song: any) {
-  // TODO: 实现下载逻辑
-  alert(`下载 ${song.title}`)
+async function download(track: any) {
+  try {
+    const result = await downloadTrack(track, (info) => {
+      return invoke("download_track", {
+        finalUrl: info.finalUrl,
+        downloadType: info.downloadType,
+        preset: info.preset,
+        title: track.title,
+        playlist: props.playlistName || "",
+      })
+    })
+    console.log("下载成功:", result)
+  } catch (error) {
+    console.error("下载失败:", error)
+    // TODO: 处理下载失败的情况，例如显示错误提示
+  }
+}
+
+// TODO: 检测可能的免费下载
+function isPossibleFreeDownload(track: any): boolean {
+  // 检测简介或者标题 是否包含 FREE DOWNLOAD
+  let isFreeDownload = false
+  if (track.description) {
+    isFreeDownload =
+      track.description.toLowerCase().includes("free download") ||
+      track.description.toLowerCase().includes("free dl")
+  }
+  isFreeDownload =
+    track.title.toLowerCase().includes("free download") ||
+    track.title.toLowerCase().includes("free dl")
+
+  // 检测购买链接
+  if (track.purchase_url) {
+    isFreeDownload =
+      track.purchase_url.toLowerCase().includes("dropbox.com") ||
+      track.purchase_url.toLowerCase().includes("drive.google.com") ||
+      track.purchase_url.toLowerCase().includes("mega.nz")
+  }
+  if (track.purchase_title) {
+    isFreeDownload =
+      track.purchase_title.toLowerCase().includes("free download") ||
+      track.purchase_title.toLowerCase().includes("free dl")
+  }
+
+  return isFreeDownload
 }
 
 const props = defineProps<{
   tracks: any[]
+  playlistName?: string
 }>()
+
+defineEmits(["getPlaylist"])
 </script>
+
+<style scoped>
+th:nth-child(1),
+td:nth-child(1) {
+  width: 4rem;
+} /* 复选框列 */
+
+th:nth-child(2),
+td:nth-child(2) {
+  width: 3rem;
+} /* 序号列 */
+
+th:nth-child(3),
+td:nth-child(3) {
+  width: 70%;
+} /* 标题列  */
+
+th:nth-child(4),
+td:nth-child(4) {
+  width: 30%;
+} /* 风格列 */
+
+th:nth-child(5),
+td:nth-child(5) {
+  width: 6rem;
+} /* 时长列 */
+
+th:nth-child(6),
+td:nth-child(6) {
+  width: 6rem;
+} /* 可下载性列 */
+
+th:nth-child(7),
+td:nth-child(7) {
+  width: 8rem;
+} /* 操作列 */
+</style>

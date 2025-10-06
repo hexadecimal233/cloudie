@@ -40,12 +40,12 @@ export async function getRequest(
   return response
 }
 
-export type BasicUserInfo = {
+export interface BasicUserInfo {
   id: number
   username: string
   avatar_url: string
   permalink: string
-  last_refreshed_at: string // 最后刷新时间
+  last_refreshed_at: number // 最后刷新时间
 }
 
 export async function getUserInfo() {
@@ -62,11 +62,18 @@ export async function getUserInfo() {
         username: res.username,
         avatar_url: res.avatar_url,
         permalink: res.permalink,
-        last_refreshed_at: new Date().toISOString(),
+        last_refreshed_at: Date.now(),
       } as BasicUserInfo
     } catch (err) {
       console.log(err)
-      return null
+      // TODO: 重新登录或者刷新token
+      return {
+        id: -1,
+        username: "",
+        avatar_url: "",
+        permalink: "",
+        last_refreshed_at: 0,
+      }
     }
   }
 }

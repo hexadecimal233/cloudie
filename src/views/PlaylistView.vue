@@ -1,6 +1,6 @@
 <template>
   <!-- Tab 导航 -->
-  <div class="tabs tabs-box mb-6">
+  <div class="tabs tabs-border mb-6">
     <input
       type="radio"
       name="playlist_tabs"
@@ -41,7 +41,7 @@
   </PlaylistList>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" name="PlaylistView">
 import { ref, onMounted, computed } from "vue"
 import { getJson, getV2ApiJson } from "../utils/api"
 import PlaylistList from "../components/PlaylistList.vue"

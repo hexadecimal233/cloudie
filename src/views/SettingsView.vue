@@ -11,7 +11,7 @@
     <div class="divider"></div>
 
     <fieldset class="fieldset text-lg border-base-300 rounded-box border p-4">
-      <legend class="fieldset-legend">基本设置</legend>
+      <legend class="fieldset-legend">下载设置</legend>
 
       <label class="label">保存路径</label>
       <div class="join">
@@ -24,6 +24,27 @@
           <Icon icon="mdi:folder-open" height="auto" />
         </button>
       </div>
+
+      <label class="label">并行下载数量</label>
+      <input
+        type="number"
+        class="input"
+        placeholder="并行下载数量"
+        v-model="config.parallelDownloads" />
+
+      <label class="label cursor-pointer">
+        <span>将播单下载保存到单独目录</span>
+        <input type="checkbox" class="toggle" v-model="config.playlistSeparateDir" />
+      </label>
+
+      <label class="label cursor-pointer">
+        <span>优先下载原始文件</span>
+        <input type="checkbox" class="toggle" v-model="config.preferDirectDownload" />
+      </label>
+    </fieldset>
+
+    <fieldset class="fieldset text-lg border-base-300 rounded-box border p-4">
+      <legend class="fieldset-legend">杂项设置</legend>
 
       <label class="label cursor-pointer">
         <span>将 BPM 和调性保存到本地</span>
@@ -58,7 +79,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" name="SettingsView">
 import { onUnmounted } from "vue"
 import { Icon } from "@iconify/vue"
 import { config, saveConfig } from "../utils/config"

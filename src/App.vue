@@ -20,6 +20,8 @@
           </template>
         </div>
 
+        <button class="btn" @click="$router.back()">TODO: 美化；返回上一级</button>
+
         <li>
           <router-link to="/likes" id="like">
             <Icon icon="mdi:heart" height="auto" />
@@ -54,7 +56,7 @@
           </router-link>
         </li>
         <li>
-          <router-link to="/download" id="download">
+          <router-link to="/downloads" id="download">
             <Icon icon="mdi:download" height="auto" />
             下载管理
           </router-link>
@@ -71,9 +73,13 @@
     <!-- 右侧 内容区域 -->
     <div class="flex-1 overflow-hidden bg-base-200 flex h-screen">
       <div class="m-4 bg-base-100 rounded-box overflow-y-auto flex-1">
-        <div class="px-8 py-12 flex flex-col">
+        <div class="p-8 flex flex-col">
           <span class="text-3xl font-bold mb-4">{{ $route.name }}</span>
-          <router-view />
+          <router-view v-slot="{ Component }">
+            <keep-alive>
+              <component :is="Component" />
+            </keep-alive>
+          </router-view>
         </div>
       </div>
     </div>
@@ -87,7 +93,6 @@ import { BasicUserInfo, getUserInfo } from "./utils/api"
 
 const user = ref<BasicUserInfo>()
 const loading = ref(true)
-
 
 onMounted(async () => {
   const userInfo = await getUserInfo()

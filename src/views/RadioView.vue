@@ -18,7 +18,7 @@
   </PlaylistList>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" name="RadioView">
 import { ref, onMounted } from "vue"
 import { getJson, getV2ApiJson } from "../utils/api"
 import PlaylistList from "../components/PlaylistList.vue"

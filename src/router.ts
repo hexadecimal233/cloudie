@@ -28,6 +28,11 @@ const router = createRouter({
       name: "电台",
       component: () => import("./views/RadioView.vue"),
     },
+    {
+      path: "/downloads",
+      name: "下载队列",
+      component: () => import("./views/DownloadsView.vue"),
+    },
     { path: "/:pathMatch(.*)*", redirect: "/settings" },
   ],
   linkActiveClass: "menu-active",

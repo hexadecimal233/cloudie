@@ -1,8 +1,7 @@
 <template>
-  <CollectionView reqEndpoint="/users/1233595633/track_likes" />
+  <CollectionView type="track_likes" />
 </template>
 
-<script setup lang="ts">
-import CollectionView from '../components/CollectionView.vue';
-
+<script setup lang="ts" name="LikesView">
+import CollectionView from "../components/CollectionView.vue"
 </script>

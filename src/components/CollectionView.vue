@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue"
-import { getJson, getV2ApiJson } from "../utils/api"
+import { getJson, getUserInfo, getV2ApiJson } from "../utils/api"
 import TrackList from "./TrackList.vue"
 
 // 数据获取
@@ -30,15 +30,20 @@ const nextHref = ref("")
 const hasNext = ref(false)
 
 const props = defineProps<{
-  reqEndpoint: string
+  type: string
 }>()
 
 async function fetchNext() {
   loading.value = true
 
-  const promise = nextHref.value
-    ? getJson(nextHref.value)
-    : getV2ApiJson(props.reqEndpoint, { limit: 500 })
+  let url: string
+  if (props.type === "track_likes") {
+    url = `/users/${(await getUserInfo()).id}/track_likes`
+  } else {
+    url = "/me/play-history/tracks"
+  }
+
+  const promise = nextHref.value ? getJson(nextHref.value) : getV2ApiJson(url, { limit: 500 })
 
   try {
     const res = await promise

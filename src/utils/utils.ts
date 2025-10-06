@@ -18,3 +18,7 @@ export function formatMillis(millis: number) {
 
   return `${hours > 0 ? `${hours}:` : ''}${formattedMinutes}:${formattedSeconds}`
 }
+
+export function checkFFmpeg() {
+  
+}

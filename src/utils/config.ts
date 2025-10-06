@@ -1,11 +1,17 @@
-import { load } from "@tauri-apps/plugin-store"
+import { load, Store } from "@tauri-apps/plugin-store"
 import { ref } from "vue"
 import { setApi } from "./api"
 
 export interface Config {
+  // 下载
   savePath: string
+  parallelDownloads: number
+  playlistSeparateDir: boolean
+  preferDirectDownload: boolean
+  // 杂项
   analyzeBpmAndKey: boolean
   virtualDjSupport: boolean
+  // 登录
   clientId: string
   oauthToken: string
 }
@@ -13,16 +19,16 @@ export interface Config {
 // 创建默认配置对象，具有字符串索引签名
 export const defaultConfig: { [key: string]: unknown } & Config = {
   savePath: "",
+  parallelDownloads: 3,
+  playlistSeparateDir: true,
+  preferDirectDownload: false,
   analyzeBpmAndKey: false,
   virtualDjSupport: false,
   clientId: "",
   oauthToken: "",
 }
 
-const store = await load("cloudie.json", {
-  autoSave: false,
-  defaults: defaultConfig,
-})
+let store: Store
 
 // Defaults are defined so if new entries are added = crash?
 async function getConfigValue<T>(key: keyof Config): Promise<T> {
@@ -34,6 +40,11 @@ async function getConfigValue<T>(key: keyof Config): Promise<T> {
 }
 
 export async function loadConfig(): Promise<Config> {
+  store = await load("cloudie.json", {
+    autoSave: false,
+    defaults: defaultConfig,
+  }) // Prevent top-level await
+
   const config: Partial<Config> = {}
 
   // Automatically iterate through all Config keys
