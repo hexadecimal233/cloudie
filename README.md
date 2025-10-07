@@ -10,3 +10,4 @@ This template should help get you started developing with Vue 3 and TypeScript i
 - [ ] 用户状态管理
 - [ ] 主题色重写？
 - [ ] iconify 本地
+- [ ] Table样式

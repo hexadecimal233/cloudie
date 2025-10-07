@@ -1,5 +1,5 @@
 <template>
-  <!-- 电台列表 没搞懂声云为什么电台要专门开个栏目出来 FIXME: 为undefined创作 -->
+  <!-- 电台列表 没搞懂声云为什么电台要专门开个栏目出来 FIXME: 显示为undefined创作 -->
   <PlaylistList :items="stations" :cache="{}">
     <template #bottom>
       <template v-if="loading">

@@ -3,8 +3,8 @@ use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
 use regex::Regex;
-use reqwest;
-use tauri::AppHandle;
+use reqwest::{self, Client};
+use tauri::{AppHandle, Manager};
 use tauri_plugin_store::StoreExt;
 use tokio;
 
@@ -16,9 +16,8 @@ struct DownloadInfo {
     playlist: String,
 }
 
-// TODO: 传回前端
+#[derive(serde::Serialize)]
 struct DownloadResponse {
-    error: String,
     path: String,
     orig_file_name: String,
 }
@@ -26,15 +25,17 @@ struct DownloadResponse {
 struct DownloadMeta {
     bytes: Vec<u8>,
     extension: String,
-    orig_file_name: Option<String>,
+    orig_file_name: String,
 }
 
-// 净化文件名
+/// 净化文件名
 fn sanitize(text: &str) -> String {
     let re = Regex::new(r#"[\\/:*?\"<>|]"#).unwrap();
     re.replace_all(text, "_").to_string()
 }
 
+/// 调用FFmpeg进行Muxing
+/// 目前只有AAC需要转码
 fn ffmpeg_muxer(
     m3u8_url: &str,
     output_format: &str,
@@ -78,60 +79,38 @@ fn ffmpeg_muxer(
     Ok(buffer)
 }
 
-/// 核心下载逻辑（异步）。
-async fn download_logic(download_type: &DownloadInfo) -> Result<DownloadMeta, String> {
-    let mut headers = reqwest::header::HeaderMap::new();
-    headers.insert(
-        reqwest::header::ORIGIN,
-        reqwest::header::HeaderValue::from_static("https://soundcloud.com"),
-    );
-    headers.insert(
-        reqwest::header::REFERER,
-        reqwest::header::HeaderValue::from_static("https://soundcloud.com/"),
-    );
-
-    let client = reqwest::ClientBuilder::new()
-        .default_headers(headers)
-        .user_agent(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
-        )
-        .build()
-        .map_err(|e| format!("Failed to build reqwest client: {}", e))?;
+/// 核心下载逻辑
+async fn download_logic(
+    download_type: &DownloadInfo,
+) -> Result<DownloadMeta, Box<dyn std::error::Error>> {
+    let client = Client::new(); // fun fact 这里不用加header也能下载
 
     match download_type.download_type.as_str() {
+        // 直链下载
         "direct" => {
-            let response = client
-                .get(&download_type.final_url)
-                .send()
-                .await
-                .map_err(|e| format!("HTTP request failed: {}", e))?;
+            let response = client.get(&download_type.final_url).send().await?;
 
             let extension = response
                 .headers()
                 .get("x-amz-meta-file-type")
-                .ok_or("Missing header")? // TODO: 返回一个源文件名
-                .to_str()
-                .unwrap_or("unknown")
+                .ok_or("Missing x-amz-meta-file-type header")?
+                .to_str()?
                 .to_owned();
 
-            // find original file name: filename*=utf-8''<filename>
+            // 查找原始文件名: filename*=utf-8''<filename>
             let orig_file_name = response
                 .headers()
                 .get("Content-Disposition")
-                .map(|v| {
+                .and_then(|v| {
                     v.to_str()
                         .unwrap_or("")
                         .split("filename*=utf-8''")
                         .nth(1)
                         .map(|s| s.to_string())
                 })
-                .flatten();
+                .unwrap_or("".to_string());
 
-            let bytes = response
-                .bytes()
-                .await
-                .map_err(|e| format!("Failed to read response bytes: {}", e))?
-                .to_vec();
+            let bytes = response.bytes().await?.to_vec();
 
             Ok(DownloadMeta {
                 bytes,
@@ -139,102 +118,98 @@ async fn download_logic(download_type: &DownloadInfo) -> Result<DownloadMeta, St
                 orig_file_name,
             })
         }
+        // 下载音频流
         "progressive" => {
-            let response = client
-                .get(&download_type.final_url)
-                .send()
-                .await
-                .map_err(|e| format!("HTTP request failed: {}", e))?;
-
-            let bytes = response
-                .bytes()
-                .await
-                .map_err(|e| format!("Failed to read stream bytes: {}", e))?
-                .to_vec();
+            let response = client.get(&download_type.final_url).send().await?;
+            let bytes = response.bytes().await?.to_vec();
 
             let extension = if download_type.preset.as_str().starts_with("mp3") {
-                "mp3".to_string()
+                "mp3"
             } else {
-                "m4a".to_string() // 没遇到过返回m4a
+                "m4a"
             };
 
             Ok(DownloadMeta {
                 bytes,
-                extension,
-                orig_file_name: None,
+                extension: extension.to_string(),
+                orig_file_name: "".to_string(),
             })
         }
+        // m3u8 下载
         "hls" => {
             let preset = download_type.preset.as_str();
 
             if preset == "aac_160k" {
                 // 使用 FFmpeg 处理 HLS M4A 流
                 let m3u8_url = download_type.final_url.clone();
-                let bytes_result =
-                    tokio::task::spawn_blocking(move || ffmpeg_muxer(&m3u8_url, "mp4"))
-                        .await
-                        .map_err(|e| format!("FFmpeg blocking task failed: {:?}", e))?;
 
-                let bytes = bytes_result.map_err(|e| format!("FFmpeg error: {:?}", e))?;
+                let bytes = tokio::task::spawn_blocking(move || ffmpeg_muxer(&m3u8_url, "mp4"))
+                    .await?
+                    .map_err(|e| Box::<dyn std::error::Error>::from(e.to_string()))?;
 
                 return Ok(DownloadMeta {
                     bytes,
                     extension: "m4a".to_string(),
-                    orig_file_name: None,
+                    orig_file_name: "".to_string(),
                 });
             } else if preset.contains("mp3") || preset == "opus_0_0" {
                 // 直接拼接分片
-                let m3u_resp = client
-                    .get(&download_type.final_url)
-                    .send()
-                    .await
-                    .map_err(|e| format!("Failed to fetch M3U8 playlist: {}", e))?;
-                let m3u_text = m3u_resp
-                    .text()
-                    .await
-                    .map_err(|e| format!("Failed to read M3U8 text: {}", e))?;
+                let response = client.get(&download_type.final_url).send().await?;
+                let m3u_text = response.text().await?;
 
-                let urls = Regex::new(r#"(http)[^\s]*"#)
-                    .map_err(|e| e.to_string())?
+                let urls = Regex::new(r#"(http)[^\s]*"#)?
                     .find_iter(&m3u_text)
                     .map(|m| m.as_str().to_owned())
                     .collect::<Vec<_>>();
 
-                // TODO: 可优化——并发下载分片
-                let mut final_file: Vec<u8> = Vec::new();
-
                 // 批量下载所有分段并合并
-                for url in urls {
-                    let resp = client
-                        .get(&url)
-                        .send()
-                        .await
-                        .map_err(|e| format!("Failed to fetch MP3 segment: {}", e))?;
-                    let bytes = resp
-                        .bytes()
-                        .await
-                        .map_err(|e| format!("Failed to read segment bytes: {}", e))?
-                        .to_vec();
-                    final_file.extend(bytes);
+                let download_futures: Vec<_> = urls
+                    .into_iter()
+                    .map(|url| {
+                        let client_clone = client.clone();
+                        async move {
+                            let resp = client_clone.get(&url).send().await?;
+                            let bytes = resp.bytes().await?.to_vec();
+                            Ok::<Vec<u8>, reqwest::Error>(bytes)
+                        }
+                    })
+                    .collect();
+
+                let results = futures::future::join_all(download_futures).await;
+
+                let mut final_file: Vec<u8> = Vec::new();
+                for result in results {
+                    match result {
+                        Ok(bytes) => {
+                            final_file.extend(bytes);
+                        }
+                        Err(e) => {
+                            // 如果任何一个分片下载失败，返回错误
+                            return Err(e.into());
+                        }
+                    }
                 }
+
+                let extension = if download_type.preset.as_str().starts_with("mp3") {
+                    "mp3"
+                } else {
+                    "opus"
+                };
 
                 return Ok(DownloadMeta {
                     bytes: final_file,
-                    extension: if preset.contains("mp3") {
-                        "mp3".to_string()
-                    } else {
-                        "opus".to_string()
-                    },
-                    orig_file_name: None,
+                    extension: extension.to_string(),
+                    orig_file_name: "".to_string(),
                 });
             }
 
-            return Err("No supported HLS transcodings found".to_string());
+            return Err(format!("Unsupported HLS preset: {}", preset).into());
         }
-        _ => return Err("this shouldnt happen!!".to_string()),
+        _ => return Err("this shouldnt happen!!".to_string().into()),
     }
 }
 
+/// Tauri Command: 下载音轨
 #[tauri::command]
 async fn download_track(
     final_url: String,
@@ -243,8 +218,8 @@ async fn download_track(
     title: String,
     playlist: String,
     app_handle: AppHandle,
-) -> Result<String, String> {
-    let download_type = DownloadInfo {
+) -> Result<DownloadResponse, String> {
+    let download_info = DownloadInfo {
         final_url,
         download_type,
         preset,
@@ -252,33 +227,82 @@ async fn download_track(
         playlist,
     };
 
-    // TODO: 播单目录
-    let store = app_handle.store("cloudie.json").unwrap();
-    let save_path = PathBuf::from(store.get("savePath").unwrap().as_str().unwrap());
+    let result: Result<DownloadResponse, String> = async move {
+        let store = app_handle
+            .store("cloudie.json")
+            .map_err(|e| e.to_string())?;
 
-    let response = download_logic(&download_type).await?;
+        // 从配置中获取保存路径
+        let save_path = PathBuf::from(
+            store
+                .get("savePath")
+                .and_then(|v| v.as_str().map(|s| s.to_string()))
+                .ok_or("Failed to get savePath from config")?,
+        );
 
-    let filename = sanitize(&download_type.title);
-    let dest = save_path.join(format!("{}.{}", filename, response.extension));
+        // 从配置中获取是否单独创建播放列表目录
+        let separate_dir = store
+            .get("playlistSeparateDir")
+            .and_then(|v| v.as_bool())
+            .ok_or("Failed to get playlistSeparateDir from config")?;
 
-    // 5. 保存文件 (使用 spawn_blocking 处理文件 I/O)
-    let _ = tokio::task::spawn_blocking(move || -> Result<(), String> {
-        if !save_path.exists() {
-            std::fs::create_dir_all(&save_path)
-                .map_err(|e| format!("Failed to create directories: {}", e))?;
-        }
+        let response = download_logic(&download_info)
+            .await
+            .map_err(|e| e.to_string())?;
 
-        let mut file =
-            std::fs::File::create(&dest).map_err(|e| format!("Failed to create file: {}", e))?;
-        std::io::copy(&mut response.bytes.as_slice(), &mut file)
-            .map_err(|e| format!("Failed to write to file: {}", e))?;
+        // 3. 构造目标路径
+        let filename = sanitize(&download_info.title);
+        let orig_file_name = response.orig_file_name.clone();
 
-        Ok(())
-    })
-    .await
-    .map_err(|e| format!("File saving task failed: {:?}", e))?;
+        let dest = if separate_dir {
+            let playlist_dir = save_path.join(sanitize(&download_info.playlist));
+            // 确保播放列表目录存在，并处理 IO 错误
+            if !playlist_dir.exists() {
+                std::fs::create_dir_all(&playlist_dir).map_err(|e| {
+                    format!(
+                        "Failed to create playlist directory: {}. Error: {}",
+                        playlist_dir.display(),
+                        e
+                    )
+                })?;
+            }
+            playlist_dir.join(format!("{}.{}", filename, response.extension))
+        } else {
+            // 确保保存路径存在，并处理 IO 错误
+            if !save_path.exists() {
+                std::fs::create_dir_all(&save_path)
+                    // std::io::Error 自动转换为 AnyError
+                    .map_err(|e| {
+                        format!(
+                            "Failed to create base save directory: {}. Error: {}",
+                            save_path.display(),
+                            e
+                        )
+                    })?;
+            }
+            save_path.join(format!("{}.{}", filename, response.extension))
+        };
 
-    Ok("TODO: returns the path to the saved file".to_owned())
+        // 4. 文件保存 (使用 spawn_blocking 处理文件 I/O)
+        // TODO: 优化为将文件不写到Vec<u8>，直接写入文件
+        let dest_str = dest.to_string_lossy().to_string();
+
+        let _ = tokio::task::spawn_blocking(move || -> Result<(), std::io::Error> {
+            let mut file = std::fs::File::create(&dest)?;
+            std::io::copy(&mut response.bytes.as_slice(), &mut file)?;
+            Ok(())
+        })
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(DownloadResponse {
+            path: dest_str,
+            orig_file_name,
+        })
+    }
+    .await;
+
+    result.map_err(|e| e.to_string())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -287,7 +311,12 @@ pub fn run() {
 
     #[cfg(desktop)]
     {
-        builder = builder.plugin(tauri_plugin_single_instance::init(|_app, _args, _cwd| {}));
+        builder = builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            let _ = app
+                .get_webview_window("main")
+                .expect("no main window")
+                .set_focus();
+        }));
     }
 
     builder

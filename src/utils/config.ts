@@ -1,6 +1,6 @@
 import { load, Store } from "@tauri-apps/plugin-store"
-import { ref } from "vue"
-import { setApi } from "./api"
+import { ref, watch } from "vue"
+import { refreshClientId } from "./api"
 
 export interface Config {
   // 下载
@@ -8,6 +8,8 @@ export interface Config {
   parallelDownloads: number
   playlistSeparateDir: boolean
   preferDirectDownload: boolean
+  nonMp3Convert: true // TODO: 非MP3文件是否转换
+  fileNaming: "title-artist" | "artist-title" | "title"
   // 杂项
   analyzeBpmAndKey: boolean
   virtualDjSupport: boolean
@@ -16,12 +18,14 @@ export interface Config {
   oauthToken: string
 }
 
-// 创建默认配置对象，具有字符串索引签名
-export const defaultConfig: { [key: string]: unknown } & Config = {
+// 默认配置
+export const defaultConfig: Config = {
   savePath: "",
   parallelDownloads: 3,
   playlistSeparateDir: true,
   preferDirectDownload: false,
+  nonMp3Convert: true,
+  fileNaming: "title-artist",
   analyzeBpmAndKey: false,
   virtualDjSupport: false,
   clientId: "",
@@ -30,7 +34,11 @@ export const defaultConfig: { [key: string]: unknown } & Config = {
 
 let store: Store
 
-// Defaults are defined so if new entries are added = crash?
+// 响应式配置
+export const config = ref(defaultConfig)
+watch(config, saveConfig, { deep: true })
+
+// 读取配置属性值
 async function getConfigValue<T>(key: keyof Config): Promise<T> {
   const value = await store.get(key as string)
   if (value === null || value === undefined) {
@@ -39,40 +47,34 @@ async function getConfigValue<T>(key: keyof Config): Promise<T> {
   return value as T
 }
 
-export async function loadConfig(): Promise<Config> {
+export async function loadConfig() {
   store = await load("cloudie.json", {
     autoSave: false,
-    defaults: defaultConfig,
+    defaults: defaultConfig as { [key: string]: any },
   }) // Prevent top-level await
 
-  const config: Partial<Config> = {}
+  const cfg: Partial<Config> = {}
 
   // Automatically iterate through all Config keys
   for (const key of Object.keys(defaultConfig) as (keyof Config)[]) {
-    config[key] = await getConfigValue(key)
+    cfg[key] = await getConfigValue(key)
   }
 
-  updateApi(config as Config)
-  return config as Config
+  config.value = cfg as Config
+
+  // 初始化后刷新 client_id
+  if (!cfg.clientId) {
+    await refreshClientId()
+  }
 }
 
-// Initialize configuration with automatic loading
-export const config = ref<Config>(defaultConfig)
-
-// Save configuration with automatic property iteration
+// 自动保存所有配置属性
 export async function saveConfig(): Promise<void> {
-  updateApi(config.value)
-
   const currentConfig = config.value
 
-  // Automatically save all configuration properties
   for (const key of Object.keys(currentConfig) as (keyof Config)[]) {
     await store.set(key, currentConfig[key])
   }
 
   await store.save()
-}
-
-function updateApi(config: Config) {
-  setApi(config.clientId, config.oauthToken)
 }

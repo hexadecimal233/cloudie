@@ -1,36 +1,40 @@
 <template>
-  <div class="flex justify-end mb-2 gap-2">
-    <input type="text" placeholder="搜索" class="input" v-model="searchQuery" />
+  <div class="mb-2 flex justify-end gap-2">
+    <button class="btn btn-primary" @click="downloadSelected">下载选中</button>
+    <div class="join">
+      <input type="text" placeholder="搜索" class="join-item input" v-model="searchQuery" />
 
-    <div class="dropdown dropdown-end">
-      <div tabindex="0" role="button" class="btn">标签筛选</div>
-      <form
-        tabindex="0"
-        class="dropdown-content max-h-64 space-x-2 space-y-2 w-[calc(100vw/2)] overflow-y-auto bg-base-100 border rounded-box z-1 p-2"
-        @change="handleGenreFilter">
-        <input class="btn btn-primary" type="reset" value="×" @click="resetFilters" />
-        <input
-          class="btn max-w-32 truncate"
-          type="checkbox"
-          v-for="genre in allGenres"
-          :key="genre"
-          :value="genre"
-          name="genres"
-          :aria-label="genre" />
-      </form>
+      <div class="btn join-item">
+        <Icon icon="mdi:tag" height="auto"></Icon>
+      </div>
+
+      <div class="dropdown dropdown-end join-item">
+        <div tabindex="0" role="button" class="btn join-item">
+          <Icon icon="mdi:music-note" height="auto"></Icon>
+        </div>
+        <form
+          tabindex="0"
+          class="dropdown-content bg-base-100 rounded-box z-1 max-h-64 w-[calc(100vw/2)] space-y-2 space-x-2 overflow-y-auto border p-2"
+          @change="handleGenreFilter">
+          <input class="btn btn-primary" type="reset" value="×" @click="resetFilters" />
+          <input
+            class="btn max-w-32 truncate"
+            type="checkbox"
+            v-for="genre in allGenres"
+            :key="genre"
+            :value="genre"
+            name="genres"
+            :aria-label="genre" />
+        </form>
+      </div>
     </div>
+
     <span>已选: {{ selectedIds.length }}</span>
   </div>
 
   <!-- 加载状态 -->
 
   <div class="flex flex-col">
-    <!-- 空状态 -->
-    <div v-if="filteredItems.length === 0" class="text-center py-8">
-      <div class="text-lg mb-2">这里空空如也 (。・ω・。)</div>
-      <div class="text-sm text-base-content/70">请尝试刷新或者调整搜索条件</div>
-    </div>
-
     <span v-if="searchQuery">{{ filteredItems.length }} 个结果</span>
 
     <table class="table w-full table-fixed">
@@ -54,10 +58,14 @@
       <tbody>
         <tr
           v-for="(item, index) in filteredItems"
-          :key="item.track.id"
-          class="hover:opacity-70 transition-opacity">
+          :key="getTrack(item).id"
+          class="transition-opacity hover:opacity-70">
           <td>
-            <input type="checkbox" class="checkbox" v-model="selectedIds" :value="item.track.id" />
+            <input
+              type="checkbox"
+              class="checkbox"
+              v-model="selectedIds"
+              :value="getTrack(item).id" />
           </td>
 
           <td>{{ index + 1 }}</td>
@@ -65,44 +73,48 @@
           <td>
             <div class="flex gap-2">
               <img
-                :src="item.track.artwork_url || item.track.user?.avatar_url || ''"
+                :src="getTrack(item).artwork_url || getTrack(item).user?.avatar_url || ''"
                 alt="cover"
-                class="size-16 object-contain rounded-md" />
+                class="size-16 rounded-md object-contain" />
 
               <div class="flex w-full flex-col justify-center">
-                <div class="font-bold truncate">
-                  {{ item.track.title }}
+                <div class="truncate font-bold">
+                  {{ getTrack(item).title }}
                 </div>
 
-                <div class="text-sm truncate text-base-content/70">
-                  {{ item.track.publisher_metadata?.artist || item.track.user?.username }}
+                <div class="text-base-content/70 truncate text-sm">
+                  {{ getArtist(getTrack(item)) }}
                 </div>
               </div>
             </div>
           </td>
 
-          <td class="truncate text-base-content/70">{{ item.track.genre }}</td>
+          <td class="truncate">{{ getTrack(item).genre }}</td>
 
-          <td class="text-base-content/70">
-            {{ formatMillis(item.track.full_duration || item.track.duration) }}
+          <td>
+            {{ formatMillis(getTrack(item).full_duration || getTrack(item).duration) }}
           </td>
 
           <td>
             <div class="flex gap-2">
-              <div v-if="item.track.downloadable" class="badge badge-success">直链</div>
-              <div v-else-if="item.track.policy === 'BLOCK'" class="badge badge-warning">地区</div>
-              <div v-else-if="item.track.policy === 'SNIP'" class="badge badge-warning">会员</div>
-              <div v-else class="badge">{{ item.track.media.transcodings.length }} 轨</div>
+              <div v-if="getTrack(item).downloadable" class="badge badge-success">直链</div>
+              <div v-else-if="getTrack(item).policy === 'BLOCK'" class="badge badge-warning">
+                地区
+              </div>
+              <div v-else-if="getTrack(item).policy === 'SNIP'" class="badge badge-warning">
+                会员
+              </div>
+              <div v-else class="badge">{{ getTrack(item).media.transcodings.length }} 轨</div>
               <!-- 未知：MONETIZE-->
             </div>
           </td>
 
           <td>
             <div class="flex">
-              <button class="btn btn-ghost btn-sm" @click="download(item.track)">
+              <button class="btn btn-ghost btn-sm" @click="download(getTrack(item))">
                 <Icon icon="mdi:download" height="auto" />
               </button>
-              <button class="btn btn-ghost btn-sm" @click="openUrl(item.track.permalink_url)">
+              <button class="btn btn-ghost btn-sm" @click="openUrl(getTrack(item).permalink_url)">
                 <Icon icon="mdi:open-in-new" height="auto" />
               </button>
             </div>
@@ -111,7 +123,13 @@
       </tbody>
     </table>
 
-    <div class="flex justify-center items-center pt-4">
+    <!-- 空状态 -->
+    <div v-if="filteredItems.length === 0" class="py-8 text-center">
+      <div class="mb-2 text-lg">这里空空如也 (。・ω・。)</div>
+      <div class="text-base-content/70 text-sm">请尝试刷新或者调整搜索条件</div>
+    </div>
+
+    <div class="flex items-center justify-center pt-4">
       <slot name="bottom"></slot>
     </div>
   </div>
@@ -119,9 +137,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
-import { formatMillis } from "../utils/utils"
-import { downloadTrack } from "../utils/download"
-import { invoke } from "@tauri-apps/api/core"
+import { formatMillis, getArtist } from "../utils/utils"
+import { addDownloadTask } from "../utils/download"
 import { Icon } from "@iconify/vue"
 import { openUrl } from "@tauri-apps/plugin-opener"
 
@@ -131,6 +148,14 @@ const selectedIds = ref<number[]>([])
 const searchQuery = ref("")
 const selectedGenres = ref<string[]>([]) // TODO: 获取tag_list
 
+function getTrack(item: any) {
+  if (props.playlistName === undefined) {
+    return item.track
+  } else {
+    return item
+  }
+}
+
 const filteredItems = computed(() => {
   let items = props.tracks
 
@@ -139,28 +164,29 @@ const filteredItems = computed(() => {
     const query = searchQuery.value.toLowerCase()
     items = items.filter(
       (item: any) =>
-        item.track.title.toLowerCase().includes(query) ||
-        (item.track.publisher_metadata?.artist &&
-          item.track.publisher_metadata.artist.toLowerCase().includes(query)) ||
-        (item.track.user?.username && item.track.user.username.toLowerCase().includes(query))
+        getTrack(item).title.toLowerCase().includes(query) ||
+        (getTrack(item).publisher_metadata?.artist &&
+          getTrack(item).publisher_metadata.artist.toLowerCase().includes(query)) ||
+        (getTrack(item).user?.username &&
+          getTrack(item).user.username.toLowerCase().includes(query)),
     )
   }
 
   // 类型过滤
   if (selectedGenres.value.length > 0) {
-    items = items.filter((item) => selectedGenres.value.includes(item.track.genre))
+    items = items.filter((item) => selectedGenres.value.includes(getTrack(item).genre))
   }
 
   return items
 })
 
 const allGenres = computed(() => {
-  const tags = props.tracks.map((item) => item.track.genre).filter(Boolean)
+  const tags = props.tracks.map((item) => getTrack(item).genre).filter(Boolean)
   return [...new Set(tags)]
 })
 
 function selectAll() {
-  const allFilteredIds = filteredItems.value.map((item) => item.track.id)
+  const allFilteredIds = filteredItems.value.map((item) => getTrack(item).id)
 
   if (selectedIds.value.length === allFilteredIds.length && allFilteredIds.length > 0) {
     selectedIds.value = []
@@ -184,22 +210,18 @@ function resetFilters() {
   selectedGenres.value = []
 }
 
-async function download(track: any) {
-  try {
-    const result = await downloadTrack(track, (info) => {
-      return invoke("download_track", {
-        finalUrl: info.finalUrl,
-        downloadType: info.downloadType,
-        preset: info.preset,
-        title: track.title,
-        playlist: props.playlistName || "",
-      })
-    })
-    console.log("下载成功:", result)
-  } catch (error) {
-    console.error("下载失败:", error)
-    // TODO: 处理下载失败的情况，例如显示错误提示
+// 下载选中
+async function downloadSelected() {
+  for (const id of selectedIds.value) {
+    const track = props.tracks.find((item) => getTrack(item).id === id)
+    if (track) {
+      download(getTrack(track))
+    }
   }
+}
+
+function download(track: any) {
+  addDownloadTask(track, props.playlistName || "")
 }
 
 // TODO: 检测可能的免费下载
@@ -233,10 +255,8 @@ function isPossibleFreeDownload(track: any): boolean {
 
 const props = defineProps<{
   tracks: any[]
-  playlistName?: string
+  playlistName?: string // 播单的话就返回的不是collection了
 }>()
-
-defineEmits(["getPlaylist"])
 </script>
 
 <style scoped>

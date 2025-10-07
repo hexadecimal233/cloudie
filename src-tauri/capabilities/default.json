@@ -10,7 +10,7 @@
       "identifier": "opener:allow-open-path",
       "allow": [
         {
-          "path": "*"
+          "path": "**"
         }
       ]
     },
@@ -20,7 +20,13 @@
       "identifier": "http:default",
       "allow": [
         {
+          "url": "https://soundcloud.com"
+        },
+        {
           "url": "https://*.soundcloud.com"
+        },
+        {
+          "url": "https://*.sndcdn.com"
         }
       ],
       "deny": []

@@ -60,11 +60,11 @@ const filteredItems = computed(() => {
       return playlists.value.filter((item) => item.type === "system-playlist-like")
     case "playlist":
       return playlists.value.filter(
-        (item) => item.type === "playlist-like" && !item.playlist?.is_album
+        (item) => item.type === "playlist-like" && !item.playlist?.is_album,
       )
     case "album":
       return playlists.value.filter(
-        (item) => item.type === "playlist-like" && item.playlist?.is_album === true
+        (item) => item.type === "playlist-like" && item.playlist?.is_album === true,
       )
   }
 })
@@ -74,7 +74,7 @@ async function fetchNext() {
 
   const promise = nextHref.value
     ? getJson(nextHref.value)
-    : getV2ApiJson("/me/library/all", { limit: 10 }) // Potato server limit
+    : getV2ApiJson("/me/library/all", { limit: 30 })
 
   try {
     const res = await promise

@@ -1,13 +1,13 @@
 import { fetch } from "@tauri-apps/plugin-http"
+import { config } from "./config"
 
-var clientId = ""
-var oauthToken = ""
+let clientIdRefreshing = false
 const v2Url = "https://api-v2.soundcloud.com"
 
 // 发出v2 api json请求
 export async function getV2ApiJson(
   endpoint: string,
-  params: Record<string, any> = {}
+  params: Record<string, any> = {},
 ): Promise<any> {
   const finalUrl = `${v2Url}${endpoint}?${new URLSearchParams(params).toString()}`
 
@@ -23,21 +23,73 @@ export async function getJson(url: string, useOAuth: boolean = true, useClientId
 export async function getRequest(
   url: string,
   useOAuth: boolean = true,
-  useClientId: boolean = true
+  useClientId: boolean = true,
 ) {
   // Add client_id to url
-  if (useClientId) url += url.includes("?") ? `&client_id=${clientId}` : `?client_id=${clientId}`
+  if (useClientId) {
+    if (clientIdRefreshing) {
+      throw new Error("clientId is refreshing, please try again later")
+    }
+    url += url.includes("?")
+      ? `&client_id=${config.value.clientId}`
+      : `?client_id=${config.value.clientId}`
+  }
 
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      Authorization: useOAuth ? `OAuth ${oauthToken}` : "",
-    },
-  })
+  const sendRequest = async () => {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: useOAuth ? `OAuth ${config.value.oauthToken}` : "",
+      },
+    })
 
-  if (!response.ok) throw new Error(`Failed to GET: ${response.status} - ${await response.text()}`)
+    return response
+  }
+
+  const response = await sendRequest()
+
+  if (!response.ok) {
+    if ((response.status === 401 || response.status === 403) && !clientIdRefreshing) {
+      // 尝试刷新一次client_id
+      await refreshClientId()
+      const response = await sendRequest()
+      if (!response.ok) {
+        throw new Error(`Failed to GET: ${response.status} - ${await response.text()}`)
+      }
+    }
+
+    throw new Error(`Failed to GET: ${response.status} - ${await response.text()}`)
+  }
 
   return response
+}
+
+// client_id helper from yt-dlp
+export async function refreshClientId() {
+  clientIdRefreshing = true // 防止无限循环刷新
+
+  const webpage = await fetch("https://soundcloud.com/")
+  const html = await webpage.text()
+  const scriptMatches = html.matchAll(/<script[^>]+src="([^"]+)"[^>]*>/g)
+
+  for (const match of Array.from(scriptMatches).reverse()) {
+    const scriptUrl = match[1]
+    try {
+      const script = await fetch(scriptUrl)
+      const scriptText = await script.text()
+      const clientIdMatch = scriptText.match(/client_id\s*:\s*"([0-9a-zA-Z]{32})"/)
+      if (clientIdMatch) {
+        config.value.clientId = clientIdMatch[1]
+        return
+      }
+    } catch (error) {
+      console.warn(`Failed to fetch script from ${scriptUrl}:`, error)
+      continue
+    }
+  }
+
+  clientIdRefreshing = false
+  throw new Error("Unable to extract client id")
 }
 
 export interface BasicUserInfo {
@@ -77,10 +129,3 @@ export async function getUserInfo() {
     }
   }
 }
-
-export function setApi(_clientId: string, _oauthToken: string) {
-  clientId = _clientId
-  oauthToken = _oauthToken
-}
-
-// 下载部分: credits to soundcloud.ts

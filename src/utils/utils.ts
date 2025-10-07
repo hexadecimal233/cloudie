@@ -20,5 +20,10 @@ export function formatMillis(millis: number) {
 }
 
 export function checkFFmpeg() {
-  
+ 
+  // TODO: 检查 ffmpeg 是否存在
+}
+
+export function getArtist(track: any) {
+  return track.publisher_metadata?.artist || track.user?.username
 }

@@ -1,31 +1,31 @@
 <template>
-  <div class="flex flex-col">
+  <div v-if="!currentItem" class="flex flex-col">
     <!-- 空状态 TODO: 搜索歌单名字 -->
-    <div v-if="items.length === 0" class="text-center py-8">
-      <div class="text-lg mb-2">这里空空如也 (。・ω・。)</div>
-      <div class="text-sm text-base-content/70">请尝试刷新或者调整搜索条件</div>
+    <div v-if="items.length === 0" class="py-8 text-center">
+      <div class="mb-2 text-lg">这里空空如也 (。・ω・。)</div>
+      <div class="text-base-content/70 text-sm">请尝试刷新或者调整搜索条件</div>
     </div>
 
     <!-- <span v-if="searchQuery">{{ items.length }} 个结果</span> -->
 
     <!-- 歌单网格 -->
-    <div class="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+    <div class="grid grid-cols-3 gap-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
       <div
         v-for="item in items"
         :key="item.playlist?.id || item.system_playlist.id"
-        @click="open(item.playlist || item.system_playlist)"
+        @click="open(item)"
         :title="item.playlist?.title || item.system_playlist.title"
-        class="bg-base-200 rounded-box outline flex flex-col gap-1 overflow-hidden hover:-translate-y-1 hover:opacity-70 hover:cursor-pointer transition-all">
-        <div class="relative w-full bg-base-300">
-          <img :src="getImageUrl(item).value" alt="cover" class="w-full h-full object-cover" />
+        class="bg-base-200 rounded-box flex flex-col gap-1 overflow-hidden outline transition-all hover:-translate-y-1 hover:cursor-pointer hover:opacity-70">
+        <div class="bg-base-300 relative w-full">
+          <img :src="getImageUrl(item).value" alt="cover" class="h-full w-full object-cover" />
           <!-- TODO: 加载中占位 -->
         </div>
 
         <div class="flex flex-col p-3">
-          <div class="font-bold truncate text-base-content">
+          <div class="text-base-content truncate font-bold">
             {{ item.playlist?.title || item.system_playlist.title }}
           </div>
-          <div class="text-sm truncate mt-1">
+          <div class="mt-1 truncate text-sm">
             {{
               item.playlist?.user?.username ||
               `为 ${item.system_playlist.made_for?.username} 创作` ||
@@ -37,24 +37,69 @@
       </div>
     </div>
 
-    <div class="flex justify-center items-center pt-4">
+    <div class="flex items-center justify-center pt-4">
       <slot name="bottom"></slot>
     </div>
+  </div>
+
+  <div v-else>
+    <button class="btn btn-primary" @click="currentItem = null">返回</button>
+    <!-- TODO: 歌单标题-->
+    <TrackList :tracks="currentItem" :playlist-name="playlistName"></TrackList>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue"
+import { computed, ref } from "vue"
 import { replaceImageUrl } from "../utils/utils"
+import { getV2ApiJson } from "../utils/api"
+import TrackList from "./TrackList.vue"
+
+const playlistTracksCache = ref<Record<number | string, any[]>>({}) // 系统播单id是string，歌单id是number
+const currentItem = ref<any>(null)
+const playlistName = ref("")
 
 const props = defineProps<{
   items: any[]
   cache: Record<number, any> // TODO: 性能优化
 }>()
 
-function open(item: any) {
-  // TODO: 实现打开逻辑
-  alert(`打开 ${item.playlist?.title || item.system_playlist.title}`)
+// TODO: 可视化加载
+async function open(item: any) {
+  if (playlistTracksCache.value[item.playlist?.id || item.system_playlist.id]) {
+    currentItem.value = playlistTracksCache.value[item.playlist?.id || item.system_playlist.id]
+  }
+
+  try {
+    let partialTracks: any[]
+    if (item.playlist) {
+      partialTracks = (
+        await getV2ApiJson(`/playlists/${item.playlist.id}`, { representation: "full" })
+      ).tracks
+    } else {
+      partialTracks = item.system_playlist.tracks
+    }
+
+    // 一次请求最多50个id (并行)
+    const promises = []
+    for (let i = 0; i < partialTracks.length; i += 50) {
+      promises.push(
+        getV2ApiJson("/tracks", {
+          ids: partialTracks
+            .slice(i, i + 50)
+            .map((item: any) => item.id)
+            .join(","),
+        }),
+      )
+    }
+    const finalTracks = (await Promise.all(promises)).flat()
+
+    playlistName.value = item.playlist?.title || item.system_playlist.title
+    playlistTracksCache.value[item.playlist?.id || item.system_playlist.id] = finalTracks
+    currentItem.value = finalTracks
+  } catch (err) {
+    console.log(err) // TODO: 处理错误
+  }
 }
 
 function getImageUrl(item: any) {
