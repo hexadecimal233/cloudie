@@ -224,6 +224,8 @@ function download(track: any) {
 }
 
 // TODO: 检测可能的免费下载
+/*
+
 function isPossibleFreeDownload(track: any): boolean {
   // 检测简介或者标题 是否包含 FREE DOWNLOAD
   let isFreeDownload = false
@@ -251,6 +253,7 @@ function isPossibleFreeDownload(track: any): boolean {
 
   return isFreeDownload
 }
+*/
 
 const props = defineProps<{
   tracks: any[]
