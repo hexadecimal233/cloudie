@@ -65,12 +65,6 @@
             设置
           </router-link>
         </li>
-        <li>
-          <router-link to="/about">
-            <Icon icon="mdi:information-outline" height="auto" />
-            关于
-          </router-link>
-        </li>
       </ul>
     </div>
 

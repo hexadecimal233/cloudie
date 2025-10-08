@@ -9,11 +9,6 @@ const router = createRouter({
       component: () => import("./views/ListeningView.vue"),
     },
     {
-      path: "/about",
-      name: "关于",
-      component: () => import("./views/AboutView.vue"),
-    },
-    {
       path: "/settings",
       name: "设置",
       component: () => import("./views/SettingsView.vue"),
@@ -43,7 +38,7 @@ const router = createRouter({
       name: "下载队列",
       component: () => import("./views/DownloadsView.vue"),
     },
-    { path: "/:pathMatch(.*)*", redirect: "/about" },
+    { path: "/:pathMatch(.*)*", redirect: "/settings" },
   ],
   linkActiveClass: "menu-active",
   linkExactActiveClass: "menu-active",

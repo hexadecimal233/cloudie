@@ -114,9 +114,9 @@
               <button class="btn btn-ghost btn-sm" @click="download(getTrack(item))">
                 <Icon icon="mdi:download" height="auto" />
               </button>
-              <button class="btn btn-ghost btn-sm" @click="openUrl(getTrack(item).permalink_url)">
+              <a class="btn btn-ghost btn-sm" :href="getTrack(item).permalink_url" target="_blank">
                 <Icon icon="mdi:open-in-new" height="auto" />
-              </button>
+              </a>
             </div>
           </td>
         </tr>
@@ -140,7 +140,6 @@ import { ref, computed } from "vue"
 import { formatMillis, getArtist } from "../utils/utils"
 import { addDownloadTask } from "../utils/download"
 import { Icon } from "@iconify/vue"
-import { openUrl } from "@tauri-apps/plugin-opener"
 
 // 音乐显示
 

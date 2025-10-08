@@ -2,7 +2,7 @@ import { load, Store } from "@tauri-apps/plugin-store"
 import { ref, watch } from "vue"
 import { refreshClientId } from "./api"
 
-export interface Config {
+interface Config {
   // 下载
   savePath: string
   parallelDownloads: number
@@ -10,6 +10,7 @@ export interface Config {
   preferDirectDownload: boolean
   nonMp3Convert: true // TODO: 非MP3文件是否转换
   fileNaming: "title-artist" | "artist-title" | "title"
+  addCover: boolean // TODO: 下载时是否添加封面
   // 杂项
   analyzeBpmAndKey: boolean
   virtualDjSupport: boolean
@@ -19,12 +20,13 @@ export interface Config {
 }
 
 // 默认配置
-export const defaultConfig: Config = {
+const defaultConfig: Config = {
   savePath: "",
   parallelDownloads: 3,
   playlistSeparateDir: true,
   preferDirectDownload: false,
   nonMp3Convert: true,
+  addCover: false,
   fileNaming: "title-artist",
   analyzeBpmAndKey: false,
   virtualDjSupport: false,
@@ -47,6 +49,7 @@ async function getConfigValue<T>(key: keyof Config): Promise<T> {
   return value as T
 }
 
+// 加载所有配置
 export async function loadConfig() {
   store = await load("cloudie.json", {
     autoSave: false,
@@ -55,7 +58,6 @@ export async function loadConfig() {
 
   const cfg: Partial<Config> = {}
 
-  // Automatically iterate through all Config keys
   for (const key of Object.keys(defaultConfig) as (keyof Config)[]) {
     cfg[key] = await getConfigValue(key)
   }
@@ -68,8 +70,8 @@ export async function loadConfig() {
   }
 }
 
-// 自动保存所有配置属性
-export async function saveConfig(): Promise<void> {
+// 保存所有配置
+async function saveConfig(): Promise<void> {
   const currentConfig = config.value
 
   for (const key of Object.keys(currentConfig) as (keyof Config)[]) {

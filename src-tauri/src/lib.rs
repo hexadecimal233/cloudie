@@ -83,13 +83,14 @@ fn ffmpeg_muxer(
 async fn download_logic(
     download_type: &DownloadInfo,
 ) -> Result<DownloadMeta, Box<dyn std::error::Error>> {
-    let client = Client::new(); // fun fact 这里不用加header也能下载
+    let client = Client::new(); // fun fact: 这里不用加header也能下载
 
     match download_type.download_type.as_str() {
         // 直链下载
         "direct" => {
             let response = client.get(&download_type.final_url).send().await?;
 
+            // Content-Disposition 有扩展但就这么做（）
             let extension = response
                 .headers()
                 .get("x-amz-meta-file-type")
@@ -123,7 +124,7 @@ async fn download_logic(
             let response = client.get(&download_type.final_url).send().await?;
             let bytes = response.bytes().await?.to_vec();
 
-            let extension = if download_type.preset.as_str().starts_with("mp3") {
+            let extension = if download_type.preset.as_str().contains("mp3") {
                 "mp3"
             } else {
                 "m4a"
