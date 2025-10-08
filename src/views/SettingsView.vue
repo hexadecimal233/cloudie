@@ -110,7 +110,7 @@
 
         <span class="text-xl font-bold">Cloudie</span>
 
-        <span>一个可爱的 Soundcloud 下载工具</span>
+        <span>一个可爱的 Soundcloud 客户端</span>
 
         <span>版本: {{ versionInfo.version }}</span>
         <span>最新: {{ versionInfo.latestVersion }}</span>

@@ -1,5 +1,6 @@
 name: "dev"
 
+# FIXME: Fix the CI on linux arm & fix mac not uploading artifacts
 on:
   workflow_dispatch:
   push:

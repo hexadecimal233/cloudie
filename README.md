@@ -1,12 +1,52 @@
-# Tauri + Vue + TypeScript
+# Cloudie
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+<div align="center">
+<img src="public/logo.png" alt="logo" width=500 />
+</div>
 
-## Recommended IDE Setup
+<p align="center">
+Cloudie -- Yet another Kawaii Soundcloud Client.
+</p>
 
-- [VS Code](https://code.visualstudio.com/) + [Vue - Official](https://marketplace.visualstudio.com/items?itemName=Vue.volar) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+## Features
 
-Soundcloud Downloaders are sh\*t. Let us fix it.
+> [!WARNING]
+> This project is still under heavy development, and many features are not yet implemented or may not work as expected.
+
+- [ ] Browse Soundcloud tracks
+- [x] Login support
+- [ ] Download tracks from Soundcloud
+- [x] Play tracks on Soundcloud
+- [ ] I18N support
+- [ ] Audio metadata support
+- [ ] Auto add playlists to DJ software (TODO: dynamic playlist support)
+
+## Logging in
+
+TODO: TBA
+
+## Setting up the Project
+
+1. Clone the repository.
+2. Install dependencies: `pnpm install`
+3. Run the project: `pnpm tauri dev`
+4. (Optional) Build the project: `pnpm tauri build`
+
+> [!NOTE]
+> We use PNPM as our package manager, so make sure you have it installed.
+>
+> Recommended IDE Setup:
+> [VS Code](https://code.visualstudio.com/) + [Vue - Official](https://marketplace.visualstudio.com/items?itemName=Vue.volar) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+
+## Contributing
+
+Report Issues / Submit Feature Requests: [Issues](https://github.com/hexadecimal233/cloudie/issues)
+
+Pull Requests: [Pull Requests](https://github.com/hexadecimal233/cloudie/pulls)
+
+<!-- 也许加一个捐助功能 -->
+
+## TODO List
 
 - [ ] 图标重新设计
 - [ ] 用户状态管理
