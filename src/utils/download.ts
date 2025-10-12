@@ -108,7 +108,7 @@ function runTask(task: DownloadTask) {
  */
 interface Transcoding {
   url: string
-  preset: "aac_160k" | "mp3_1_0" | "opus_0_0" | "abr_sq" | "mp3_0_1" | "mp3_standard" | "mp3_0_0" // note: opus(480k) > aac(160k) > mp3 (128k)，后面四个在老一点的歌曲会遇到
+  preset: "aac_160k" | "mp3_1_0" | "opus_0_0" | "abr_sq" | "mp3_0_1" | "mp3_standard" | "mp3_0_0"
   duration: number // in millis
   snipped: boolean
   format: {
@@ -168,20 +168,7 @@ async function getDownloadInfo(track: any): Promise<DownloadInfo> {
   const transcodings = sortTranscodings(track, "hls")
 
   if (transcodings.length > 0) {
-    console.log("正在下载Opus编码")
-    let trans = transcodings.find((t: Transcoding) => t.preset === "opus_0_0")
-    if (trans) {
-      try {
-        const m3u8meta = await getJson(trans.url, true, true)
-        return {
-          finalUrl: m3u8meta.url,
-          downloadType: trans.format.protocol,
-          preset: trans.preset,
-        }
-      } catch (err) {
-        console.log("下载Opus编码失败: ", err)
-      }
-    }
+    let trans: Transcoding | undefined
 
     console.log("正在下载AAC编码")
     trans = transcodings.find((t: Transcoding) => t.preset === "aac_160k")
@@ -195,6 +182,21 @@ async function getDownloadInfo(track: any): Promise<DownloadInfo> {
         }
       } catch (err) {
         console.log("下载AAC编码失败: ", err)
+      }
+    }
+
+    console.log("正在下载Opus编码")
+    trans = transcodings.find((t: Transcoding) => t.preset === "opus_0_0")
+    if (trans) {
+      try {
+        const m3u8meta = await getJson(trans.url, true, true)
+        return {
+          finalUrl: m3u8meta.url,
+          downloadType: trans.format.protocol,
+          preset: trans.preset,
+        }
+      } catch (err) {
+        console.log("下载Opus编码失败: ", err)
       }
     }
 

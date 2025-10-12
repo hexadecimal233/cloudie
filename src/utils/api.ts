@@ -80,6 +80,7 @@ export async function refreshClientId() {
       const clientIdMatch = scriptText.match(/client_id\s*:\s*"([0-9a-zA-Z]{32})"/)
       if (clientIdMatch) {
         config.value.clientId = clientIdMatch[1]
+        clientIdRefreshing = false
         return
       }
     } catch (error) {

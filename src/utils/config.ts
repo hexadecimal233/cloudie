@@ -1,18 +1,18 @@
 import { load, Store } from "@tauri-apps/plugin-store"
 import { ref, watch } from "vue"
 import { refreshClientId } from "./api"
-import { i18n } from "../main"
+import { createI18n } from "vue-i18n"
 
 class Config {
   //外观
   language: "zh-cn" | "en-us" = "zh-cn"
-  theme: "light" | "dark" = "light"
+  theme: "light" | "dark" = "light" // TODO: 主题
   // 下载
   savePath: string = ""
   parallelDownloads: number = 3
   playlistSeparateDir: boolean = true
   preferDirectDownload: boolean = false
-  nonMp3Convert: true = true // TODO: 非MP3文件是否转换
+  nonMp3Convert: true = true // TODO: 非 mp3 文件是否转换为 mp3
   fileNaming: "title-artist" | "artist-title" | "title" = "title-artist"
   addCover: boolean = false // TODO: 下载时是否添加封面
   // 杂项
@@ -30,6 +30,15 @@ class Config {
 }
 
 let store: Store
+export const i18n = createI18n({
+  legacy: false,
+  locale: "en-us",
+  fallbackLocale: "en-us",
+  messages: {
+    "zh-cn": await import("../assets/i18n/zh-cn.json"),
+    "en-us": await import("../assets/i18n/en-us.json"),
+  },
+})
 
 // 响应式配置
 export const config = ref(new Config())

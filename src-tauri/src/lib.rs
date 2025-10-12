@@ -1,6 +1,5 @@
-use std::io::Read;
 use std::path::PathBuf;
-use std::process::{Command, Stdio};
+use std::process::Command;
 
 use regex::Regex;
 use reqwest::{self, Client};
@@ -32,51 +31,6 @@ struct DownloadMeta {
 fn sanitize(text: &str) -> String {
     let re = Regex::new(r#"[\\/:*?\"<>|]"#).unwrap();
     re.replace_all(text, "_").to_string()
-}
-
-/// 调用FFmpeg进行Muxing
-/// 目前只有AAC需要转码
-fn ffmpeg_muxer(
-    m3u8_url: &str,
-    output_format: &str,
-) -> Result<Vec<u8>, Box<dyn std::error::Error + Send + Sync>> {
-    let args = vec![
-        "-y",
-        "-loglevel",
-        "warning",
-        "-i",
-        m3u8_url,
-        "-bsf:a",
-        "aac_adtstoasc", // audio bitstream filter
-        "-vcodec",
-        "copy",
-        "-c",
-        "copy",
-        "-crf",
-        "50", // constant rate factor
-        "-f",
-        output_format,
-        "-", // to stdout
-    ];
-
-    let mut command = Command::new("ffmpeg");
-    command.args(args).stdout(Stdio::piped());
-
-    let mut child = command.spawn()?;
-    let mut stdout = match child.stdout.take() {
-        Some(s) => s,
-        None => return Err("Failed to capture FFmpeg stdout".into()),
-    };
-
-    let mut buffer = Vec::new();
-    stdout.read_to_end(&mut buffer)?;
-
-    let status = child.wait()?;
-    if !status.success() {
-        return Err(format!("FFmpeg failed with status: {:?}", status).into());
-    }
-
-    Ok(buffer)
 }
 
 /// 核心下载逻辑
@@ -143,10 +97,45 @@ async fn download_logic(
             if preset == "aac_160k" {
                 // 使用 FFmpeg 处理 HLS M4A 流
                 let m3u8_url = download_type.final_url.clone();
+                let temp_name = format!("cloudie_temp_{}.m4a", uuid::Uuid::new_v4());
 
-                let bytes = tokio::task::spawn_blocking(move || ffmpeg_muxer(&m3u8_url, "mp4"))
-                    .await?
-                    .map_err(|e| Box::<dyn std::error::Error>::from(e.to_string()))?;
+                let temp_name_clone = temp_name.clone();
+
+                tokio::task::spawn_blocking(move || {
+                    let args = vec![
+                        "-y",
+                        "-loglevel",
+                        "warning",
+                        "-i",
+                        &m3u8_url,
+                        "-bsf:a",
+                        "aac_adtstoasc", // audio bitstream filter
+                        "-vcodec",
+                        "copy",
+                        "-c",
+                        "copy",
+                        "-crf",
+                        "50", // constant rate factor
+                        &temp_name,
+                    ];
+
+                    let mut command = Command::new("ffmpeg");
+                    command.args(args);
+
+                    let mut child = command.spawn()?;
+
+                    let status = child.wait()?;
+                    if !status.success() {
+                        return Err(format!("FFmpeg failed with status: {:?}", status).into());
+                    }
+
+                    Ok(())
+                })
+                .await?
+                .map_err(|e: Box<dyn std::error::Error + Send + Sync>| e.to_string())?;
+
+                let bytes = std::fs::read(&temp_name_clone)?;
+                std::fs::remove_file(&temp_name_clone)?;
 
                 return Ok(DownloadMeta {
                     bytes,
@@ -247,6 +236,11 @@ async fn download_track(
             .and_then(|v| v.as_bool())
             .ok_or("Failed to get playlistSeparateDir from config")?;
 
+        let convert_non_mp3 = store
+            .get("nonMp3Convert")
+            .and_then(|v| v.as_bool())
+            .ok_or("Failed to get nonMp3Convert from config")?;
+
         let response = download_logic(&download_info)
             .await
             .map_err(|e| e.to_string())?;
@@ -284,16 +278,23 @@ async fn download_track(
             save_path.join(format!("{}.{}", filename, response.extension))
         };
 
+        // let final_bytes = if convert_non_mp3 {
+        //     ffmpeg_convert(&response).map_err(|e| e.to_string())?
+        // } else {
+        //     response.bytes.clone()
+        // };
+
         // 4. 文件保存 (使用 spawn_blocking 处理文件 I/O)
         // TODO: 优化为将文件不写到Vec<u8>，直接写入文件
         let dest_str = dest.to_string_lossy().to_string();
 
-        let _ = tokio::task::spawn_blocking(move || -> Result<(), std::io::Error> {
+        tokio::task::spawn_blocking(move || -> Result<(), std::io::Error> {
             let mut file = std::fs::File::create(&dest)?;
             std::io::copy(&mut response.bytes.as_slice(), &mut file)?;
             Ok(())
         })
         .await
+        .map_err(|e| e.to_string())?
         .map_err(|e| e.to_string())?;
 
         Ok(DownloadResponse {
