@@ -1,5 +1,4 @@
 <template>
-  <!-- FIXME: 有时不更新？？？-->
   <!-- 更新用户UX -->
   <button @click="clearDownloadQueue" class="btn btn-sm btn-error">
     {{ $t("cloudie.downloads.clearAll") }}

@@ -110,7 +110,7 @@
 
       <!-- TODO: add tutorial -->
       <input
-        type="text"
+        type="password"
         class="input"
         :placeholder="$t('cloudie.settings.config.oauthToken')"
         v-model="config.oauthToken" />
