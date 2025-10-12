@@ -2,8 +2,8 @@
   <div v-if="!currentItem" class="flex flex-col">
     <!-- 空状态 TODO: 搜索歌单名字 -->
     <div v-if="items.length === 0" class="py-8 text-center">
-      <div class="mb-2 text-lg">这里空空如也 (。・ω・。)</div>
-      <div class="text-base-content/70 text-sm">请尝试刷新或者调整搜索条件</div>
+      <div class="mb-2 text-lg">{{ $t("cloudie.common.empty") }}</div>
+      <div class="text-base-content/70 text-sm">{{ $t("cloudie.common.emptyDesc") }}</div>
     </div>
 
     <!-- <span v-if="searchQuery">{{ items.length }} 个结果</span> -->
@@ -28,7 +28,7 @@
           <div class="mt-1 truncate text-sm">
             {{
               item.playlist?.user?.username ||
-              `为 ${item.system_playlist.made_for?.username} 创作` ||
+              $t("cloudie.playlists.madeFor", { name: item.system_playlist.made_for?.username }) ||
               item.system_playlist.description
             }}
           </div>
@@ -43,7 +43,7 @@
   </div>
 
   <div v-else>
-    <button class="btn btn-primary" @click="currentItem = null">返回</button>
+    <button class="btn btn-primary" @click="currentItem = null">返回 TODO: 图标</button>
     <!-- TODO: 歌单标题-->
     <TrackList :tracks="currentItem" :playlist-name="playlistName"></TrackList>
   </div>

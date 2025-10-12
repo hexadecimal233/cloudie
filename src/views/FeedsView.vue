@@ -1,5 +1,7 @@
 <template>
-  <div>TODO: 试听列表</div>
+  <div></div>
 </template>
 
 <script setup lang="ts"></script>
+
+<style scoped></style>

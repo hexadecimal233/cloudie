@@ -1,39 +1,41 @@
 <template>
   <!-- FIXME: 有时不更新？？？-->
   <!-- 更新用户UX -->
-  <button @click="clearDownloadQueue" class="btn btn-sm btn-error">清空下载队列</button>
+  <button @click="clearDownloadQueue" class="btn btn-sm btn-error">
+    {{ $t("cloudie.downloads.clearAll") }}
+  </button>
 
   <div class="tabs tabs-border mb-6">
     <input
       type="radio"
       name="download_tabs"
       class="tab"
-      aria-label="所有下载"
+      :aria-label="$t('cloudie.downloads.allDownloads')"
       @click="activeTab = 'all'"
       checked />
     <input
       type="radio"
       name="download_tabs"
       class="tab"
-      aria-label="下载中"
+      :aria-label="$t('cloudie.downloads.downloading')"
       @click="activeTab = 'downloading'" />
     <input
       type="radio"
       name="download_tabs"
       class="tab"
-      aria-label="已完成"
+      :aria-label="$t('cloudie.downloads.completed')"
       @click="activeTab = 'completed'" />
     <input
       type="radio"
       name="download_tabs"
       class="tab"
-      aria-label="已暂停"
+      :aria-label="$t('cloudie.downloads.paused')"
       @click="activeTab = 'paused'" />
     <input
       type="radio"
       name="download_tabs"
       class="tab"
-      aria-label="失败"
+      :aria-label="$t('cloudie.downloads.failed')"
       @click="activeTab = 'failed'" />
   </div>
 
@@ -41,11 +43,11 @@
     <!-- TODO: 打开目录/系统播放器 -->
     <thead>
       <tr>
-        <th>歌曲信息</th>
-        <th>歌单</th>
-        <th>时间</th>
-        <th>元文件名</th>
-        <th>状态</th>
+        <th>{{ $t("cloudie.downloads.songInfo") }}</th>
+        <th>{{ $t("cloudie.downloads.playlist") }}</th>
+        <th>{{ $t("cloudie.downloads.duration") }}</th>
+        <th>{{ $t("cloudie.downloads.origFileName") }}</th>
+        <th>{{ $t("cloudie.downloads.status") }}</th>
         <th></th>
       </tr>
     </thead>
@@ -64,7 +66,7 @@
           {{ item.origFileName }}
         </td>
         <td>
-          {{ getStatusText(item.status) }}
+          {{ $t(`cloudie.downloads.${item.status}`) }}
         </td>
         <td>
           <div class="flex">
@@ -135,18 +137,6 @@ function tryOpenItem(item: DownloadTask) {
     // TODO: 显示文件已删除
     console.error("打开目录失败:", error)
   }
-}
-
-function getStatusText(status: string) {
-  const statusMap = {
-    downloading: "下载中",
-    getinfo: "获取信息中",
-    paused: "已暂停",
-    completed: "已完成",
-    failed: "下载失败",
-    pending: "排队中",
-  }
-  return statusMap[status as keyof typeof statusMap]
 }
 
 const pauseDownload = async (_trackId: number) => {

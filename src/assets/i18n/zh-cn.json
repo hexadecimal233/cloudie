@@ -1,0 +1,98 @@
+{
+  "cloudie": {
+    "main": {
+      "searchBar": "搜索 (暂未实现)",
+      "likes": "喜欢的音乐",
+      "playlists": "歌单与专辑",
+      "radio": "电台",
+      "history": "播放历史",
+      "listening": "试听列表",
+      "downloads": "下载",
+      "settings": "设置",
+      "feeds": "推荐"
+    },
+    "downloads": {
+      "clearAll": "清空所有下载",
+      "allDownloads": "所有下载",
+      "downloading": "下载中",
+      "getinfo": "获取信息",
+      "completed": "已完成",
+      "failed": "失败",
+      "paused": "已暂停",
+      "pending": "排队中",
+      "songInfo": "歌曲信息",
+      "playlist": "歌单",
+      "duration": "时长",
+      "origFileName": "原文件名",
+      "status": "状态"
+    },
+    "trackList": {
+      "downloadSelected": "下载选中",
+      "search": "搜索",
+      "selected": "选中: {count}",
+      "searchResult": "{count} 项结果",
+      "song": "歌曲",
+      "genre": "流派",
+      "duration": "时长",
+      "downloadability": "可下载性",
+      "direct": "直链",
+      "geoRestrict": "地区限制",
+      "premium": "会员专属",
+      "source": "{count} 轨"
+    },
+    "playlists": {
+      "playlist": "歌单",
+      "album": "专辑",
+      "systemPlaylist": "系统推荐",
+      "madeFor": "为 {name} 推荐"
+    },
+    "common": {
+      "loading": "加载中...",
+      "noMore": "没有更多了",
+      "loadMore": "加载更多",
+      "empty": "这里空空如也 (。・ω・。)",
+      "emptyDesc": "请尝试刷新或者调整搜索条件"
+    },
+    "settings": {
+      "config": {
+        "savePath": "保存路径",
+        "parallelDownloads": "并行下载数量",
+        "playlistSeparateDir": "将播单下载保存到单独目录",
+        "preferDirectDownload": "优先直链下载",
+        "nonMp3Convert": "非 MP3 文件是否转换为 MP3 或 FLAC",
+        "fileNaming": "文件命名方式",
+        "addCover": "嵌入封面",
+        "analyzeBpmAndKey": "将 BPM 和调性保存到本地",
+        "virtualDjSupport": "VirtualDJ 助手",
+        "clientId": "Soundcloud 客户端 ID",
+        "oauthToken": "Soundcloud OAuth 令牌",
+        "theme": "主题",
+        "language": "语言"
+      },
+      "fileNamingTypes": {
+        "title": "标题",
+        "artistTitle": "艺术家 - 标题",
+        "titleArtist": "标题 - 艺术家"
+      },
+      "themeTypes": {
+        "dark": "暗黑 (TODO: change a name)",
+        "light": "亮色 (TODO: change a name)"
+      },
+      "sections": {
+        "appearance": "外观",
+        "download": "下载",
+        "misc": "杂项",
+        "login": "登录",
+        "about": "关于"
+      },
+      "about": {
+        "desc": "一个可爱的 Soundcloud 客户端",
+        "version": "版本: {version}, 最新版本: {latestVersion}",
+        "versionFailure": "版本检查失败",
+        "visitReleases": "访问发布页面",
+        "repo": "项目地址",
+        "issue": "问题反馈"
+      }
+    }
+  }
+}

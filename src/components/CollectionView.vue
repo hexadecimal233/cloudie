@@ -3,15 +3,15 @@
     <template #bottom>
       <template v-if="loading">
         <div class="loading loading-spinner loading-lg"></div>
-        <span class="ml-2">加载中...</span>
+        <span class="ml-2">{{ $t("cloudie.common.loading") }}</span>
       </template>
 
       <template v-else-if="hasNext">
-        <button class="btn" @click="fetchNext">加载更多</button>
+        <button class="btn" @click="fetchNext">{{ $t("cloudie.common.loadMore") }}</button>
       </template>
 
       <template v-else>
-        <span class="ml-2">没有更多了</span>
+        <span class="ml-2">{{ $t("cloudie.common.noMore") }}</span>
       </template>
     </template>
   </TrackList>

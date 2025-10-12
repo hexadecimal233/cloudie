@@ -1,8 +1,14 @@
 <template>
   <div class="mb-2 flex justify-end gap-2">
-    <button class="btn btn-primary" @click="downloadSelected">下载选中</button>
+    <button class="btn btn-primary" @click="downloadSelected">
+      {{ $t("cloudie.trackList.downloadSelected") }}
+    </button>
     <div class="join">
-      <input type="text" placeholder="搜索" class="join-item input" v-model="searchQuery" />
+      <input
+        type="text"
+        :placeholder="$t('cloudie.trackList.search')"
+        class="join-item input"
+        v-model="searchQuery" />
 
       <div class="btn join-item">
         <Icon icon="mdi:tag" height="auto"></Icon>
@@ -29,13 +35,15 @@
       </div>
     </div>
 
-    <span>已选: {{ selectedIds.length }}</span>
+    <span>{{ $t("cloudie.trackList.selected", { count: selectedIds.length }) }}</span>
   </div>
 
   <!-- 加载状态 -->
 
   <div class="flex flex-col">
-    <span v-if="searchQuery">{{ filteredItems.length }} 个结果</span>
+    <span v-if="searchQuery">
+      {{ $t("cloudie.trackList.searchResult", { count: filteredItems.length }) }}
+    </span>
 
     <table class="table w-full table-fixed">
       <thead>
@@ -48,10 +56,10 @@
               :checked="selectedIds.length === filteredItems.length && filteredItems.length > 0" />
           </th>
           <th>#</th>
-          <th>标题</th>
-          <th>风格</th>
-          <th>时长</th>
-          <th>可下载性</th>
+          <th>{{ $t("cloudie.trackList.song") }}</th>
+          <th>{{ $t("cloudie.trackList.genre") }}</th>
+          <th>{{ $t("cloudie.trackList.duration") }}</th>
+          <th>{{ $t("cloudie.trackList.downloadability") }}</th>
           <th></th>
         </tr>
       </thead>
@@ -97,14 +105,22 @@
 
           <td>
             <div class="flex gap-2">
-              <div v-if="getTrack(item).downloadable" class="badge badge-success">直链</div>
+              <div v-if="getTrack(item).downloadable" class="badge badge-success">
+                {{ $t("cloudie.trackList.direct") }}
+              </div>
               <div v-else-if="getTrack(item).policy === 'BLOCK'" class="badge badge-warning">
-                地区
+                {{ $t("cloudie.trackList.geoRestrict") }}
               </div>
               <div v-else-if="getTrack(item).policy === 'SNIP'" class="badge badge-warning">
-                会员
+                {{ $t("cloudie.trackList.premium") }}
               </div>
-              <div v-else class="badge">{{ getTrack(item).media.transcodings.length }} 轨</div>
+              <div v-else class="badge">
+                {{
+                  $t("cloudie.trackList.source", {
+                    count: getTrack(item).media.transcodings.length,
+                  })
+                }}
+              </div>
               <!-- 未知：MONETIZE-->
             </div>
           </td>
@@ -125,8 +141,12 @@
 
     <!-- 空状态 -->
     <div v-if="filteredItems.length === 0" class="py-8 text-center">
-      <div class="mb-2 text-lg">这里空空如也 (。・ω・。)</div>
-      <div class="text-base-content/70 text-sm">请尝试刷新或者调整搜索条件</div>
+      <div class="mb-2 text-lg">
+        {{ $t("cloudie.common.empty") }}
+      </div>
+      <div class="text-base-content/70 text-sm">
+        {{ $t("cloudie.common.emptyDesc") }}
+      </div>
     </div>
 
     <div class="flex items-center justify-center pt-4">
@@ -289,7 +309,7 @@ td:nth-child(5) {
 
 th:nth-child(6),
 td:nth-child(6) {
-  width: 6rem;
+  width: 8rem;
 } /* 可下载性列 */
 
 th:nth-child(7),

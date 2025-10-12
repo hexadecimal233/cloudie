@@ -1,0 +1,98 @@
+{
+  "cloudie": {
+    "main": {
+      "searchBar": "Search (unimplemented yet)",
+      "likes": "Likes",
+      "playlists": "Playlists & Albums",
+      "radio": "Radio",
+      "history": "Play History",
+      "listening": "Listening List",
+      "downloads": "Downloads",
+      "settings": "Settings",
+      "feeds": "Feeds"
+    },
+    "downloads": {
+      "clearAll": "Clear All Downloads",
+      "allDownloads": "All Downloads",
+      "downloading": "Downloading",
+      "getinfo": "Getting Info",
+      "completed": "Completed",
+      "failed": "Failed",
+      "paused": "Paused",
+      "pending": "Pending",
+      "songInfo": "Song Info",
+      "playlist": "Playlist",
+      "duration": "Duration",
+      "origFileName": "Original File Name",
+      "status": "Status"
+    },
+    "trackList": {
+      "downloadSelected": "Download Selected",
+      "search": "Search",
+      "selected": "Selected: {count}",
+      "searchResult": "{count} items found",
+      "song": "Song",
+      "genre": "Genre",
+      "duration": "Duration",
+      "downloadability": "Downloadability",
+      "direct": "DL",
+      "geoRestrict": "Geo",
+      "premium": "Premium",
+      "source": "{count} Sources"
+    },
+    "playlists": {
+      "playlist": "Playlist",
+      "album": "Album",
+      "systemPlaylist": "System Playlist",
+      "madeFor": "Made for {name}"
+    },
+    "common": {
+      "loading": "Loading...",
+      "noMore": "No More",
+      "loadMore": "Load More",
+      "empty": "Nothing Here (。・ω・。)",
+      "emptyDesc": "Please try refreshing or adjusting your query."
+    },
+    "settings": {
+      "config": {
+        "savePath": "Save Path",
+        "parallelDownloads": "Parallel Downloads",
+        "playlistSeparateDir": "Separate Playlist Download Folder",
+        "preferDirectDownload": "Prefer Direct Download",
+        "nonMp3Convert": "Convert Non-MP3 Files to MP3 or FLAC",
+        "fileNaming": "File Naming",
+        "addCover": "Embed Cover",
+        "analyzeBpmAndKey": "Analyze BPM and Key Locally",
+        "virtualDjSupport": "VirtualDJ Support",
+        "clientId": "Soundcloud Client ID",
+        "oauthToken": "Soundcloud OAuth Token",
+        "theme": "Theme",
+        "language": "Language"
+      },
+      "fileNamingTypes": {
+        "title": "Title",
+        "artistTitle": "Artist - Title",
+        "titleArtist": "Title - Artist"
+      },
+      "themeTypes": {
+        "dark": "Dark (TODO: change a name)",
+        "light": "Light (TODO: change a name)"
+      },
+      "sections": {
+        "appearance": "Appearance",
+        "download": "Download",
+        "misc": "Miscellaneous",
+        "login": "Login",
+        "about": "About"
+      },
+      "about": {
+        "desc": "A Kawaii Soundcloud client",
+        "version": "Version: {version}, Latest Version: {latestVersion}",
+        "versionFailure": "Version Check Failed",
+        "visitReleases": "Releases",
+        "repo": "Github Repo",
+        "issue": "Report Issue"
+      }
+    }
+  }
+}

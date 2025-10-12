@@ -1,21 +1,38 @@
 <template>
   <div class="flex flex-col">
     <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">
-      <legend class="fieldset-legend">下载</legend>
+      <legend class="fieldset-legend">{{ $t("cloudie.settings.sections.appearance") }}</legend>
 
-      <label class="label">保存路径</label>
+      <label class="label cursor-pointer">{{ $t("cloudie.settings.config.language") }}</label>
+      <select class="select" v-model="config.language">
+        <option value="zh-cn">简体中文</option>
+        <option value="en">English</option>
+      </select>
+
+      <label class="label cursor-pointer">{{ $t("cloudie.settings.config.theme") }}</label>
+      <select class="select" v-model="config.theme">
+        <option value="light">{{ $t("cloudie.settings.themeTypes.light") }}</option>
+        <option value="dark">{{ $t("cloudie.settings.themeTypes.dark") }}</option>
+      </select>
+    </fieldset>
+
+    <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">
+      <legend class="fieldset-legend">{{ $t("cloudie.settings.sections.download") }}</legend>
+
+      <!-- TODO: doesnt exit displayer -->
+      <label class="label">{{ $t("cloudie.settings.config.savePath") }}</label>
       <div class="join">
         <input
           type="text"
           class="input join-item"
-          placeholder="保存路径"
+          :placeholder="$t('cloudie.settings.config.savePath')"
           v-model="config.savePath" />
         <button class="btn join-item" @click="openSavePathDialog">
           <Icon icon="mdi:folder-open" height="auto" />
         </button>
       </div>
 
-      <label class="label">并行下载数量</label>
+      <label class="label">{{ $t("cloudie.settings.config.parallelDownloads") }}</label>
       <div>
         <input
           type="range"
@@ -27,59 +44,63 @@
         {{ config.parallelDownloads }}
       </div>
 
-      <label class="label cursor-pointer">文件命名方式</label>
+      <label class="label cursor-pointer">{{ $t("cloudie.settings.config.fileNaming") }}</label>
       <select class="select" v-model="config.fileNaming">
-        <option value="title">标题</option>
-        <option value="artist-title">艺术家 - 标题</option>
-        <option value="title-artist">标题 - 艺术家</option>
+        <option value="title">{{ $t("cloudie.settings.fileNamingTypes.title") }}</option>
+        <option value="artist-title">
+          {{ $t("cloudie.settings.fileNamingTypes.artistTitle") }}
+        </option>
+        <option value="title-artist">
+          {{ $t("cloudie.settings.fileNamingTypes.titleArtist") }}
+        </option>
       </select>
 
       <label class="label cursor-pointer">
         <input type="checkbox" class="toggle" v-model="config.playlistSeparateDir" />
-        <span>将播单下载保存到单独目录</span>
+        <span>{{ $t("cloudie.settings.config.playlistSeparateDir") }}</span>
       </label>
 
       <label class="label cursor-pointer">
         <input type="checkbox" class="toggle" v-model="config.preferDirectDownload" />
-        <span>优先直链下载</span>
+        <span>{{ $t("cloudie.settings.config.preferDirectDownload") }}</span>
       </label>
 
       <label class="label">
         <input type="checkbox" class="toggle" v-model="config.nonMp3Convert" />
-        <span>非 MP3 文件是否转换为 MP3 或 FLAC</span>
+        <span>{{ $t("cloudie.settings.config.nonMp3Convert") }}</span>
       </label>
 
       <label class="label cursor-pointer">
         <input type="checkbox" class="toggle" v-model="config.addCover" />
-        <span>添加封面</span>
+        <span>{{ $t("cloudie.settings.config.addCover") }}</span>
       </label>
     </fieldset>
 
     <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">
-      <legend class="fieldset-legend">杂项</legend>
+      <legend class="fieldset-legend">{{ $t("cloudie.settings.sections.misc") }}</legend>
 
       <!-- TODO: 写入封面 -->
 
       <label class="label cursor-pointer">
-        <span>将 BPM 和调性保存到本地</span>
+        <span>{{ $t("cloudie.settings.config.analyzeBpmAndKey") }}</span>
         <input type="checkbox" class="toggle" v-model="config.analyzeBpmAndKey" />
       </label>
 
       <label class="label cursor-pointer">
-        <span>VirtualDJ 助手</span>
+        <span>{{ $t("cloudie.settings.config.virtualDjSupport") }}</span>
         <input type="checkbox" class="toggle" v-model="config.virtualDjSupport" />
       </label>
     </fieldset>
 
     <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">
-      <legend class="fieldset-legend">登录</legend>
+      <legend class="fieldset-legend">{{ $t("cloudie.settings.sections.login") }}</legend>
 
-      <label class="label">Soundcloud 客户端 ID</label>
+      <label class="label">{{ $t("cloudie.settings.config.clientId") }}</label>
       <div class="join">
         <input
           type="text"
           class="input join-item"
-          placeholder="Soundcloud 客户端 ID"
+          :placeholder="$t('cloudie.settings.config.clientId')"
           v-model="config.clientId" />
         <button class="btn join-item" @click="refreshClientId()">
           <!-- TODO: 可视化-->
@@ -87,46 +108,49 @@
         </button>
       </div>
 
-      <label class="label">
-        Soundcloud OAuth 令牌
-        <div
-          class="tooltip"
-          data-tip="OAuth 令牌能通过在 Soundcloud 打开开发者工具 > Cookies > oauth_token 查看">
-          <Icon icon="mdi:help-circle" />
-        </div>
-      </label>
+      <!-- TODO: add tutorial -->
       <input
         type="text"
         class="input"
-        placeholder="Soundcloud OAuth 令牌"
+        :placeholder="$t('cloudie.settings.config.oauthToken')"
         v-model="config.oauthToken" />
     </fieldset>
 
     <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">
-      <legend class="fieldset-legend">关于</legend>
+      <legend class="fieldset-legend">{{ $t("cloudie.settings.sections.about") }}</legend>
 
       <div class="flex flex-col items-center gap-2">
         <img src="/logo.png" alt="logo" class="h-[120px] w-fit" />
 
         <span class="text-xl font-bold">Cloudie</span>
 
-        <span>一个可爱的 Soundcloud 客户端</span>
+        <span>{{ $t("cloudie.settings.about.desc") }}</span>
 
-        <span>版本: {{ versionInfo.version }}</span>
-        <span>最新: {{ versionInfo.latestVersion }}</span>
+        <div>
+          <span class="mr-2">
+            {{
+              $t("cloudie.settings.about.version", {
+                version: versionInfo.version,
+                latestVersion: versionInfo.latestVersion,
+              })
+            }}
+          </span>
+          <button class="btn btn-sm ">
+            <Icon icon="mdi:earth-arrow-up" height="auto"></Icon>
+            {{ $t("cloudie.settings.about.visitReleases") }}
+          </button>
+        </div>
 
         <div class="flex gap-2">
           <a class="btn" href="https://github.com/hexadecimal233/cloudie" target="_blank">
             <Icon icon="mdi:github" height="auto"></Icon>
-            项目地址
+            {{ $t("cloudie.settings.about.repo") }}
           </a>
           <a class="btn" href="https://github.com/hexadecimal233/cloudie/issues" target="_blank">
             <Icon icon="mdi:bug" height="auto"></Icon>
-            反馈问题
+            {{ $t("cloudie.settings.about.issue") }}
           </a>
         </div>
-
-        <div></div>
       </div>
     </fieldset>
   </div>
