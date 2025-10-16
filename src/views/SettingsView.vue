@@ -114,6 +114,10 @@
         class="input"
         :placeholder="$t('cloudie.settings.config.oauthToken')"
         v-model="config.oauthToken" />
+
+      <button class="btn" @click="loginSoundcloud()">
+        {{ $t("cloudie.settings.etc.loginSoundcloud") }}
+      </button>
     </fieldset>
 
     <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">
@@ -135,7 +139,7 @@
               })
             }}
           </span>
-          <button class="btn btn-sm ">
+          <button class="btn btn-sm">
             <Icon icon="mdi:earth-arrow-up" height="auto"></Icon>
             {{ $t("cloudie.settings.about.visitReleases") }}
           </button>
@@ -163,6 +167,8 @@ import { open } from "@tauri-apps/plugin-dialog"
 import { refreshClientId } from "../utils/api"
 import { getVersion } from "@tauri-apps/api/app"
 import { onMounted, ref } from "vue"
+import { invoke } from "@tauri-apps/api/core"
+import { once } from "@tauri-apps/api/event"
 
 const versionInfo = ref({
   version: "",
@@ -188,6 +194,21 @@ async function openSavePathDialog() {
 
   if (file) {
     config.value.savePath = file
+  }
+}
+
+once("sc_login_finished", (event) => {
+  console.log("登录Soundcloud 完成: ", event.payload)
+  if (event.payload) {
+    config.value.oauthToken = event.payload as string
+  }
+})
+
+async function loginSoundcloud() {
+  try {
+    await invoke("login_soundcloud")
+  } catch (error) {
+    console.error("登录Soundcloud失败: ", error) // 打印错误信息
   }
 }
 </script>

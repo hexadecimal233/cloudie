@@ -3,7 +3,7 @@ use std::process::Command;
 
 use regex::Regex;
 use reqwest::{self, Client};
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Emitter, Manager, Url, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
 use tauri_plugin_store::StoreExt;
 use tokio;
 
@@ -199,7 +199,7 @@ async fn download_logic(
     }
 }
 
-/// Tauri Command: 下载音轨
+/// 下载音轨
 #[tauri::command]
 async fn download_track(
     final_url: String,
@@ -236,7 +236,8 @@ async fn download_track(
             .and_then(|v| v.as_bool())
             .ok_or("Failed to get playlistSeparateDir from config")?;
 
-        let convert_non_mp3 = store
+        // TODO: 转换非MP3文件
+        let _convert_non_mp3 = store
             .get("nonMp3Convert")
             .and_then(|v| v.as_bool())
             .ok_or("Failed to get nonMp3Convert from config")?;
@@ -307,6 +308,52 @@ async fn download_track(
     result.map_err(|e| e.to_string())
 }
 
+/// 检查 SoundCloud 是否已登录 (TODO: 检测登录失效)
+fn check_cookies(window: &WebviewWindow) -> Option<String> {
+    let url = Url::parse("https://soundcloud.com").unwrap();
+
+    if let Ok(cookies) = window.cookies_for_url(url) {
+        if let Some(oauth_token_cookie) = cookies.into_iter().find(|c| c.name() == "oauth_token") {
+            let oauth_token = oauth_token_cookie.value().to_string();
+            return Some(oauth_token);
+        }
+    }
+    None
+}
+
+/// 登录 SoundCloud 返回 oauth_token
+#[tauri::command]
+async fn login_soundcloud(app_handle: AppHandle) -> Result<(), String> {
+    if app_handle.get_webview_window("soundcloud_login").is_some() {
+        return Err("Login window is already open.".to_string());
+    }
+
+    const SIGN_IN_URL: &str = "https://soundcloud.com/signin";
+    const TARGET_HOST: &str = "soundcloud.com";
+
+    let login_window = WebviewWindowBuilder::new(
+        &app_handle,
+        "soundcloud_login",
+        WebviewUrl::External(SIGN_IN_URL.parse().unwrap()),
+    )
+    .title("Login")
+    .on_page_load({
+        move |window, payload| {
+            if payload.url().host_str() == Some(TARGET_HOST) {
+                println!("Page loaded: {}", payload.url().to_string());
+                if let Some(token) = check_cookies(&window) {
+                    println!("Token found emitting event");
+                    let _ = window.emit("sc_login_finished", token);
+                    let _ = window.close();
+                }
+            }
+        }
+    })
+    .build()
+    .map_err(|e| format!("Failed to create login window: {}", e.to_string()))?;
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut builder = tauri::Builder::default();
@@ -327,7 +374,7 @@ pub fn run() {
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![download_track])
+        .invoke_handler(tauri::generate_handler![download_track, login_soundcloud])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -92,6 +92,9 @@
         "visitReleases": "Releases",
         "repo": "Github Repo",
         "issue": "Report Issue"
+      },
+      "etc": {
+        "loginSoundcloud": "Login to Soundcloud"
       }
     }
   }

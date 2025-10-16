@@ -92,6 +92,9 @@
         "visitReleases": "访问发布页面",
         "repo": "项目地址",
         "issue": "问题反馈"
+      },
+      "etc": {
+        "loginSoundcloud": "登录 Soundcloud"
       }
     }
   }
