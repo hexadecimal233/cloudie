@@ -1,33 +1,23 @@
-// TODO: downloaded item database TODO: cover
 // TODO: playlist downloader
+// TODO: optimize the database operations
 
 import { ref, watch } from "vue"
 import { getJson, getV2ApiJson } from "./api"
 import { invoke } from "@tauri-apps/api/core"
 import { config } from "./config"
 import { getArtist } from "./utils"
+import { db, DownloadTask, getDownloadDetail, getDownloadTasks } from "./database"
 
 /**
  * 下载管理器部分
  */
-export interface DownloadTask {
-  trackId: number
-  title: string
-  playlistName: string
-  timestamp: number
-  origFileName: string
-  path: string
-  status: "pending" | "getinfo" | "downloading" | "paused" | "completed" | "failed"
-}
 
 interface DownloadResponse {
   path: string
   origFileName: string
 }
 
-export const downloadTasks = ref<DownloadTask[]>([]) // TODO: 本地存储
-const trackCache = new Map<number, any>() // TODO: 目前下载完清除缓存
-
+export const downloadTasks = ref<DownloadTask[]>(await getDownloadTasks())
 watch(downloadTasks, tryRunTask, { deep: true })
 
 function getDownloadTitle(track: any) {
@@ -43,19 +33,108 @@ function getDownloadTitle(track: any) {
   }
 }
 
-export function addDownloadTask(track: any, playlistName: string) {
+async function updateDownloadDBEntry(params: DownloadTask) {
+  await db.execute(
+    `
+    UPDATE DownloadTasks
+    SET path = ?, origFileName = ?, status = ?
+    WHERE trackId = ?
+  `,
+    [params.path, params.origFileName, params.status, params.trackId],
+  )
+}
+
+// TODO: currently using demo playlist, and playlist currently passed as a string
+export async function addDownloadTask(track: any, playlist: any) {
+  let playlistId: string | undefined = undefined
+  if (typeof playlist === "string") {
+    playlistId = playlist
+    const objTemp = { title: playlist }
+    await db.execute(
+      `
+    INSERT OR IGNORE INTO Playlists (playlistId, meta)
+    VALUES (?, ?)
+  `,
+      [playlistId, objTemp],
+    )
+  }
+
   const task: DownloadTask = {
     trackId: track.id,
-    title: getDownloadTitle(track),
-    playlistName,
+    playlistId: playlistId,
     timestamp: Date.now(),
-    path: "",
-    origFileName: "",
     status: "pending",
   }
 
-  trackCache.set(track.id, track)
+  try {
+    await db.execute(
+      `
+    INSERT OR IGNORE INTO LocalTracks (trackId, meta)
+    VALUES (?, ?)
+  `,
+      [task.trackId, JSON.stringify(track)],
+    )
+    await db.execute(
+      `
+    INSERT OR IGNORE INTO DownloadTasks (trackId, playlistId, timestamp, origFileName, path, status)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `,
+      [task.trackId, task.playlistId, task.timestamp, task.origFileName, task.path, task.status],
+    )
+
+    // await db.execute(
+    //   `
+    //   INSERT INTO PlaylistTracks (playlistId, trackId)
+    //   VALUES (?, ?)
+    // `,
+    //   [task.playlistId, task.trackId],
+    // )
+  } catch (error) {
+    console.error("Error Adding Download Task: ", error)
+    return
+  }
+
   downloadTasks.value.push(task)
+}
+
+export async function resumeDownload(trackId: number) {
+  const task = downloadTasks.value.find((t) => t.trackId === trackId)
+  if (task) {
+    task.status = "pending"
+    await updateDownloadDBEntry(task)
+  }
+}
+
+export async function deleteTask(trackId: number) {
+  try {
+    await db.execute(
+      `
+    DELETE FROM DownloadTasks
+    WHERE trackId = ?
+  `,
+      [trackId],
+    )
+  } catch (error) {
+    console.error("Error Deleting Download Task: ", error)
+    return
+  }
+
+  downloadTasks.value = downloadTasks.value.filter((t) => t.trackId !== trackId)
+}
+
+export async function deleteAllTasks() {
+  try {
+    await db.execute(
+      `
+      DELETE FROM DownloadTasks
+    `,
+    )
+  } catch (error) {
+    console.error("Error Deleting All Download Tasks: ", error)
+    return
+  }
+
+  downloadTasks.value = []
 }
 
 function tryRunTask() {
@@ -72,35 +151,40 @@ function tryRunTask() {
   }
 }
 
-function runTask(task: DownloadTask) {
+async function runTask(task: DownloadTask) {
+  const detail = (await getDownloadDetail([task.trackId]))[0]
   task.status = "getinfo"
-  // TODO: 已开始下载提示
+  await updateDownloadDBEntry(task)
+  // TODO: 已开始下载提示 已完成下载提示
 
-  getDownloadInfo(trackCache.get(task.trackId))
-    .then((info: DownloadInfo) => {
-      task.status = "downloading"
+  try {
+    const info = await getDownloadInfo(detail.track)
+    task.status = "downloading"
+    await updateDownloadDBEntry(task)
 
-      invoke<DownloadResponse>("download_track", {
+    try {
+      const response = await invoke<DownloadResponse>("download_track", {
         finalUrl: info.finalUrl,
         downloadType: info.downloadType,
         preset: info.preset,
-        title: task.title,
-        playlist: task.playlistName,
+        title: getDownloadTitle(detail.track),
+        playlistName: detail.playlistName, // target folder
       })
-        .then((response) => {
-          task.path = response.path
-          task.origFileName = response.origFileName
-          task.status = "completed" // TODO: 响应解析
-        })
-        .catch((err) => {
-          console.log("下载失败: ", err) // TODO: 处理下载失败的情况，例如显示错误提示
-          task.status = "failed"
-        })
-    })
-    .catch((err) => {
+
+      task.path = response.path
+      task.origFileName = response.origFileName
+      task.status = "completed" // FIXME: Completed does not get updated
+      await updateDownloadDBEntry(task)
+    } catch (err) {
       console.log("下载失败: ", err) // TODO: 处理下载失败的情况，例如显示错误提示
       task.status = "failed"
-    })
+      await updateDownloadDBEntry(task)
+    }
+  } catch (err) {
+    console.log("下载失败: ", err) // TODO: 处理下载失败的情况，例如显示错误提示
+    task.status = "failed"
+    await updateDownloadDBEntry(task)
+  }
 }
 
 /**

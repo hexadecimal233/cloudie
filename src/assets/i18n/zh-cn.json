@@ -22,7 +22,8 @@
       "pending": "排队中",
       "songInfo": "歌曲信息",
       "playlist": "歌单",
-      "duration": "时长",
+      "artist": "艺术家",
+      "addedTime": "添加时间",
       "origFileName": "原文件名",
       "status": "状态"
     },

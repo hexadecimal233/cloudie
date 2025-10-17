@@ -81,7 +81,7 @@
           <td>
             <div class="flex gap-2">
               <img
-                :src="getTrack(item).artwork_url || getTrack(item).user?.avatar_url || ''"
+                :src="getCoverUrl(getTrack(item))"
                 alt="cover"
                 class="size-16 rounded-md object-contain" />
 
@@ -157,7 +157,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
-import { formatMillis, getArtist } from "../utils/utils"
+import { formatMillis, getArtist, getCoverUrl } from "../utils/utils"
 import { addDownloadTask } from "../utils/download"
 import { Icon } from "@iconify/vue"
 

@@ -22,7 +22,8 @@
       "pending": "Pending",
       "songInfo": "Song Info",
       "playlist": "Playlist",
-      "duration": "Duration",
+      "artist": "Artist",
+      "addedTime": "Added Time",
       "origFileName": "Original File Name",
       "status": "Status"
     },

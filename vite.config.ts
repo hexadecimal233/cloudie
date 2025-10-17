@@ -30,4 +30,8 @@ export default defineConfig(async () => ({
       ignored: ["**/src-tauri/**"],
     },
   },
+
+  build: {
+    target: "esnext", // WORKAROUND: this possibly enables us to use top-level await
+  },
 }))

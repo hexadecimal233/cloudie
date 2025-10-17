@@ -12,7 +12,7 @@ struct DownloadInfo {
     download_type: String,
     preset: String,
     title: String,
-    playlist: String,
+    playlist_name: String,
 }
 
 #[derive(serde::Serialize)]
@@ -206,7 +206,7 @@ async fn download_track(
     download_type: String,
     preset: String,
     title: String,
-    playlist: String,
+    playlist_name: String,
     app_handle: AppHandle,
 ) -> Result<DownloadResponse, String> {
     let download_info = DownloadInfo {
@@ -214,7 +214,7 @@ async fn download_track(
         download_type,
         preset,
         title,
-        playlist,
+        playlist_name,
     };
 
     let result: Result<DownloadResponse, String> = async move {
@@ -251,7 +251,7 @@ async fn download_track(
         let orig_file_name = response.orig_file_name.clone();
 
         let dest = if separate_dir {
-            let playlist_dir = save_path.join(sanitize(&download_info.playlist));
+            let playlist_dir = save_path.join(sanitize(&download_info.playlist_name));
             // 确保播放列表目录存在，并处理 IO 错误
             if !playlist_dir.exists() {
                 std::fs::create_dir_all(&playlist_dir).map_err(|e| {
@@ -331,12 +331,13 @@ async fn login_soundcloud(app_handle: AppHandle) -> Result<(), String> {
     const SIGN_IN_URL: &str = "https://soundcloud.com/signin";
     const TARGET_HOST: &str = "soundcloud.com";
 
-    let login_window = WebviewWindowBuilder::new(
+    let _login_window = WebviewWindowBuilder::new(
         &app_handle,
         "soundcloud_login",
         WebviewUrl::External(SIGN_IN_URL.parse().unwrap()),
     )
     .title("Login")
+    // FIXME: window freeze
     .on_page_load({
         move |window, payload| {
             if payload.url().host_str() == Some(TARGET_HOST) {
@@ -356,7 +357,7 @@ async fn login_soundcloud(app_handle: AppHandle) -> Result<(), String> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let mut builder = tauri::Builder::default();
+    let mut builder = tauri::Builder::default().plugin(tauri_plugin_sql::Builder::new().build());
 
     #[cfg(desktop)]
     {

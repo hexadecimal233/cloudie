@@ -29,7 +29,11 @@ class Config {
   }
 }
 
-let store: Store
+const store = await load("cloudie.json", {
+  autoSave: false,
+  defaults: new Config() as any,
+})
+
 export const i18n = createI18n({
   legacy: false,
   locale: "en-us",
@@ -54,11 +58,6 @@ async function getConfigValue<T>(key: keyof Config): Promise<T> {
 }
 // 加载所有配置
 export async function loadConfig() {
-  store = await load("cloudie.json", {
-    autoSave: false,
-    defaults: new Config() as any,
-  }) // Prevent top-level await
-
   const cfg: Partial<Config> = {}
 
   for (const key of Object.keys(new Config() as any) as (keyof Config)[]) {
