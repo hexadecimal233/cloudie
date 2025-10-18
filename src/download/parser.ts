@@ -1,9 +1,22 @@
 import { getJson, getV2ApiJson } from "@/utils/api"
 import { config } from "@/utils/config"
 
+const PRIORITY = [
+  "aac_256k",
+  "aac_160k",
+  "opus_0_0",
+  "mp3_1_0",
+  "mp3_0_1",
+  "mp3_standard",
+  "mp3_0_0",
+  "abr_sq", // not sure whats this
+]
+
+type Quality = (typeof PRIORITY)[number]
+
 interface Transcoding {
   url: string
-  preset: "aac_160k" | "mp3_1_0" | "opus_0_0" | "abr_sq" | "mp3_0_1" | "mp3_standard" | "mp3_0_0"
+  preset: Quality
   duration: number // in millis
   snipped: boolean
   format: {
@@ -14,37 +27,30 @@ interface Transcoding {
       | "audio/mpeg"
       | 'audio/ogg; codecs="opus"'
   }
-  quality: "sq" | "hq" // 没听到过HQ（没开会员x
+  quality: "sq" | "hq" // sq and hq makes no difference, only affects aac it seems
   is_legacy_transcoding: boolean
 }
 
 interface ParsedDownload {
   finalUrl: string
   downloadType: "direct" | "progressive" | "hls" | "ctr-encrypted-hls" | "cbc-encrypted-hls"
-  preset:
-    | "aac_160k"
-    | "mp3_1_0"
-    | "opus_0_0"
-    | "abr_sq"
-    | "mp3_0_1"
-    | "mp3_standard"
-    | "mp3_0_0"
-    | "none"
+  preset: Quality | "none"
 }
 
-// 最高音质优先
+// get transcodings in descending order of priority
 function sortTranscodings(track: any, protocol?: "progressive" | "hls"): Transcoding[] {
-  const transcodings = track.media.transcodings.sort((t: Transcoding) =>
-    t.quality === "hq" ? -1 : 1,
-  )
+  const transcodings = track.media.transcodings.sort((a: Transcoding, b: Transcoding) => {
+    return PRIORITY.indexOf(b.preset) - PRIORITY.indexOf(a.preset)
+  })
   if (!protocol) return transcodings
   return transcodings.filter((t: Transcoding) => t.format.protocol === protocol)
 }
 
 // TODO: https://developers.soundcloud.com/blog/api-streaming-urls 所述 opus 和 progressive 要没了
+// track_authorization only affects get stream from API, transcoding cache is not affected
 export async function parseDownload(track: any): Promise<ParsedDownload> {
-  // TODO: 自选编码，现在默认最高音质
-  // TODO: track_authorization参数什么用？
+  // TODO: 自选编码
+  
   // TODO: secret_token参数获取私人下载链接
   if (track["downloadable"] && config.value.preferDirectDownload) {
     // 处理直连下载 TODO: 开设新section
@@ -60,59 +66,22 @@ export async function parseDownload(track: any): Promise<ParsedDownload> {
     }
   }
 
-  const transcodings = sortTranscodings(track, "hls")
-
-  if (transcodings.length > 0) {
-    let trans: Transcoding | undefined
-
-    console.log("正在下载AAC编码")
-    trans = transcodings.find((t: Transcoding) => t.preset === "aac_160k")
-    if (trans) {
-      try {
-        const m3u8meta = await getJson(trans.url, true, true)
-        return {
-          finalUrl: m3u8meta.url,
-          downloadType: trans.format.protocol,
-          preset: trans.preset,
-        }
-      } catch (err) {
-        console.log("下载AAC编码失败: ", err)
+  for (const trans of sortTranscodings(track, "hls")) {
+    try {
+      console.log(`正在下载${trans.preset}编码`)
+      const m3u8meta = await getJson(trans.url, true, true)
+      return {
+        finalUrl: m3u8meta.url,
+        downloadType: trans.format.protocol,
+        preset: trans.preset,
       }
-    }
-
-    console.log("正在下载Opus编码")
-    trans = transcodings.find((t: Transcoding) => t.preset === "opus_0_0")
-    if (trans) {
-      try {
-        const m3u8meta = await getJson(trans.url, true, true)
-        return {
-          finalUrl: m3u8meta.url,
-          downloadType: trans.format.protocol,
-          preset: trans.preset,
-        }
-      } catch (err) {
-        console.log("下载Opus编码失败: ", err)
-      }
-    }
-
-    console.log("正在下载HLS MP3编码")
-    trans = transcodings.find((t: Transcoding) => t.preset.indexOf("mp3") !== -1)
-    if (trans) {
-      try {
-        const m3u8meta = await getJson(trans.url, true, true)
-        return {
-          finalUrl: m3u8meta.url,
-          downloadType: trans.format.protocol,
-          preset: trans.preset,
-        }
-      } catch (err) {
-        console.log("下载HLS MP3编码失败: ", err)
-      }
+    } catch (err) {
+      console.log(`下载${trans.preset}编码失败: `, err)
     }
   }
 
   console.log("正在下载Progressive MP3编码")
-  const trans = sortTranscodings(track, "progressive")[0] // Progressive 貌似只有一个MP3
+  const trans = sortTranscodings(track, "progressive")[0] // Progressive 只有一个MP3
   if (trans) {
     try {
       const m3u8meta = await getJson(trans.url, true, true)

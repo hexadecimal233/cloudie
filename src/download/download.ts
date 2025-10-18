@@ -69,7 +69,6 @@ async function updateDownloadDBEntry(params: DownloadTask) {
     )
 }
 
-// TODO: currently using demo playlist, and playlist currently passed as a string
 export async function addDownloadTask(track: any, playlist: any | undefined) {
   const playlistId = playlist ? (playlist.id as string) : "liked" // playlist.id is number when its user
   if (playlist) {

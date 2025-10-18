@@ -1,7 +1,7 @@
 import { load, Store } from "@tauri-apps/plugin-store"
 import { ref, watch } from "vue"
 import { refreshClientId } from "./api"
-import { createI18n } from "vue-i18n"
+import { i18n } from "./i18n"
 
 class Config {
   //外观
@@ -30,17 +30,7 @@ class Config {
   }
 }
 
-let store: Store // inited later
-
-export const i18n = createI18n({
-  legacy: false,
-  locale: "en-us",
-  fallbackLocale: "en-us",
-  messages: {
-    "zh-cn": await import("../assets/i18n/zh-cn.json"),
-    "en-us": await import("../assets/i18n/en-us.json"),
-  },
-})
+let store: Store
 
 // 响应式配置
 export const config = ref(new Config())
@@ -76,8 +66,8 @@ export async function loadConfig() {
 }
 
 // 保存所有配置
-async function saveConfig(): Promise<void> {
-  // 刷新语言
+async function saveConfig() {
+  //  @ts-ignore 刷新语言
   i18n.global.locale.value = config.value.language
 
   const currentConfig = config.value
