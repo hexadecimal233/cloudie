@@ -44,8 +44,8 @@
 
   <div v-else>
     <button class="btn btn-primary" @click="currentItem = null">返回 TODO: 图标</button>
-    <!-- TODO: 歌单标题-->
-    <TrackList :tracks="currentItem" :playlist-name="playlistName"></TrackList>
+    <!-- TODO: 歌单标题显示 -->
+    <TrackList :tracks="currentItem" :callback-item="currentResponse"></TrackList>
   </div>
 </template>
 
@@ -57,7 +57,7 @@ import TrackList from "./TrackList.vue"
 
 const playlistTracksCache = ref<Record<number | string, any[]>>({}) // 系统播单id是string，歌单id是number
 const currentItem = ref<any>(null)
-const playlistName = ref("")
+const currentResponse = ref<any>(null)
 
 const props = defineProps<{
   items: any[]
@@ -94,7 +94,7 @@ async function open(item: any) {
     }
     const finalTracks = (await Promise.all(promises)).flat()
 
-    playlistName.value = item.playlist?.title || item.system_playlist.title
+    currentResponse.value = item
     playlistTracksCache.value[item.playlist?.id || item.system_playlist.id] = finalTracks
     currentItem.value = finalTracks
   } catch (err) {

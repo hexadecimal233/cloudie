@@ -11,6 +11,7 @@
         v-model="searchQuery" />
 
       <div class="btn join-item">
+        <!-- TODO: TAG support -->
         <Icon icon="mdi:tag" height="auto"></Icon>
       </div>
 
@@ -158,7 +159,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue"
 import { formatMillis, getArtist, getCoverUrl } from "../utils/utils"
-import { addDownloadTask } from "../utils/download"
+import { addDownloadTask } from "../download/download"
 import { Icon } from "@iconify/vue"
 
 // 音乐显示
@@ -168,11 +169,7 @@ const searchQuery = ref("")
 const selectedGenres = ref<string[]>([]) // TODO: 获取tag_list
 
 function getTrack(item: any) {
-  if (props.playlistName === undefined) {
-    return item.track
-  } else {
-    return item
-  }
+  return !props.callbackItem ? item.track : item
 }
 
 const filteredItems = computed(() => {
@@ -234,13 +231,16 @@ async function downloadSelected() {
   for (const id of selectedIds.value) {
     const track = props.tracks.find((item) => getTrack(item).id === id)
     if (track) {
-      download(getTrack(track))
+      await download(getTrack(track))
     }
   }
 }
 
-function download(track: any) {
-  addDownloadTask(track, props.playlistName || "")
+async function download(track: any) {
+  await addDownloadTask(
+    track,
+    props.callbackItem?.playlist || props.callbackItem?.system_playlist,
+  )
 }
 
 // TODO: 检测可能的免费下载
@@ -277,7 +277,7 @@ function isPossibleFreeDownload(track: any): boolean {
 
 const props = defineProps<{
   tracks: any[]
-  playlistName?: string // 播单的话就返回的不是collection了
+  callbackItem?: any
 }>()
 </script>
 

@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm"
-import { sqliteTable, integer, text } from "drizzle-orm/sqlite-core"
+import { sqliteTable, integer, text, primaryKey } from "drizzle-orm/sqlite-core"
 
 export const localTracks = sqliteTable("LocalTracks", {
   trackId: integer("trackId").primaryKey().notNull(),
@@ -11,19 +11,36 @@ export const playlists = sqliteTable("Playlists", {
   meta: text("meta").notNull(),
 })
 
-export const downloadTasks = sqliteTable("DownloadTasks", {
-  id: integer("id").primaryKey({ autoIncrement: true }).notNull(),
-  trackId: integer("trackId")
-    .references(() => localTracks.trackId)
-    .notNull(),
-  playlistId: text("playlistId").references(() => playlists.playlistId),
-  timestamp: integer("timestamp").notNull(),
-  origFileName: text("origFileName"),
-  path: text("path").notNull(),
-  status: text("status", {
-    enum: ["pending", "getinfo", "downloading", "paused", "completed", "failed"],
-  }).notNull(),
-})
+/**
+ * Download tasks table:
+ * - trackId: The exact id from SoundCloud
+ * - playlistId:
+ *   Since soundcloud returns a urn for system playlists, we need to modify normal playlist ids a string.
+ *   - playlist: "12345678"
+ *   - system_playlist: "soundcloud:system-playlists:personalized-tracks:12345:67890"
+ * - timestamp: Task create time
+ * - origFileName: Direct Link filename, Nulls if not available
+ * - path: Download Path
+ * - status: Download Status
+ */
+export const downloadTasks = sqliteTable(
+  "DownloadTasks",
+  {
+    trackId: integer("trackId")
+      .references(() => localTracks.trackId)
+      .notNull(),
+    playlistId: text("playlistId")
+      .references(() => playlists.playlistId)
+      .notNull(),
+    timestamp: integer("timestamp").notNull(),
+    origFileName: text("origFileName"),
+    path: text("path").notNull(),
+    status: text("status", {
+      enum: ["pending", "getinfo", "downloading", "paused", "completed", "failed"],
+    }).notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.trackId, table.playlistId] })],
+)
 
 export const listeningList = sqliteTable("ListeningList", {
   trackId: integer("trackId")
@@ -32,17 +49,6 @@ export const listeningList = sqliteTable("ListeningList", {
     .notNull(),
   timestamp: integer("timestamp").notNull(),
 })
-
-export const localTracksRelations = relations(localTracks, ({ one }) => ({
-  downloadTask: one(downloadTasks, {
-    fields: [localTracks.trackId],
-    references: [downloadTasks.trackId],
-  }),
-}))
-
-export const playlistsRelations = relations(playlists, ({ many }) => ({
-  downloadTasks: many(downloadTasks),
-}))
 
 export const downloadTasksRelations = relations(downloadTasks, ({ one }) => ({
   localTrack: one(localTracks, {

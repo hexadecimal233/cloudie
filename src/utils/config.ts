@@ -15,6 +15,7 @@ class Config {
   nonMp3Convert: true = true // TODO: 非 mp3 文件是否转换为 mp3
   fileNaming: "title-artist" | "artist-title" | "title" = "title-artist"
   addCover: boolean = false // TODO: 下载时是否添加封面
+  alsoDeleteLocalTrack: boolean = false // TODO: 下载时是否删除本地文件
   // 杂项
   analyzeBpmAndKey: boolean = false
   virtualDjSupport: boolean = false

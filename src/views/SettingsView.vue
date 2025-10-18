@@ -77,6 +77,11 @@
         <input type="checkbox" class="toggle" v-model="config.addCover" />
         <span>{{ $t("cloudie.settings.config.addCover") }}</span>
       </label>
+
+      <label class="label cursor-pointer">
+        <input type="checkbox" class="toggle" v-model="config.alsoDeleteLocalTrack" />
+        <span>{{ $t("cloudie.settings.config.alsoDeleteLocalTrack") }}</span>
+      </label>
     </fieldset>
 
     <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">

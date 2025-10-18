@@ -5,22 +5,18 @@
 import Database from "@tauri-apps/plugin-sql"
 import { drizzle } from "drizzle-orm/sqlite-proxy"
 import { getArtist, getCoverUrl } from "../utils/utils"
-import { inArray, desc } from "drizzle-orm"
+import { inArray, desc, and } from "drizzle-orm"
 import * as schema from "./schema"
 
+export type DownloadTask = typeof schema.downloadTasks.$inferSelect
 export interface DownloadDetail extends DownloadTask {
   title: string
   artist: string
   coverUrl: string
   playlistName?: string
-  playlist?: any
+  playlist: any
   track: any
 }
-
-export const ListeningList = schema.listeningList.$inferSelect
-export type DownloadTask = typeof schema.downloadTasks.$inferSelect
-export type LocalTrack = typeof schema.localTracks.$inferSelect
-export type Playlist = typeof schema.playlists.$inferSelect
 
 let tauriDb: Database
 export const db = drizzle(
@@ -68,11 +64,29 @@ export async function initDb() {
   await tauriDb.execute(
     "CREATE TABLE IF NOT EXISTS `DownloadTasks` ( `id` integer PRIMARY KEY AUTOINCREMENT NOT NULL, `trackId` integer NOT NULL, `playlistId` text, `timestamp` integer NOT NULL, `origFileName` text, `path` text NOT NULL, `status` text NOT NULL, FOREIGN KEY (`trackId`) REFERENCES `LocalTracks`(`trackId`) ON UPDATE no action ON DELETE no action, FOREIGN KEY (`playlistId`) REFERENCES `Playlists`(`playlistId`) ON UPDATE no action ON DELETE no action ); CREATE TABLE IF NOT EXISTS `ListeningList` ( `trackId` integer PRIMARY KEY NOT NULL, `timestamp` integer NOT NULL, FOREIGN KEY (`trackId`) REFERENCES `LocalTracks`(`trackId`) ON UPDATE no action ON DELETE no action ); CREATE TABLE IF NOT EXISTS `LocalTracks` ( `trackId` integer PRIMARY KEY NOT NULL, `meta` text NOT NULL ); CREATE TABLE IF NOT EXISTS `Playlists` ( `playlistId` text PRIMARY KEY NOT NULL, `meta` text NOT NULL );",
   )
+
+  // create default liked playlist
+  await db
+    .insert(schema.playlists)
+    .values({
+      playlistId: "liked",
+      meta: JSON.stringify({ title: "" }), // empty string for liked playlist
+    })
+    .onConflictDoNothing()
 }
 
-export async function getDownloadDetail(trackIds: number[]): Promise<DownloadDetail[]> {
+export async function getDownloadDetail(downloadTasks: DownloadTask[]): Promise<DownloadDetail[]> {
   const rawResult = await db.query.downloadTasks.findMany({
-    where: inArray(schema.downloadTasks.trackId, trackIds),
+    where: and(
+      inArray(
+        schema.downloadTasks.trackId,
+        downloadTasks.map((task) => task.trackId),
+      ),
+      inArray(
+        schema.downloadTasks.playlistId,
+        downloadTasks.map((task) => task.playlistId),
+      ),
+    ),
     with: {
       localTrack: true,
       playlist: true,
@@ -82,17 +96,11 @@ export async function getDownloadDetail(trackIds: number[]): Promise<DownloadDet
   const results: DownloadDetail[] = rawResult.map((row) => {
     const track = JSON.parse(row.localTrack.meta)
 
-    let playlistName: string | undefined
-    let playlist: any | undefined
-
-    if (row.playlist) {
-      playlist = JSON.parse(row.playlist.meta)
-      playlistName = playlist.title ?? playlistName
-    }
+    let playlist = JSON.parse(row.playlist.meta)
+    let playlistName: string = playlist.title ?? undefined
 
     return {
       // basic fields
-      id: row.id,
       trackId: row.trackId,
       playlistId: row.playlistId,
       timestamp: row.timestamp,

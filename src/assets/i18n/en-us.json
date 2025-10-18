@@ -63,6 +63,7 @@
         "nonMp3Convert": "Convert Non-MP3 Files to MP3 or FLAC",
         "fileNaming": "File Naming",
         "addCover": "Embed Cover",
+        "alsoDeleteLocalTrack": "Delete Local Track When Deleting Task",
         "analyzeBpmAndKey": "Analyze BPM and Key Locally",
         "virtualDjSupport": "VirtualDJ Support",
         "clientId": "Soundcloud Client ID",

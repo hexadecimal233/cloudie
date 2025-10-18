@@ -94,13 +94,13 @@
                 item.status === 'pending' ||
                 item.status === 'getinfo'
               "
-              @click="pauseDownload(item.id)"
+              @click="pauseDownload(item)"
               class="btn btn-sm btn-ghost">
               <Icon icon="mdi:pause" height="auto"></Icon>
             </button>
             <button
               v-if="item.status === 'paused' || item.status === 'failed'"
-              @click="resumeDownload(item.id)"
+              @click="resumeDownload(item)"
               class="btn btn-sm btn-ghost">
               <Icon icon="mdi:play" height="auto"></Icon>
             </button>
@@ -110,7 +110,7 @@
               @click="revealItemInDir(item.path ?? '')">
               <Icon icon="mdi:folder-open" height="auto"></Icon>
             </button>
-            <button @click="deleteTask(item.id)" class="btn btn-sm btn-ghost">
+            <button @click="deleteTask(item)" class="btn btn-sm btn-ghost">
               <Icon icon="mdi:close" height="auto"></Icon>
             </button>
 
@@ -123,32 +123,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue"
-import { deleteAllTasks, deleteTask, downloadTasks, resumeDownload } from "@/utils/download"
+import { ref, computed } from "vue"
+import {
+  deleteAllTasks,
+  deleteTask,
+  downloadDetails,
+  pauseDownload,
+  resumeDownload,
+} from "@/download/download"
 import { Icon } from "@iconify/vue"
 import { revealItemInDir } from "@tauri-apps/plugin-opener"
-import { getDownloadDetail, DownloadDetail } from "@/db"
 
 const activeTab = ref<"all" | "downloading" | "completed" | "paused" | "failed">("all")
-const downloadDetails = ref<DownloadDetail[]>([])
-
-// 获取下载详细信息
-async function fetchDownloadDetails() {
-  if (downloadTasks.value.length === 0) {
-    downloadDetails.value = []
-    return
-  }
-
-  const trackIds = downloadTasks.value.map((task) => task.trackId)
-  downloadDetails.value = await getDownloadDetail(trackIds)
-}
-
-// TODO: 是否和download.ts中的监听重复
-watch(downloadTasks, fetchDownloadDetails, { deep: true })
-
-onMounted(() => {
-  fetchDownloadDetails()
-})
 
 // 根据当前tab过滤项目
 const filteredItems = computed(() => {
@@ -169,12 +155,4 @@ const filteredItems = computed(() => {
       return items.filter((item) => item.status === "failed")
   }
 })
-
-const pauseDownload = async (_trackId: number) => {
-  try {
-    throw new Error("unimplemented")
-  } catch (error) {
-    console.error("暂停下载失败:", error)
-  }
-}
 </script>

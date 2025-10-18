@@ -63,6 +63,7 @@
         "nonMp3Convert": "非 MP3 文件是否转换为 MP3 或 FLAC",
         "fileNaming": "文件命名方式",
         "addCover": "嵌入封面",
+        "alsoDeleteLocalTrack": "删除任务时同时删除本地文件",
         "analyzeBpmAndKey": "将 BPM 和调性保存到本地",
         "virtualDjSupport": "VirtualDJ 助手",
         "clientId": "Soundcloud 客户端 ID",
