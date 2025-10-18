@@ -30,6 +30,7 @@ TODO: TBA
 2. Install dependencies: `pnpm install`
 3. Run the project: `pnpm tauri dev`
 4. (Optional) Build the project: `pnpm tauri build`
+5. (Optional) Modify the database schema in `src/db/schema.ts` and run `pnpm drizzle-kit push` if needed.
 
 > [!NOTE]
 > We use PNPM as our package manager, so make sure you have it installed.

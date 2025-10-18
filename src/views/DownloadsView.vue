@@ -1,5 +1,5 @@
 <template>
-  <!-- 更新用户UX -->
+  <!-- TODO: 更新删除UI -->
   <button @click="deleteAllTasks" class="btn btn-sm btn-error">
     {{ $t("cloudie.downloads.clearAll") }}
   </button>
@@ -79,7 +79,7 @@
           {{ new Date(item.timestamp).toLocaleString() }}
         </td>
         <td>
-          <div class="truncate font-mono" :title="item.origFileName">
+          <div class="truncate font-mono" :title="item.origFileName ?? ''">
             {{ item.origFileName ?? "-" }}
           </div>
         </td>
@@ -94,13 +94,13 @@
                 item.status === 'pending' ||
                 item.status === 'getinfo'
               "
-              @click="pauseDownload(item.trackId)"
+              @click="pauseDownload(item.id)"
               class="btn btn-sm btn-ghost">
               <Icon icon="mdi:pause" height="auto"></Icon>
             </button>
             <button
               v-if="item.status === 'paused' || item.status === 'failed'"
-              @click="resumeDownload(item.trackId)"
+              @click="resumeDownload(item.id)"
               class="btn btn-sm btn-ghost">
               <Icon icon="mdi:play" height="auto"></Icon>
             </button>
@@ -110,7 +110,7 @@
               @click="revealItemInDir(item.path ?? '')">
               <Icon icon="mdi:folder-open" height="auto"></Icon>
             </button>
-            <button @click="deleteTask(item.trackId)" class="btn btn-sm btn-ghost">
+            <button @click="deleteTask(item.id)" class="btn btn-sm btn-ghost">
               <Icon icon="mdi:close" height="auto"></Icon>
             </button>
 
@@ -127,7 +127,7 @@ import { ref, computed, onMounted, watch } from "vue"
 import { deleteAllTasks, deleteTask, downloadTasks, resumeDownload } from "../utils/download"
 import { Icon } from "@iconify/vue"
 import { revealItemInDir } from "@tauri-apps/plugin-opener"
-import { getDownloadDetail, DownloadDetail } from "../utils/database"
+import { getDownloadDetail, DownloadDetail } from "../db"
 
 const activeTab = ref<"all" | "downloading" | "completed" | "paused" | "failed">("all")
 const downloadDetails = ref<DownloadDetail[]>([])

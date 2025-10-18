@@ -6,7 +6,7 @@ import { loadConfig, i18n } from "./utils/config"
 
 const initApp = async () => {
   // 加载数据库
-  await import("./utils/database")
+  await import("./db")
   // 加载配置
   await loadConfig()
 

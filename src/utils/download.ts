@@ -6,7 +6,9 @@ import { getJson, getV2ApiJson } from "./api"
 import { invoke } from "@tauri-apps/api/core"
 import { config } from "./config"
 import { getArtist } from "./utils"
-import { db, DownloadTask, getDownloadDetail, getDownloadTasks } from "./database"
+import { db, DownloadTask, getDownloadDetail, getDownloadTasks } from "../db"
+import * as schema from "../db/schema"
+import { eq } from "drizzle-orm"
 
 /**
  * 下载管理器部分
@@ -19,7 +21,6 @@ interface DownloadResponse {
 
 export const downloadTasks = ref<DownloadTask[]>(await getDownloadTasks())
 watch(downloadTasks, tryRunTask, { deep: true })
-
 function getDownloadTitle(track: any) {
   switch (config.value.fileNaming) {
     case "title":
@@ -34,105 +35,64 @@ function getDownloadTitle(track: any) {
 }
 
 async function updateDownloadDBEntry(params: DownloadTask) {
-  await db.execute(
-    `
-    UPDATE DownloadTasks
-    SET path = ?, origFileName = ?, status = ?
-    WHERE trackId = ?
-  `,
-    [params.path, params.origFileName, params.status, params.trackId],
-  )
+  await db
+    .update(schema.downloadTasks)
+    .set({
+      path: params.path,
+      origFileName: params.origFileName,
+      status: params.status,
+    })
+    .where(eq(schema.downloadTasks.id, params.id))
 }
 
 // TODO: currently using demo playlist, and playlist currently passed as a string
 export async function addDownloadTask(track: any, playlist: any) {
-  let playlistId: string | undefined = undefined
+  // TODO: do download after playlist & track id checks
+  let playlistId: string | null = null
   if (typeof playlist === "string") {
     playlistId = playlist
     const objTemp = { title: playlist }
-    await db.execute(
-      `
-    INSERT OR IGNORE INTO Playlists (playlistId, meta)
-    VALUES (?, ?)
-  `,
-      [playlistId, objTemp],
-    )
+    await db.insert(schema.playlists).values({
+      playlistId,
+      meta: JSON.stringify(objTemp),
+    })
   }
 
-  const task: DownloadTask = {
+  const task: typeof schema.downloadTasks.$inferInsert = {
     trackId: track.id,
     playlistId: playlistId,
     timestamp: Date.now(),
+    origFileName: null,
+    path: "",
     status: "pending",
   }
 
-  try {
-    await db.execute(
-      `
-    INSERT OR IGNORE INTO LocalTracks (trackId, meta)
-    VALUES (?, ?)
-  `,
-      [task.trackId, JSON.stringify(track)],
-    )
-    await db.execute(
-      `
-    INSERT OR IGNORE INTO DownloadTasks (trackId, playlistId, timestamp, origFileName, path, status)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `,
-      [task.trackId, task.playlistId, task.timestamp, task.origFileName, task.path, task.status],
-    )
+  await db.insert(schema.localTracks).values({
+    trackId: task.trackId,
+    meta: JSON.stringify(track),
+  })
+  const insertedTask = await db.insert(schema.downloadTasks).values(task).returning()
 
-    // await db.execute(
-    //   `
-    //   INSERT INTO PlaylistTracks (playlistId, trackId)
-    //   VALUES (?, ?)
-    // `,
-    //   [task.playlistId, task.trackId],
-    // )
-  } catch (error) {
-    console.error("Error Adding Download Task: ", error)
-    return
-  }
-
-  downloadTasks.value.push(task)
+  console.log(insertedTask)
+  downloadTasks.value.push(insertedTask[0])
 }
 
-export async function resumeDownload(trackId: number) {
-  const task = downloadTasks.value.find((t) => t.trackId === trackId)
+export async function resumeDownload(id: number) {
+  const task = downloadTasks.value.find((t) => t.id === id)
   if (task) {
     task.status = "pending"
     await updateDownloadDBEntry(task)
   }
 }
 
-export async function deleteTask(trackId: number) {
-  try {
-    await db.execute(
-      `
-    DELETE FROM DownloadTasks
-    WHERE trackId = ?
-  `,
-      [trackId],
-    )
-  } catch (error) {
-    console.error("Error Deleting Download Task: ", error)
-    return
-  }
+export async function deleteTask(id: number) {
+  await db.delete(schema.downloadTasks).where(eq(schema.downloadTasks.id, id))
 
-  downloadTasks.value = downloadTasks.value.filter((t) => t.trackId !== trackId)
+  downloadTasks.value = downloadTasks.value.filter((t) => t.id !== id)
 }
 
 export async function deleteAllTasks() {
-  try {
-    await db.execute(
-      `
-      DELETE FROM DownloadTasks
-    `,
-    )
-  } catch (error) {
-    console.error("Error Deleting All Download Tasks: ", error)
-    return
-  }
+  await db.delete(schema.downloadTasks)
 
   downloadTasks.value = []
 }

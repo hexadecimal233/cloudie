@@ -19,7 +19,7 @@
     <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">
       <legend class="fieldset-legend">{{ $t("cloudie.settings.sections.download") }}</legend>
 
-      <!-- TODO: doesnt exit displayer -->
+      <!-- TODO: doesnt exist indicator -->
       <label class="label">{{ $t("cloudie.settings.config.savePath") }}</label>
       <div class="join">
         <input
@@ -28,6 +28,9 @@
           :placeholder="$t('cloudie.settings.config.savePath')"
           v-model="config.savePath" />
         <button class="btn join-item" @click="openSavePathDialog">
+          <Icon icon="mdi:folder-edit" height="auto" />
+        </button>
+        <button class="btn join-item" @click="openPath(config.savePath)">
           <Icon icon="mdi:folder-open" height="auto" />
         </button>
       </div>
@@ -169,6 +172,7 @@ import { getVersion } from "@tauri-apps/api/app"
 import { onMounted, ref } from "vue"
 import { invoke } from "@tauri-apps/api/core"
 import { once } from "@tauri-apps/api/event"
+import { openPath } from "@tauri-apps/plugin-opener"
 
 const versionInfo = ref({
   version: "",
