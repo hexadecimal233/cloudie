@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@tailwindcss/vite':
         specifier: ^4.1.13
-        version: 4.1.14(vite@6.3.6(jiti@2.6.1)(lightningcss@1.30.1))
+        version: 4.1.14(vite@6.3.6(@types/node@24.8.1)(jiti@2.6.1)(lightningcss@1.30.1))
       '@tauri-apps/api':
         specifier: ^2
         version: 2.8.0
@@ -57,9 +57,12 @@ importers:
       '@tauri-apps/cli':
         specifier: ^2
         version: 2.8.4
+      '@types/node':
+        specifier: ^24.8.1
+        version: 24.8.1
       '@vitejs/plugin-vue':
         specifier: ^5.2.1
-        version: 5.2.4(vite@6.3.6(jiti@2.6.1)(lightningcss@1.30.1))(vue@3.5.22(typescript@5.6.3))
+        version: 5.2.4(vite@6.3.6(@types/node@24.8.1)(jiti@2.6.1)(lightningcss@1.30.1))(vue@3.5.22(typescript@5.6.3))
       better-sqlite3:
         specifier: ^12.4.1
         version: 12.4.1
@@ -80,7 +83,7 @@ importers:
         version: 5.6.3
       vite:
         specifier: ^6.0.3
-        version: 6.3.6(jiti@2.6.1)(lightningcss@1.30.1)
+        version: 6.3.6(@types/node@24.8.1)(jiti@2.6.1)(lightningcss@1.30.1)
       vue-tsc:
         specifier: ^2.1.10
         version: 2.2.12(typescript@5.6.3)
@@ -741,6 +744,9 @@ packages:
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
+  '@types/node@24.8.1':
+    resolution: {integrity: sha512-alv65KGRadQVfVcG69MuB4IzdYVpRwMG/mq8KWOaoOdyY617P5ivaDiMCGOFDWD2sAn5Q0mR3mRtUOgm99hL9Q==}
+
   '@vitejs/plugin-vue@5.2.4':
     resolution: {integrity: sha512-7Yx/SXSOcQq5HiiV3orevHUFn+pmMB4cgbEkDYgnkUWb0WfeQ/wa2yFv6D5ICiCQOVpjA7vYDXrC7AGO8yjDHA==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -1316,6 +1322,9 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  undici-types@7.14.0:
+    resolution: {integrity: sha512-QQiYxHuyZ9gQUIrmPo3IA+hUl4KYk8uSA7cHrcKd/l3p1OTpZcM0Tbp9x7FAtXdAYhlasd60ncPpgu6ihG6TOA==}
+
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
@@ -1741,12 +1750,12 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.1.14
       '@tailwindcss/oxide-win32-x64-msvc': 4.1.14
 
-  '@tailwindcss/vite@4.1.14(vite@6.3.6(jiti@2.6.1)(lightningcss@1.30.1))':
+  '@tailwindcss/vite@4.1.14(vite@6.3.6(@types/node@24.8.1)(jiti@2.6.1)(lightningcss@1.30.1))':
     dependencies:
       '@tailwindcss/node': 4.1.14
       '@tailwindcss/oxide': 4.1.14
       tailwindcss: 4.1.14
-      vite: 6.3.6(jiti@2.6.1)(lightningcss@1.30.1)
+      vite: 6.3.6(@types/node@24.8.1)(jiti@2.6.1)(lightningcss@1.30.1)
 
   '@tauri-apps/api@2.8.0': {}
 
@@ -1823,9 +1832,13 @@ snapshots:
 
   '@types/estree@1.0.8': {}
 
-  '@vitejs/plugin-vue@5.2.4(vite@6.3.6(jiti@2.6.1)(lightningcss@1.30.1))(vue@3.5.22(typescript@5.6.3))':
+  '@types/node@24.8.1':
     dependencies:
-      vite: 6.3.6(jiti@2.6.1)(lightningcss@1.30.1)
+      undici-types: 7.14.0
+
+  '@vitejs/plugin-vue@5.2.4(vite@6.3.6(@types/node@24.8.1)(jiti@2.6.1)(lightningcss@1.30.1))(vue@3.5.22(typescript@5.6.3))':
+    dependencies:
+      vite: 6.3.6(@types/node@24.8.1)(jiti@2.6.1)(lightningcss@1.30.1)
       vue: 3.5.22(typescript@5.6.3)
 
   '@volar/language-core@2.4.15':
@@ -2313,9 +2326,11 @@ snapshots:
 
   typescript@5.6.3: {}
 
+  undici-types@7.14.0: {}
+
   util-deprecate@1.0.2: {}
 
-  vite@6.3.6(jiti@2.6.1)(lightningcss@1.30.1):
+  vite@6.3.6(@types/node@24.8.1)(jiti@2.6.1)(lightningcss@1.30.1):
     dependencies:
       esbuild: 0.25.10
       fdir: 6.5.0(picomatch@4.0.3)
@@ -2324,6 +2339,7 @@ snapshots:
       rollup: 4.52.4
       tinyglobby: 0.2.15
     optionalDependencies:
+      '@types/node': 24.8.1
       fsevents: 2.3.3
       jiti: 2.6.1
       lightningcss: 1.30.1

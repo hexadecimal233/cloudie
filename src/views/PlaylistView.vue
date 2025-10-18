@@ -43,8 +43,8 @@
 
 <script setup lang="ts" name="PlaylistView">
 import { ref, onMounted, computed } from "vue"
-import { getJson, getV2ApiJson } from "../utils/api"
-import PlaylistList from "../components/PlaylistList.vue"
+import { getJson, getV2ApiJson } from "@/utils/api"
+import PlaylistList from "@/components/PlaylistList.vue"
 
 const playlists = ref<any[]>([])
 const cache = ref<Record<number, any>>({}) // 有些专获取不到artwork，因为到时候还要用所以就共用一下缓存

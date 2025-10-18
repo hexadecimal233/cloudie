@@ -3,5 +3,5 @@
 </template>
 
 <script setup lang="ts" name="HistoryView">
-import CollectionView from "../components/CollectionView.vue"
+import CollectionView from "@/components/CollectionView.vue"
 </script>

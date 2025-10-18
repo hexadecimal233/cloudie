@@ -117,7 +117,7 @@
 <script setup lang="ts">
 import { Icon } from "@iconify/vue"
 import { onMounted, ref } from "vue"
-import { BasicUserInfo, getUserInfo } from "./utils/api"
+import { BasicUserInfo, getUserInfo } from "@/utils/api"
 
 const user = ref<BasicUserInfo>()
 const loading = ref(true)

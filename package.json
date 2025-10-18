@@ -28,6 +28,7 @@
     "@iconify-json/mdi": "^1.2.3",
     "@iconify/vue": "^5.0.0",
     "@tauri-apps/cli": "^2",
+    "@types/node": "^24.8.1",
     "@vitejs/plugin-vue": "^5.2.1",
     "better-sqlite3": "^12.4.1",
     "daisyui": "^5.1.25",

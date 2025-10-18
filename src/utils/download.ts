@@ -6,8 +6,8 @@ import { getJson, getV2ApiJson } from "./api"
 import { invoke } from "@tauri-apps/api/core"
 import { config } from "./config"
 import { getArtist } from "./utils"
-import { db, DownloadTask, getDownloadDetail, getDownloadTasks } from "../db"
-import * as schema from "../db/schema"
+import { db, DownloadTask, getDownloadDetail, getDownloadTasks } from "@/db"
+import * as schema from "@/db/schema"
 import { eq } from "drizzle-orm"
 
 /**

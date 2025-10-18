@@ -124,10 +124,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue"
-import { deleteAllTasks, deleteTask, downloadTasks, resumeDownload } from "../utils/download"
+import { deleteAllTasks, deleteTask, downloadTasks, resumeDownload } from "@/utils/download"
 import { Icon } from "@iconify/vue"
 import { revealItemInDir } from "@tauri-apps/plugin-opener"
-import { getDownloadDetail, DownloadDetail } from "../db"
+import { getDownloadDetail, DownloadDetail } from "@/db"
 
 const activeTab = ref<"all" | "downloading" | "completed" | "paused" | "failed">("all")
 const downloadDetails = ref<DownloadDetail[]>([])

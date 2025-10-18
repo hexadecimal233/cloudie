@@ -165,9 +165,9 @@
 
 <script setup lang="ts" name="SettingsView">
 import { Icon } from "@iconify/vue"
-import { config } from "../utils/config"
+import { config } from "@/utils/config"
 import { open } from "@tauri-apps/plugin-dialog"
-import { refreshClientId } from "../utils/api"
+import { refreshClientId } from "@/utils/api"
 import { getVersion } from "@tauri-apps/api/app"
 import { onMounted, ref } from "vue"
 import { invoke } from "@tauri-apps/api/core"
