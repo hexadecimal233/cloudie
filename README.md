@@ -49,7 +49,5 @@ Pull Requests: [Pull Requests](https://github.com/hexadecimal233/cloudie/pulls)
 ## TODO List
 
 - [ ] 图标重新设计
-- [ ] 用户状态管理
-- [ ] 主题色重写？
-- [ ] iconify 本地
+- [ ] 主题色重写
 - [ ] Table样式

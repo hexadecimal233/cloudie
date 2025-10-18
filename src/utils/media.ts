@@ -4,4 +4,4 @@ async function setCurrentPlaying() {}
 
 async function updatePlayingState() {}
 
-async function onMediaEvent(event: any) {}
+async function onMediaEvent(_event: any) {}

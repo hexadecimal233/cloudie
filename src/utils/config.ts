@@ -29,10 +29,7 @@ class Config {
   }
 }
 
-const store = await load("cloudie.json", {
-  autoSave: false,
-  defaults: new Config() as any,
-})
+let store: Store // inited later
 
 export const i18n = createI18n({
   legacy: false,
@@ -50,6 +47,11 @@ watch(config, saveConfig, { deep: true })
 
 // 读取配置属性值
 async function getConfigValue<T>(key: keyof Config): Promise<T> {
+  store = await load("cloudie.json", {
+    autoSave: false,
+    defaults: new Config() as any,
+  })
+
   const value = await store.get(key as string)
   if (value === null || value === undefined) {
     return (new Config() as any)[key] as T
