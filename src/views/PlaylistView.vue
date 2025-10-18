@@ -23,7 +23,7 @@
   </div>
 
   <!-- 歌单列表 -->
-  <PlaylistList :items="filteredItems" :cache="cache">
+  <PlaylistList :items="filteredItems" :cache="coverCache">
     <template #bottom>
       <template v-if="loading">
         <div class="loading loading-spinner loading-lg"></div>
@@ -45,9 +45,10 @@
 import { ref, onMounted, computed } from "vue"
 import { getJson, getV2ApiJson } from "@/utils/api"
 import PlaylistList from "@/components/PlaylistList.vue"
+import { PlaylistLike } from "@/utils/types"
 
-const playlists = ref<any[]>([])
-const cache = ref<Record<number, any>>({}) // 有些专获取不到artwork，因为到时候还要用所以就共用一下缓存
+const playlists = ref<PlaylistLike[]>([])
+const coverCache = ref<Record<number, any>>({}) // 有些专获取不到artwork，因为到时候还要用所以就共用一下缓存
 const loading = ref(false)
 const nextHref = ref("")
 const hasNext = ref(false)
@@ -83,8 +84,8 @@ async function fetchNext() {
     nextHref.value = res.next_href || ""
 
     // Fetch missing artwork URLs in the background
-    res.collection.forEach((item: any) => {
-      if (!item.playlist.artwork_url && item.playlist.id) {
+    res.collection.forEach((item: PlaylistLike) => {
+      if (item.playlist && !item.playlist.artwork_url) {
         fetchPlaylist(item.playlist.id)
       }
     })
@@ -98,12 +99,12 @@ async function fetchNext() {
 }
 
 async function fetchPlaylist(id: number) {
-  if (cache.value[id]) {
-    return cache.value[id]
+  if (coverCache.value[id]) {
+    return coverCache.value[id]
   }
 
   const res = await getV2ApiJson(`/playlists/${id}`)
-  cache.value[id] = res
+  coverCache.value[id] = res
   return res
 }
 

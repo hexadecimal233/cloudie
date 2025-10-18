@@ -129,7 +129,7 @@ import {
   downloadDetails,
   pauseDownload,
   resumeDownload,
-} from "@/download/download"
+} from "@/systems/download/download"
 import { Icon } from "@iconify/vue"
 import { revealItemInDir } from "@tauri-apps/plugin-opener"
 

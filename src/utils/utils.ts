@@ -1,3 +1,5 @@
+import { Track } from "./types"
+
 export function replaceImageUrl(url: string, size: number = 500) {
   /*
   availableSizes: [[20, "t20x20"], [50, "t50x50"], [120, "t120x120"], [200, "t200x200"], [500, "t500x500"], [1080, "t1080x1080"]],
@@ -21,10 +23,10 @@ export function checkFFmpeg() {
   // TODO: 检查 ffmpeg 是否存在
 }
 
-export function getArtist(track: any): string {
+export function getArtist(track: Track): string {
   return track.publisher_metadata?.artist ?? track.user?.username ?? ""
 }
 
-export function getCoverUrl(track: any): string {
-  return track.artwork_url ?? track.user?.avatar_url ?? ""
+export function getCoverUrl(track: Track): string {
+  return track.artwork_url ?? track.user.avatar_url ?? ""
 }

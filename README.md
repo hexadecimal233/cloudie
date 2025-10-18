@@ -30,7 +30,7 @@ TODO: TBA
 2. Install dependencies: `pnpm install`
 3. Run the project: `pnpm tauri dev`
 4. (Optional) Build the project: `pnpm tauri build`
-5. (Optional) Modify the database schema in `src/db/schema.ts` and run `pnpm drizzle-kit push` if needed.
+5. (Optional) Modify the database schema in `src/db/schema.ts` and run `pnpm drizzle-kit generate` if a table upgrade is needed.
 
 > [!NOTE]
 > We use PNPM as our package manager, so make sure you have it installed.
@@ -51,3 +51,5 @@ Pull Requests: [Pull Requests](https://github.com/hexadecimal233/cloudie/pulls)
 - [ ] 图标重新设计
 - [ ] 主题色重写
 - [ ] Table样式
+
+- [ ] 注释英文化

@@ -146,10 +146,13 @@
               })
             }}
           </span>
-          <button class="btn btn-sm">
+          <a
+            class="btn btn-sm"
+            href="https://github.com/hexadecimal233/cloudie/releases"
+            target="_blank">
             <Icon icon="mdi:earth-arrow-up" height="auto"></Icon>
             {{ $t("cloudie.settings.about.visitReleases") }}
-          </button>
+          </a>
         </div>
 
         <div class="flex gap-2">
@@ -169,7 +172,7 @@
 
 <script setup lang="ts" name="SettingsView">
 import { Icon } from "@iconify/vue"
-import { config } from "@/utils/config"
+import { config } from "@/systems/config"
 import { open } from "@tauri-apps/plugin-dialog"
 import { refreshClientId } from "@/utils/api"
 import { getVersion } from "@tauri-apps/api/app"
@@ -184,6 +187,7 @@ const versionInfo = ref({
 })
 
 onMounted(async () => {
+  // TODO: check whether save path is valid & on change
   versionInfo.value.version = await getVersion()
   try {
     versionInfo.value.latestVersion = "xxxx"

@@ -21,10 +21,11 @@
 import { ref, onMounted } from "vue"
 import { getJson, getUserInfo, getV2ApiJson } from "../utils/api"
 import TrackList from "./TrackList.vue"
+import { Track, TrackLike } from "@/utils/types"
 
 // 数据获取
 
-const tracks = ref<any[]>([])
+const tracks = ref<Track[]>([])
 const loading = ref(false)
 const nextHref = ref("")
 const hasNext = ref(false)
@@ -47,7 +48,7 @@ async function fetchNext() {
 
   try {
     const res = await promise
-    tracks.value = [...tracks.value, ...(res.collection || [])]
+    tracks.value = [...tracks.value, ...(res.collection.map((item: TrackLike) => item.track) || [])]
     hasNext.value = !!res.next_href
     nextHref.value = res.next_href || ""
   } catch (err) {

@@ -1,7 +1,7 @@
 import { load, Store } from "@tauri-apps/plugin-store"
 import { ref, watch } from "vue"
-import { refreshClientId } from "./api"
-import { i18n } from "./i18n"
+import { refreshClientId } from "@/utils/api"
+import { i18n } from "@/systems/i18n"
 
 class Config {
   //外观

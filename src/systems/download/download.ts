@@ -1,17 +1,18 @@
 /**
- * the download manager
+ * The Download Manager
  */
 
 // TODO: optimize the database operations
 import { ref, watch } from "vue"
 import { invoke } from "@tauri-apps/api/core"
-import { config } from "../utils/config"
-import { getArtist } from "../utils/utils"
-import { db, DownloadDetail, DownloadTask, getDownloadDetail, getDownloadTasks } from "@/db"
-import * as schema from "@/db/schema"
+import { config } from "@/systems/config"
+import { getArtist } from "@/utils/utils"
+import { db, DownloadDetail, DownloadTask, getDownloadDetail, getDownloadTasks } from "@/systems/db"
+import * as schema from "@/systems/db/schema"
 import { and, eq } from "drizzle-orm"
 import { parseDownload } from "./parser"
 import { toast } from "vue-sonner"
+import { Playlist, SystemPlaylist, Track } from "@/utils/types"
 
 interface DownloadResponse {
   path: string
@@ -38,7 +39,7 @@ export async function initDownload() {
   downloadTasks.value = await getDownloadTasks() // details will get updated in watcher
 }
 
-function getDownloadTitle(track: any) {
+function getDownloadTitle(track: Track) {
   switch (config.value.fileNaming) {
     case "title":
       return track.title
@@ -67,7 +68,7 @@ async function updateDownloadDBEntry(params: DownloadTask) {
     )
 }
 
-export async function addDownloadTask(track: any, playlist: any | undefined) {
+export async function addDownloadTask(track: Track, playlist: SystemPlaylist | Playlist | undefined) {
   const playlistId = playlist ? (playlist.id as string) : "liked" // playlist.id is number when its user
   if (playlist) {
     await db

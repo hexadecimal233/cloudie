@@ -39,7 +39,8 @@
       "direct": "直链",
       "geoRestrict": "地区限制",
       "premium": "会员专属",
-      "source": "{count} 轨"
+      "source": "{count} 轨",
+      "noGenre": "无流派"
     },
     "playlists": {
       "playlist": "歌单",

@@ -39,7 +39,8 @@
       "direct": "DL",
       "geoRestrict": "Geo",
       "premium": "Premium",
-      "source": "{count} Sources"
+      "source": "{count} Sources",
+      "noGenre": "No Genre"
     },
     "playlists": {
       "playlist": "Playlist",

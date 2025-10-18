@@ -3,6 +3,8 @@
     <button class="btn btn-primary" @click="downloadSelected">
       {{ $t("cloudie.trackList.downloadSelected") }}
     </button>
+    <!-- TODO: add a label -->
+    <input type="checkbox" class="checkbox" v-model="freeFilter" />
     <div class="join">
       <input
         type="text"
@@ -28,10 +30,10 @@
             class="btn max-w-32 truncate"
             type="checkbox"
             v-for="genre in allGenres"
-            :key="genre"
+            :key="genre ?? ''"
             :value="genre"
             name="genres"
-            :aria-label="genre" />
+            :aria-label="genre ?? $t('cloudie.trackList.noGenre')" />
         </form>
       </div>
     </div>
@@ -67,58 +69,51 @@
       <tbody>
         <tr
           v-for="(item, index) in filteredItems"
-          :key="getTrack(item).id"
+          :key="item.id"
           class="transition-opacity hover:opacity-70">
           <td>
-            <input
-              type="checkbox"
-              class="checkbox"
-              v-model="selectedIds"
-              :value="getTrack(item).id" />
+            <input type="checkbox" class="checkbox" v-model="selectedIds" :value="item.id" />
           </td>
 
           <td>{{ index + 1 }}</td>
 
           <td>
             <div class="flex gap-2">
-              <img
-                :src="getCoverUrl(getTrack(item))"
-                alt="cover"
-                class="size-16 rounded-md object-contain" />
+              <img :src="getCoverUrl(item)" alt="cover" class="size-16 rounded-md object-contain" />
 
               <div class="flex w-full flex-col justify-center">
                 <div class="truncate font-bold">
-                  {{ getTrack(item).title }}
+                  {{ item.title }}
                 </div>
 
                 <div class="text-base-content/70 truncate text-sm">
-                  {{ getArtist(getTrack(item)) }}
+                  {{ getArtist(item) }}
                 </div>
               </div>
             </div>
           </td>
 
-          <td class="truncate">{{ getTrack(item).genre }}</td>
+          <td class="truncate">{{ item.genre }}</td>
 
           <td>
-            {{ formatMillis(getTrack(item).full_duration || getTrack(item).duration) }}
+            {{ formatMillis(item.full_duration) }}
           </td>
 
           <td>
             <div class="flex gap-2">
-              <div v-if="getTrack(item).downloadable" class="badge badge-success">
+              <div v-if="item.downloadable" class="badge badge-success">
                 {{ $t("cloudie.trackList.direct") }}
               </div>
-              <div v-else-if="getTrack(item).policy === 'BLOCK'" class="badge badge-warning">
+              <div v-else-if="item.policy === 'BLOCK'" class="badge badge-warning">
                 {{ $t("cloudie.trackList.geoRestrict") }}
               </div>
-              <div v-else-if="getTrack(item).policy === 'SNIP'" class="badge badge-warning">
+              <div v-else-if="item.policy === 'SNIP'" class="badge badge-warning">
                 {{ $t("cloudie.trackList.premium") }}
               </div>
               <div v-else class="badge">
                 {{
                   $t("cloudie.trackList.source", {
-                    count: getTrack(item).media.transcodings.length,
+                    count: item.media.transcodings.length,
                   })
                 }}
               </div>
@@ -128,10 +123,10 @@
 
           <td>
             <div class="flex">
-              <button class="btn btn-ghost btn-sm" @click="download(getTrack(item))">
+              <button class="btn btn-ghost btn-sm" @click="download(item)">
                 <Icon icon="mdi:download" height="auto" />
               </button>
-              <a class="btn btn-ghost btn-sm" :href="getTrack(item).permalink_url" target="_blank">
+              <a class="btn btn-ghost btn-sm" :href="item.permalink_url" target="_blank">
                 <Icon icon="mdi:open-in-new" height="auto" />
               </a>
             </div>
@@ -159,18 +154,16 @@
 <script setup lang="ts">
 import { ref, computed } from "vue"
 import { formatMillis, getArtist, getCoverUrl } from "../utils/utils"
-import { addDownloadTask } from "../download/download"
+import { addDownloadTask } from "../systems/download/download"
 import { Icon } from "@iconify/vue"
+import { PlaylistLike, Track } from "@/utils/types"
 
 // 音乐显示
 
 const selectedIds = ref<number[]>([])
+const freeFilter = ref(false)
 const searchQuery = ref("")
-const selectedGenres = ref<string[]>([]) // TODO: 获取tag_list
-
-function getTrack(item: any) {
-  return !props.callbackItem ? item.track : item
-}
+const selectedGenres = ref<(string | null)[]>([]) // TODO: 获取tag_list
 
 const filteredItems = computed(() => {
   let items = props.tracks
@@ -180,29 +173,32 @@ const filteredItems = computed(() => {
     const query = searchQuery.value.toLowerCase()
     items = items.filter(
       (item: any) =>
-        getTrack(item).title.toLowerCase().includes(query) ||
-        (getTrack(item).publisher_metadata?.artist &&
-          getTrack(item).publisher_metadata.artist.toLowerCase().includes(query)) ||
-        (getTrack(item).user?.username &&
-          getTrack(item).user.username.toLowerCase().includes(query)),
+        item.title.toLowerCase().includes(query) ||
+        (item.publisher_metadata?.artist &&
+          item.publisher_metadata.artist.toLowerCase().includes(query)) ||
+        (item.user?.username && item.user.username.toLowerCase().includes(query)),
     )
   }
 
   // 类型过滤
   if (selectedGenres.value.length > 0) {
-    items = items.filter((item) => selectedGenres.value.includes(getTrack(item).genre))
+    items = items.filter((item) => selectedGenres.value.includes(item.genre ?? null))
+  }
+
+  if (freeFilter.value) {
+    items = items.filter((item) => isPossibleFreeDownload(item))
   }
 
   return items
 })
 
 const allGenres = computed(() => {
-  const tags = props.tracks.map((item) => getTrack(item).genre).filter(Boolean)
+  const tags = props.tracks.map((item) => item.genre).filter(Boolean)
   return [...new Set(tags)]
 })
 
 function selectAll() {
-  const allFilteredIds = filteredItems.value.map((item) => getTrack(item).id)
+  const allFilteredIds = filteredItems.value.map((item) => item.id)
 
   if (selectedIds.value.length === allFilteredIds.length && allFilteredIds.length > 0) {
     selectedIds.value = []
@@ -229,55 +225,49 @@ function resetFilters() {
 // 下载选中
 async function downloadSelected() {
   for (const id of selectedIds.value) {
-    const track = props.tracks.find((item) => getTrack(item).id === id)
+    const track = props.tracks.find((item) => item.id === id)
     if (track) {
-      await download(getTrack(track))
+      await download(track)
     }
   }
 }
 
-async function download(track: any) {
-  await addDownloadTask(
-    track,
-    props.callbackItem?.playlist || props.callbackItem?.system_playlist,
-  )
+async function download(track: Track) {
+  await addDownloadTask(track, props.callbackItem?.playlist || props.callbackItem?.system_playlist)
 }
 
-// TODO: 检测可能的免费下载
-/*
-
-function isPossibleFreeDownload(track: any): boolean {
+function isPossibleFreeDownload(track: Track) {
   // 检测简介或者标题 是否包含 FREE DOWNLOAD
-  let isFreeDownload = false
+  let isFreeDownload = track.downloadable
+  
   if (track.description) {
-    isFreeDownload =
+    isFreeDownload = isFreeDownload ||
       track.description.toLowerCase().includes("free download") ||
       track.description.toLowerCase().includes("free dl")
   }
-  isFreeDownload =
+  isFreeDownload = isFreeDownload ||
     track.title.toLowerCase().includes("free download") ||
     track.title.toLowerCase().includes("free dl")
 
   // 检测购买链接
   if (track.purchase_url) {
-    isFreeDownload =
+    isFreeDownload = isFreeDownload ||
       track.purchase_url.toLowerCase().includes("dropbox.com") ||
       track.purchase_url.toLowerCase().includes("drive.google.com") ||
       track.purchase_url.toLowerCase().includes("mega.nz")
   }
   if (track.purchase_title) {
-    isFreeDownload =
+    isFreeDownload = isFreeDownload ||
       track.purchase_title.toLowerCase().includes("free download") ||
       track.purchase_title.toLowerCase().includes("free dl")
   }
 
   return isFreeDownload
 }
-*/
 
 const props = defineProps<{
-  tracks: any[]
-  callbackItem?: any
+  tracks: Track[]
+  callbackItem?: PlaylistLike
 }>()
 </script>
 

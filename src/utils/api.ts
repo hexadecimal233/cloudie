@@ -1,5 +1,5 @@
 import { fetch } from "@tauri-apps/plugin-http"
-import { config } from "./config"
+import { config } from "@/systems/config"
 
 let clientIdRefreshing = false
 const v2Url = "https://api-v2.soundcloud.com"

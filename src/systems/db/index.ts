@@ -4,9 +4,14 @@
 
 import Database from "@tauri-apps/plugin-sql"
 import { drizzle } from "drizzle-orm/sqlite-proxy"
-import { getArtist, getCoverUrl } from "../utils/utils"
+import { getArtist, getCoverUrl } from "@/utils/utils"
 import { inArray, desc, and } from "drizzle-orm"
 import * as schema from "./schema"
+import { Playlist, SystemPlaylist, Track } from "@/utils/types"
+
+interface DemoPlaylist {
+  title: string
+}
 
 export type DownloadTask = typeof schema.downloadTasks.$inferSelect
 export interface DownloadDetail extends DownloadTask {
@@ -14,8 +19,8 @@ export interface DownloadDetail extends DownloadTask {
   artist: string
   coverUrl: string
   playlistName?: string
-  playlist: any
-  track: any
+  playlist: Playlist | SystemPlaylist | DemoPlaylist
+  track: Track
 }
 
 let tauriDb: Database
