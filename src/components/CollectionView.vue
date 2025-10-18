@@ -51,8 +51,8 @@ async function fetchNext() {
     hasNext.value = !!res.next_href
     nextHref.value = res.next_href || ""
   } catch (err) {
-    // TODO: Error alert
-    console.error(err)
+    console.error("CollectionView fetchNext error:", err)
+    // TODO: display error on page
   } finally {
     loading.value = false
   }

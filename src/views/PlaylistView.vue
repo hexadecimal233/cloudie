@@ -89,8 +89,8 @@ async function fetchNext() {
       }
     })
   } catch (err) {
-    // TODO: Error alert
-    console.error(err)
+    console.error("PlaylistView fetchNext error:", err)
+    // TODO: display error on page
     return
   } finally {
     loading.value = false

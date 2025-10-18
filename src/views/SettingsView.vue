@@ -116,7 +116,6 @@
         </button>
       </div>
 
-      <!-- TODO: add tutorial -->
       <input
         type="password"
         class="input"

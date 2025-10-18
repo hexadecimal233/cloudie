@@ -1,4 +1,5 @@
 <template>
+  <Toaster closeButton closeButtonPosition="top-right" expand rich-colors />
   <div class="mx-auto flex h-screen flex-col">
     <div class="flex flex-1 overflow-hidden">
       <!-- 左侧 菜单栏 -->
@@ -104,7 +105,7 @@
     </div>
 
     <!-- 播放器 UI -->
-    <div class="flex h-20 bg-base-200 border-t-2 border-base-300/70">
+    <div class="bg-base-200 border-base-300/70 flex h-20 border-t-2">
       <img src="" alt="cover" class="object-cover" />
       <div class="flex flex-col">
         <p>示例标题</p>
@@ -118,6 +119,8 @@
 import { Icon } from "@iconify/vue"
 import { onMounted, ref } from "vue"
 import { BasicUserInfo, getUserInfo } from "@/utils/api"
+import { Toaster } from "vue-sonner"
+import "vue-sonner/style.css"
 
 const user = ref<BasicUserInfo>()
 const loading = ref(true)
@@ -130,5 +133,3 @@ onMounted(async () => {
   }
 })
 </script>
-
-<style scoped></style>

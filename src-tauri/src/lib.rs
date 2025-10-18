@@ -1,9 +1,11 @@
-use std::path::PathBuf;
 use std::process::Command;
+use std::{path::PathBuf, sync::LazyLock};
 
+use audiotags::{Tag, TagType};
 use regex::Regex;
 use reqwest::{self, Client};
 use tauri::{AppHandle, Emitter, Manager, Url, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
+use tauri_plugin_log::log;
 use tauri_plugin_store::StoreExt;
 use tokio;
 
@@ -27,15 +29,12 @@ struct DownloadMeta {
     orig_file_name: String,
 }
 
-/// 净化文件名
-fn sanitize(text: &str) -> String {
-    let re = Regex::new(r#"[\\/:*?\"<>|]"#).unwrap();
-    re.replace_all(text, "_").to_string()
-}
+const SANITIZER: LazyLock<Regex> = LazyLock::new(|| Regex::new("[\\/:*?\"<>|]").unwrap());
 
 /// 核心下载逻辑
 async fn download_logic(
     download_type: &DownloadInfo,
+    cache_dir: &PathBuf,
 ) -> Result<DownloadMeta, Box<dyn std::error::Error>> {
     let client = Client::new(); // fun fact: 这里不用加header也能下载
 
@@ -97,7 +96,8 @@ async fn download_logic(
             if preset == "aac_160k" {
                 // 使用 FFmpeg 处理 HLS M4A 流
                 let m3u8_url = download_type.final_url.clone();
-                let temp_name = format!("cloudie_temp_{}.m4a", uuid::Uuid::new_v4());
+                let temp_name =
+                    cache_dir.join(format!("cloudie_temp_{}.m4a", uuid::Uuid::new_v4()));
 
                 let temp_name_clone = temp_name.clone();
 
@@ -116,7 +116,7 @@ async fn download_logic(
                         "copy",
                         "-crf",
                         "50", // constant rate factor
-                        &temp_name,
+                        temp_name.to_str().unwrap(),
                     ];
 
                     let mut command = Command::new("ffmpeg");
@@ -242,40 +242,40 @@ async fn download_track(
             .and_then(|v| v.as_bool())
             .ok_or("Failed to get nonMp3Convert from config")?;
 
-        let response = download_logic(&download_info)
+        let filename = SANITIZER.replace_all(&download_info.title, "_").to_string();
+        let playlist_dir = save_path.join(
+            SANITIZER
+                .replace_all(&download_info.playlist_name, "_")
+                .to_string(),
+        );
+
+        if separate_dir && !playlist_dir.exists() {
+            std::fs::create_dir_all(&playlist_dir).map_err(|e| {
+                format!(
+                    "Failed to create playlist directory: {}. Error: {}",
+                    playlist_dir.display(),
+                    e
+                )
+            })?;
+        } else if !save_path.exists() {
+            std::fs::create_dir_all(&save_path).map_err(|e| {
+                format!(
+                    "Failed to create base save directory: {}. Error: {}",
+                    save_path.display(),
+                    e
+                )
+            })?;
+        }
+
+        let response = download_logic(&download_info, &save_path)
             .await
             .map_err(|e| e.to_string())?;
 
         // 3. 构造目标路径
-        let filename = sanitize(&download_info.title);
         let orig_file_name = response.orig_file_name.clone();
-
         let dest = if separate_dir {
-            let playlist_dir = save_path.join(sanitize(&download_info.playlist_name));
-            // 确保播放列表目录存在，并处理 IO 错误
-            if !playlist_dir.exists() {
-                std::fs::create_dir_all(&playlist_dir).map_err(|e| {
-                    format!(
-                        "Failed to create playlist directory: {}. Error: {}",
-                        playlist_dir.display(),
-                        e
-                    )
-                })?;
-            }
             playlist_dir.join(format!("{}.{}", filename, response.extension))
         } else {
-            // 确保保存路径存在，并处理 IO 错误
-            if !save_path.exists() {
-                std::fs::create_dir_all(&save_path)
-                    // std::io::Error 自动转换为 AnyError
-                    .map_err(|e| {
-                        format!(
-                            "Failed to create base save directory: {}. Error: {}",
-                            save_path.display(),
-                            e
-                        )
-                    })?;
-            }
             save_path.join(format!("{}.{}", filename, response.extension))
         };
 
@@ -297,6 +297,21 @@ async fn download_track(
         .await
         .map_err(|e| e.to_string())?
         .map_err(|e| e.to_string())?;
+
+        // if response.extension == "mp3" || response.extension == "m4a" {
+        //     let tag_type = if response.extension == "mp3" {
+        //         TagType::Id3v2
+        //     } else {
+        //         TagType::Mp4
+        //     };
+        //
+        //     let mut tag = Tag::new()
+        //         .with_tag_type(tag_type)
+        //         .read_from_path(&dest)
+        //         .or_else(|_| tag.create_new())?;
+        //     tag.set_title(&track.title);
+        //     tag.set_artist(&track.user.username);
+        // }
 
         Ok(DownloadResponse {
             path: dest_str,
@@ -357,7 +372,18 @@ async fn login_soundcloud(app_handle: AppHandle) -> Result<(), String> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let mut builder = tauri::Builder::default().plugin(tauri_plugin_sql::Builder::new().build());
+    let mut builder = tauri::Builder::default()
+        .plugin(
+            tauri_plugin_log::Builder::new()
+                .target(tauri_plugin_log::Target::new(
+                    tauri_plugin_log::TargetKind::LogDir {
+                        file_name: Some("logs".to_string()),
+                    },
+                ))
+                .level(log::LevelFilter::Info)
+                .build(),
+        )
+        .plugin(tauri_plugin_sql::Builder::new().build());
 
     #[cfg(desktop)]
     {
@@ -366,7 +392,7 @@ pub fn run() {
                 .get_webview_window("main")
                 .expect("no main window")
                 .set_focus();
-        }));
+        })); 
     }
 
     builder

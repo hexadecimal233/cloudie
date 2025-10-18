@@ -39,7 +39,6 @@
   </div>
 
   <table class="table w-full">
-    <!-- TODO: 打开目录/系统播放器 -->
     <thead>
       <tr>
         <th>{{ $t("cloudie.downloads.songInfo") }}</th>

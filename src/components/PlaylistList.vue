@@ -54,6 +54,7 @@ import { computed, ref } from "vue"
 import { replaceImageUrl } from "../utils/utils"
 import { getV2ApiJson } from "../utils/api"
 import TrackList from "./TrackList.vue"
+import { toast } from "vue-sonner"
 
 const playlistTracksCache = ref<Record<number | string, any[]>>({}) // 系统播单id是string，歌单id是number
 const currentItem = ref<any>(null)
@@ -97,8 +98,11 @@ async function open(item: any) {
     currentResponse.value = item
     playlistTracksCache.value[item.playlist?.id || item.system_playlist.id] = finalTracks
     currentItem.value = finalTracks
-  } catch (err) {
-    console.log(err) // TODO: 处理错误
+  } catch (err: any) {
+    console.error("PlaylistList open error:", err)
+    toast.error("打开歌单失败", {
+      description: err.message,
+    })
   }
 }
 

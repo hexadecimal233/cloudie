@@ -1,6 +1,8 @@
-// TODO: playlist downloader
-// TODO: optimize the database operations
+/**
+ * the download manager
+ */
 
+// TODO: optimize the database operations
 import { ref, watch } from "vue"
 import { invoke } from "@tauri-apps/api/core"
 import { config } from "../utils/config"
@@ -9,10 +11,7 @@ import { db, DownloadDetail, DownloadTask, getDownloadDetail, getDownloadTasks }
 import * as schema from "@/db/schema"
 import { and, eq } from "drizzle-orm"
 import { parseDownload } from "./parser"
-
-/**
- * 下载管理器部分
- */
+import { toast } from "vue-sonner"
 
 interface DownloadResponse {
   path: string
@@ -24,7 +23,6 @@ export const downloadDetails = ref<DownloadDetail[]>([])
 watch(
   downloadTasks,
   async (v, _oldV) => {
-    console.log("downloadTasks: updated", v)
     // 1. 执行任务
     tryRunTask()
     // 2. 更新下载详情
@@ -110,7 +108,7 @@ export async function addDownloadTask(track: any, playlist: any | undefined) {
 
   const insertedTask = await db.insert(schema.downloadTasks).values(task).returning()
 
-  console.log(insertedTask)
+  console.debug("New download task: ", insertedTask)
   downloadTasks.value.push(insertedTask[0])
 }
 
@@ -120,12 +118,11 @@ export async function resumeDownload(downloadTask: DownloadTask) {
   )
   if (task) {
     task.status = "pending"
-    await updateDownloadDBEntry(task)
   }
 }
 
 export async function pauseDownload(_downloadTask: DownloadTask) {
-  throw Error("Unimplemented")
+  throw new Error("Unimplemented")
 
   //  const task = downloadTasks.value.find(
   //    (t) => t.trackId === downloadTask.trackId && t.playlistId === downloadTask.playlistId,
@@ -175,30 +172,28 @@ function tryRunTask() {
 async function runTask(task: DownloadTask) {
   const detail = (await getDownloadDetail([task]))[0]
   task.status = "getinfo"
-  // TODO: 已开始下载提示 已完成下载提示
+  console.debug(task.status, task)
 
   try {
     const info = await parseDownload(detail.track)
     task.status = "downloading"
+    console.debug(task.status, task)
 
-    try {
-      const response = await invoke<DownloadResponse>("download_track", {
-        finalUrl: info.finalUrl,
-        downloadType: info.downloadType,
-        preset: info.preset,
-        title: getDownloadTitle(detail.track),
-        playlistName: detail.playlistName, // target folder name
-      })
+    const response = await invoke<DownloadResponse>("download_track", {
+      finalUrl: info.finalUrl,
+      downloadType: info.downloadType,
+      preset: info.preset,
+      title: getDownloadTitle(detail.track),
+      playlistName: detail.playlistName, // Target folder name
+    })
 
-      task.path = response.path
-      task.origFileName = response.origFileName
-      task.status = "completed"
-    } catch (err) {
-      console.log("下载失败: ", err) // TODO: 处理下载失败的情况，例如显示错误提示
-      task.status = "failed"
-    }
+    task.path = response.path
+    task.origFileName = response.origFileName
+    task.status = "completed"
+    console.debug(task.status, task)
   } catch (err) {
-    console.log("下载失败: ", err) // TODO: 处理下载失败的情况，例如显示错误提示
+    console.error("Download failed: ", err)
+    toast.error("Download failed: " + err)
     task.status = "failed"
   }
 }

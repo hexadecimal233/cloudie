@@ -50,7 +50,6 @@ function sortTranscodings(track: any, protocol?: "progressive" | "hls"): Transco
 // track_authorization only affects get stream from API, transcoding cache is not affected
 export async function parseDownload(track: any): Promise<ParsedDownload> {
   // TODO: 自选编码
-  
   // TODO: secret_token参数获取私人下载链接
   if (track["downloadable"] && config.value.preferDirectDownload) {
     // 处理直连下载 TODO: 开设新section

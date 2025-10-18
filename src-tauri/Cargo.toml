@@ -32,6 +32,8 @@ tokio = "1.47.1"
 futures = "0.3.31"
 uuid = { version = "1.18.1", features = ["v4"] }
 tauri-plugin-sql = { version = "2", features = ["sqlite"] }
+tauri-plugin-log = "2"
+audiotags = "0.5.0"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = "2"

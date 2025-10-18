@@ -8,19 +8,39 @@ import mdi from "@iconify-json/mdi/icons.json"
 import { initDb } from "./db"
 import { initDownload } from "./download/download"
 import { i18n, initI18n } from "./utils/i18n"
+import { warn, debug, trace, info, error } from "@tauri-apps/plugin-log"
 
-const initApp = async () => {
-  // 加载数据库，配置，图标
+function forwardConsole(
+  fnName: "log" | "debug" | "info" | "warn" | "error",
+  logger: (message: string) => Promise<void>,
+) {
+  const original = console[fnName]
+  console[fnName] = (message) => {
+    original(message)
+    logger(message)
+  }
+}
+
+async function initApp() {
+  // redir console to tauri
+  forwardConsole("log", trace)
+  forwardConsole("debug", debug)
+  forwardConsole("info", info)
+  forwardConsole("warn", warn)
+  forwardConsole("error", error)
+
+  // load systems
   await initI18n()
   await initDb()
   await initConfig()
   await initDownload()
 
-  addCollection(mdi) // TODO: dynamically load icon collections
+  addCollection(mdi) // TODO: dynamically load icon collections to cut down bundle size
 
   const app = createApp(App)
   app.use(i18n)
   app.use(router)
+
   app.mount("#app")
 }
 
