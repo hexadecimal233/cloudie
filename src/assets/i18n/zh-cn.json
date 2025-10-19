@@ -1,5 +1,6 @@
 {
   "cloudie": {
+    "langName": "中文",
     "main": {
       "searchBar": "搜索 (暂未实现)",
       "likes": "喜欢的音乐",
@@ -47,6 +48,12 @@
       "album": "专辑",
       "systemPlaylist": "系统推荐",
       "madeFor": "为 {name} 推荐"
+    },
+    "toasts": {
+      "playlistOpenFailed": "打开歌单失败",
+      "downloadFailed": "下载失败",
+      "loginFailed": "登录失败",
+      "loginSuccess": "登录成功"
     },
     "common": {
       "loading": "加载中...",

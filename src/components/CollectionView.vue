@@ -23,8 +23,6 @@ import { getJson, getUserInfo, getV2ApiJson } from "../utils/api"
 import TrackList from "./TrackList.vue"
 import { CollectionResp, Track, TrackLike } from "@/utils/types"
 
-// 数据获取
-
 const tracks = ref<Track[]>([])
 const loading = ref(false)
 const nextHref = ref<string | null>(null)

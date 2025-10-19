@@ -1,13 +1,16 @@
 use std::process::Command;
+use std::sync::{Arc, Mutex};
 use std::{path::PathBuf, sync::LazyLock};
 
-use audiotags::{Tag, TagType};
 use regex::Regex;
 use reqwest::{self, Client};
-use tauri::{AppHandle, Emitter, Manager, Url, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
+use tauri::{
+    AppHandle, Manager, Url, WebviewUrl, WebviewWindow, WebviewWindowBuilder, WindowEvent,
+};
 use tauri_plugin_log::log;
 use tauri_plugin_store::StoreExt;
 use tokio;
+use tokio::sync::oneshot;
 
 struct DownloadInfo {
     final_url: String,
@@ -323,7 +326,7 @@ async fn download_track(
     result.map_err(|e| e.to_string())
 }
 
-/// 检查 SoundCloud 是否已登录 (TODO: 检测登录失效)
+/// Check if SoundCloud is logged in, login will auto refresh on soundcloud.com
 fn check_cookies(window: &WebviewWindow) -> Option<String> {
     let url = Url::parse("https://soundcloud.com").unwrap();
 
@@ -336,9 +339,9 @@ fn check_cookies(window: &WebviewWindow) -> Option<String> {
     None
 }
 
-/// 登录 SoundCloud 返回 oauth_token
+/// Login to SoundCloud and return oauth_token
 #[tauri::command]
-async fn login_soundcloud(app_handle: AppHandle) -> Result<(), String> {
+async fn login_soundcloud(app_handle: AppHandle) -> Result<String, String> {
     if app_handle.get_webview_window("soundcloud_login").is_some() {
         return Err("Login window is already open.".to_string());
     }
@@ -346,30 +349,61 @@ async fn login_soundcloud(app_handle: AppHandle) -> Result<(), String> {
     const SIGN_IN_URL: &str = "https://soundcloud.com/signin";
     const TARGET_HOST: &str = "soundcloud.com";
 
-    let _login_window = WebviewWindowBuilder::new(
+    let (tx, rx) = oneshot::channel();
+    let tx_shared = Arc::new(Mutex::new(Some(tx)));
+    let tx_shared_clone = tx_shared.clone();
+
+    let login_window = WebviewWindowBuilder::new(
         &app_handle,
         "soundcloud_login",
         WebviewUrl::External(SIGN_IN_URL.parse().unwrap()),
     )
     .title("Login")
-    // FIXME: window freeze
-    .on_page_load({
-        move |window, payload| {
-            if payload.url().host_str() == Some(TARGET_HOST) {
-                println!("Page loaded: {}", payload.url().to_string());
-                if let Some(token) = check_cookies(&window) {
-                    println!("Token found emitting event");
-                    let _ = window.emit("sc_login_finished", token);
-                    let _ = window.close();
-                }
+    // tauri doesnt support navigation event with window passed, so we check title changed
+    .on_document_title_changed({
+        move |window, title| {
+            let window_clone = window.clone();
+            let tx_shared = tx_shared_clone.clone();
+            window_clone.set_title(&title).unwrap();
+
+            let url = window_clone.url().unwrap();
+            if url.host_str() == Some(TARGET_HOST) {
+                // spawn new thread to check cookies to prevent window freeze
+                tauri::async_runtime::spawn(async move {
+                    if let Some(token) = check_cookies(&window_clone) {
+                        if let Ok(mut tx_guard) = tx_shared.lock() {
+                            if let Some(tx) = tx_guard.take() {
+                                tx.send(Some(token)).unwrap();
+                                window_clone.close().unwrap();
+                            }
+                        }
+                    }
+                });
             }
         }
     })
     .build()
     .map_err(|e| format!("Failed to create login window: {}", e.to_string()))?;
-    Ok(())
-}
 
+    let tx_shared_close = tx_shared.clone();
+    login_window.on_window_event(move |event| {
+        if let WindowEvent::CloseRequested { .. } = event {
+            if let Ok(mut tx_guard) = tx_shared_close.lock() {
+                if let Some(tx) = tx_guard.take() {
+                    let _ = tx.send(None);
+                }
+            }
+        }
+    });
+
+    // 等待登录完成
+    let oauth_token = rx.await.map_err(|e| format!("Login interrupted: {}", e))?;
+
+    match oauth_token {
+        Some(token) => Ok(token),
+        None => Err("Login canceled by user.".to_string()),
+    }
+}
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut builder = tauri::Builder::default()
@@ -383,7 +417,12 @@ pub fn run() {
                 .level(log::LevelFilter::Info)
                 .build(),
         )
-        .plugin(tauri_plugin_sql::Builder::new().build());
+        .plugin(tauri_plugin_sql::Builder::new().build())
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_http::init())
+        .plugin(tauri_plugin_store::Builder::new().build())
+        .plugin(tauri_plugin_opener::init());
 
     #[cfg(desktop)]
     {
@@ -392,15 +431,10 @@ pub fn run() {
                 .get_webview_window("main")
                 .expect("no main window")
                 .set_focus();
-        })); 
+        }));
     }
 
     builder
-        .plugin(tauri_plugin_fs::init())
-        .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_http::init())
-        .plugin(tauri_plugin_store::Builder::new().build())
-        .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![download_track, login_soundcloud])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

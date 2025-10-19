@@ -13,6 +13,7 @@ import { and, eq } from "drizzle-orm"
 import { parseDownload } from "./parser"
 import { toast } from "vue-sonner"
 import { Playlist, SystemPlaylist, Track } from "@/utils/types"
+import { i18n } from "@/systems/i18n"
 
 interface DownloadResponse {
   path: string
@@ -194,7 +195,9 @@ async function runTask(task: DownloadTask) {
     console.debug(task.status, task)
   } catch (err) {
     console.error("Download failed: ", err)
-    toast.error("Download failed: " + err)
+    toast.error(i18n.global.t("cloudie.toasts.downloadFailed"), {
+      description: err as string,
+    })
     task.status = "failed"
   }
 }

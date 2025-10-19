@@ -58,6 +58,7 @@ import { getV2ApiJson } from "../utils/api"
 import TrackList from "./TrackList.vue"
 import { toast } from "vue-sonner"
 import { PartialTrack, PlaylistLike, Track } from "@/utils/types"
+import { i18n } from "@/systems/i18n"
 
 const playlistTracksCache = ref<Record<string | number, Track[]>>({}) // 系统播单id是string，歌单id是number
 const currentItem = ref<Track[]>()
@@ -104,7 +105,7 @@ async function open(item: PlaylistLike) {
     currentItem.value = finalTracks
   } catch (err: any) {
     console.error("PlaylistList open error:", err)
-    toast.error("打开歌单失败", {
+    toast.error(i18n.global.t("cloudie.toasts.playlistOpenFailed"), {
       description: err.message,
     })
   }

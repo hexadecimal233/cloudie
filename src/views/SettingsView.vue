@@ -5,8 +5,9 @@
 
       <label class="label cursor-pointer">{{ $t("cloudie.settings.config.language") }}</label>
       <select class="select" v-model="config.language">
-        <option value="zh-cn">简体中文</option>
-        <option value="en">English</option>
+        <option v-for="lang in LANGUAGE_OPTIONS" :key="lang" :value="lang">
+          {{ $t("cloudie.langName", "", { locale: lang }) }}
+        </option>
       </select>
 
       <label class="label cursor-pointer">{{ $t("cloudie.settings.config.theme") }}</label>
@@ -178,8 +179,9 @@ import { refreshClientId } from "@/utils/api"
 import { getVersion } from "@tauri-apps/api/app"
 import { onMounted, ref } from "vue"
 import { invoke } from "@tauri-apps/api/core"
-import { once } from "@tauri-apps/api/event"
 import { openPath } from "@tauri-apps/plugin-opener"
+import { toast } from "vue-sonner"
+import { i18n, LANGUAGE_OPTIONS } from "@/systems/i18n"
 
 const versionInfo = ref({
   version: "",
@@ -194,7 +196,7 @@ onMounted(async () => {
     // TODO: 从github获取最新版本
   } catch (error) {
     versionInfo.value.latestVersion = "获取失败"
-    console.error("获取最新版本失败: ", error)
+    console.error("Failed to get latest version: ", error)
   }
 })
 
@@ -209,18 +211,16 @@ async function openSavePathDialog() {
   }
 }
 
-once("sc_login_finished", (event) => {
-  console.log("登录Soundcloud 完成: ", event.payload)
-  if (event.payload) {
-    config.value.oauthToken = event.payload as string
-  }
-})
-
 async function loginSoundcloud() {
   try {
-    await invoke("login_soundcloud")
+    const token = await invoke<string>("login_soundcloud")
+    config.value.oauthToken = token
+    toast.success(i18n.global.t("cloudie.toasts.loginSuccess"))
   } catch (error) {
-    console.error("登录Soundcloud失败: ", error) // 打印错误信息
+    console.error("Failed to login Soundcloud: ", error) // 打印错误信息
+    toast.error(i18n.global.t("cloudie.toasts.loginFailed"), {
+      description: error as string,
+    })
   }
 }
 </script>

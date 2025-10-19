@@ -1,15 +1,17 @@
 import { createI18n, I18n } from "vue-i18n"
 
-export let i18n: I18n
+export let i18n: I18n<any, any, any, any, false>
+
+export const LANGUAGE_OPTIONS = ["zh-CN", "en-US"] as const
 
 export async function initI18n() {
   i18n = createI18n({
     legacy: false,
-    locale: "en-us",
-    fallbackLocale: "en-us",
+    locale: "en-US",
+    fallbackLocale: "en-US",
     messages: {
-      "zh-cn": await import("../assets/i18n/zh-cn.json"),
-      "en-us": await import("../assets/i18n/en-us.json"),
+      "zh-CN": await import("@/assets/i18n/zh-CN.json"),
+      "en-US": await import("@/assets/i18n/en-US.json"),
     },
   })
 }

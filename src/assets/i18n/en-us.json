@@ -1,5 +1,6 @@
 {
   "cloudie": {
+    "langName": "English",
     "main": {
       "searchBar": "Search (unimplemented yet)",
       "likes": "Likes",
@@ -31,7 +32,7 @@
       "downloadSelected": "Download Selected",
       "search": "Search",
       "selected": "Selected: {count}",
-      "searchResult": "{count} items found",
+      "searchResult": "1 item found | {count} items found",
       "song": "Song",
       "genre": "Genre",
       "duration": "Duration",
@@ -39,7 +40,7 @@
       "direct": "DL",
       "geoRestrict": "Geo",
       "premium": "Premium",
-      "source": "{count} Sources",
+      "source": "1 Source | {count} Sources",
       "noGenre": "No Genre"
     },
     "playlists": {
@@ -54,6 +55,12 @@
       "loadMore": "Load More",
       "empty": "Nothing Here (。・ω・。)",
       "emptyDesc": "Please try refreshing or adjusting your query."
+    },
+    "toasts": {
+      "playlistOpenFailed": "Failed to open playlist",
+      "downloadFailed": "Download failed",
+      "loginFailed": "Login failed",
+      "loginSuccess": "Login success"
     },
     "settings": {
       "config": {
