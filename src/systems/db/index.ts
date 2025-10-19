@@ -58,17 +58,7 @@ export const db = drizzle(
 export async function initDb() {
   tauriDb = await Database.load("sqlite:soundcloud.db")
 
-  /**
-   * create table from schema if does not exist
-   * Setting up the Database:
-   * 1. Make edits in `src/db/schema.ts`
-   * 2. Run `pnpm drizzle-kit genrate` to generate the SQL migration file.
-   * 3. Paste the SQL migration file into `src/db/index.ts` and manually add `IF NOT EXISTS` to each table creation statement.
-   */
   await tauriDb.execute("PRAGMA optimize;")
-  await tauriDb.execute(
-    "CREATE TABLE IF NOT EXISTS `DownloadTasks` ( `id` integer PRIMARY KEY AUTOINCREMENT NOT NULL, `trackId` integer NOT NULL, `playlistId` text, `timestamp` integer NOT NULL, `origFileName` text, `path` text NOT NULL, `status` text NOT NULL, FOREIGN KEY (`trackId`) REFERENCES `LocalTracks`(`trackId`) ON UPDATE no action ON DELETE no action, FOREIGN KEY (`playlistId`) REFERENCES `Playlists`(`playlistId`) ON UPDATE no action ON DELETE no action ); CREATE TABLE IF NOT EXISTS `ListeningList` ( `trackId` integer PRIMARY KEY NOT NULL, `timestamp` integer NOT NULL, FOREIGN KEY (`trackId`) REFERENCES `LocalTracks`(`trackId`) ON UPDATE no action ON DELETE no action ); CREATE TABLE IF NOT EXISTS `LocalTracks` ( `trackId` integer PRIMARY KEY NOT NULL, `meta` text NOT NULL ); CREATE TABLE IF NOT EXISTS `Playlists` ( `playlistId` text PRIMARY KEY NOT NULL, `meta` text NOT NULL );",
-  )
 
   // create default liked playlist
   await db

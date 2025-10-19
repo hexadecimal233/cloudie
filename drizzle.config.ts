@@ -25,7 +25,7 @@ function getDataDir(): string {
 }
 
 export default defineConfig({
-  out: "./drizzle",
+  out: "./src-tauri/drizzle",
   schema: "./src/systems/db/schema.ts",
   dialect: "sqlite",
   dbCredentials: {

@@ -8,6 +8,7 @@ use tauri::{
     AppHandle, Manager, Url, WebviewUrl, WebviewWindow, WebviewWindowBuilder, WindowEvent,
 };
 use tauri_plugin_log::log;
+use tauri_plugin_sql::{Migration, MigrationKind};
 use tauri_plugin_store::StoreExt;
 use tokio;
 use tokio::sync::oneshot;
@@ -404,8 +405,16 @@ async fn login_soundcloud(app_handle: AppHandle) -> Result<String, String> {
         None => Err("Login canceled by user.".to_string()),
     }
 }
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let migrations = vec![Migration {
+        version: 0,
+        description: "init",
+        sql: include_str!("../drizzle/0000_broad_the_order.sql"),
+        kind: MigrationKind::Up,
+    }];
+
     let mut builder = tauri::Builder::default()
         .plugin(
             tauri_plugin_log::Builder::new()
@@ -417,7 +426,11 @@ pub fn run() {
                 .level(log::LevelFilter::Info)
                 .build(),
         )
-        .plugin(tauri_plugin_sql::Builder::new().build())
+        .plugin(
+            tauri_plugin_sql::Builder::new()
+                .add_migrations("sqlite:soundcloud.db", migrations)
+                .build(),
+        )
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_http::init())

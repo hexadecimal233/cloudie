@@ -101,7 +101,7 @@ export const PRESET_ORDER = [
   "mp3_0_1",
   "mp3_standard",
   "mp3_0_0",
-]
+] as const
 
 export type Preset = (typeof PRESET_ORDER)[number]
 
