@@ -45,12 +45,12 @@
 import { ref, onMounted, computed } from "vue"
 import { getJson, getV2ApiJson } from "@/utils/api"
 import PlaylistList from "@/components/PlaylistList.vue"
-import { PlaylistLike } from "@/utils/types"
+import { CollectionResp, PlaylistLike } from "@/utils/types"
 
 const playlists = ref<PlaylistLike[]>([])
 const coverCache = ref<Record<number, any>>({}) // 有些专获取不到artwork，因为到时候还要用所以就共用一下缓存
 const loading = ref(false)
-const nextHref = ref("")
+const nextHref = ref<string | null>(null)
 const hasNext = ref(false)
 const activeTab = ref<"system" | "playlist" | "album">("playlist")
 
@@ -78,10 +78,10 @@ async function fetchNext() {
     : getV2ApiJson("/me/library/all", { limit: 30 })
 
   try {
-    const res = await promise
+    const res: CollectionResp<PlaylistLike> = await promise
     playlists.value = [...playlists.value, ...(res.collection || [])]
     hasNext.value = !!res.next_href
-    nextHref.value = res.next_href || ""
+    nextHref.value = res.next_href
 
     // Fetch missing artwork URLs in the background
     res.collection.forEach((item: PlaylistLike) => {

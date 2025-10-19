@@ -21,13 +21,13 @@
 import { ref, onMounted } from "vue"
 import { getJson, getUserInfo, getV2ApiJson } from "../utils/api"
 import TrackList from "./TrackList.vue"
-import { Track, TrackLike } from "@/utils/types"
+import { CollectionResp, Track, TrackLike } from "@/utils/types"
 
 // 数据获取
 
 const tracks = ref<Track[]>([])
 const loading = ref(false)
-const nextHref = ref("")
+const nextHref = ref<string | null>(null)
 const hasNext = ref(false)
 
 const props = defineProps<{
@@ -47,10 +47,10 @@ async function fetchNext() {
   const promise = nextHref.value ? getJson(nextHref.value) : getV2ApiJson(url, { limit: 500 })
 
   try {
-    const res = await promise
-    tracks.value = [...tracks.value, ...(res.collection.map((item: TrackLike) => item.track) || [])]
+    const res: CollectionResp<TrackLike> = await promise
+    tracks.value = [...tracks.value, ...(res.collection.map((item) => item.track) || [])]
     hasNext.value = !!res.next_href
-    nextHref.value = res.next_href || ""
+    nextHref.value = res.next_href
   } catch (err) {
     console.error("CollectionView fetchNext error:", err)
     // TODO: display error on page

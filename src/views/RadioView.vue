@@ -1,5 +1,5 @@
 <template>
-  <!-- 电台列表 没搞懂声云为什么电台要专门开个栏目出来 FIXME: 显示为undefined创作 -->
+  <!-- 电台列表 没搞懂声云为什么电台要专门开个栏目出来 -->
   <PlaylistList :items="stations" :cache="{}">
     <template #bottom>
       <template v-if="loading">
@@ -22,10 +22,11 @@
 import { ref, onMounted } from "vue"
 import { getJson, getV2ApiJson } from "@/utils/api"
 import PlaylistList from "@/components/PlaylistList.vue"
+import { CollectionResp, PlaylistLike } from "@/utils/types"
 
-const stations = ref<any[]>([])
+const stations = ref<PlaylistLike[]>([])
 const loading = ref(false)
-const nextHref = ref("")
+const nextHref = ref<string | null>(null)
 const hasNext = ref(false)
 
 async function fetchNext() {
@@ -36,10 +37,10 @@ async function fetchNext() {
     : getV2ApiJson("/me/library/stations", { limit: 10 })
 
   try {
-    const res = await promise
+    const res: CollectionResp<PlaylistLike> = await promise
     stations.value = [...stations.value, ...(res.collection || [])]
     hasNext.value = !!res.next_href
-    nextHref.value = res.next_href || ""
+    nextHref.value = res.next_href
   } catch (err) {
     console.error("RadioView fetchNext error:", err)
     // TODO: display error on page
