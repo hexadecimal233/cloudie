@@ -135,7 +135,6 @@ import { revealItemInDir } from "@tauri-apps/plugin-opener"
 
 const activeTab = ref<"all" | "downloading" | "completed" | "paused" | "failed">("all")
 
-// 根据当前tab过滤项目
 const filteredItems = computed(() => {
   const items = downloadDetails.value
   switch (activeTab.value) {

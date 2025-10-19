@@ -72,6 +72,7 @@ export async function initDb() {
 
 export async function getDownloadDetail(downloadTasks: DownloadTask[]): Promise<DownloadDetail[]> {
   const rawResult = await db.query.downloadTasks.findMany({
+    orderBy: [desc(schema.downloadTasks.timestamp)],
     where: and(
       inArray(
         schema.downloadTasks.trackId,

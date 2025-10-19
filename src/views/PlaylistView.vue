@@ -54,7 +54,6 @@ const nextHref = ref<string | null>(null)
 const hasNext = ref(false)
 const activeTab = ref<"system" | "playlist" | "album">("playlist")
 
-// 根据当前tab过滤项目
 const filteredItems = computed(() => {
   switch (activeTab.value) {
     case "system":

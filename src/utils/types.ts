@@ -9,7 +9,14 @@ export interface TrackLike {
 
 export type TrackLikeKind = "like"
 
-export interface Track {
+export interface PartialTrack {
+  id: number
+  kind: TrackKind
+  monetization_model: MonetizationModel
+  policy: Policy
+}
+
+export interface Track extends PartialTrack {
   artwork_url: null | string
   caption: null | string
   commentable: boolean
@@ -23,8 +30,6 @@ export interface Track {
   embeddable_by: EmbeddableBy
   genre: null | string
   has_downloads_left: boolean
-  id: number
-  kind: TrackKind
   label_name: null | string
   last_modified: Date
   license: License
@@ -54,8 +59,6 @@ export interface Track {
   station_urn: string
   station_permalink: string
   track_authorization: string
-  monetization_model: MonetizationModel
-  policy: Policy
   user: User
 }
 
@@ -90,17 +93,17 @@ export type MIMEType =
   | "audio/mpeg"
   | 'audio/ogg; codecs="opus"'
 
-export type Protocol = "hls" | "progressive" | "ctr-encrypted-hls" | "cbc-encrypted-hls" // TODO: 暂时不支持加密流
+export type Protocol = "hls" | "progressive" | "ctr-encrypted-hls" | "cbc-encrypted-hls" // TODO: Encrypted HLS currently not supported
 
 export const PRESET_ORDER = [
   "aac_256k",
   "aac_160k",
-  "abr_sq",
   "mp3_1_0",
   "opus_0_0",
   "mp3_0_1",
   "mp3_standard",
   "mp3_0_0",
+  "abr_sq",
 ] as const
 
 export type Preset = (typeof PRESET_ORDER)[number]
@@ -219,6 +222,7 @@ export interface Playlist {
   release_date: Date | null
   display_date: Date
   user: User
+  tracks?: PartialTrack[]
 }
 
 export type PlaylistKind = "playlist"
@@ -254,13 +258,6 @@ export type PlaylistType = "PLAYLIST" | "TRACK_STATION"
 export interface Seed {
   urn: string
   permalink: string
-}
-
-export interface PartialTrack {
-  id: number
-  kind: TrackKind
-  monetization_model: MonetizationModel
-  policy: Policy
 }
 
 export type PlaylistLikeType = "playlist-like" | "system-playlist-like"

@@ -57,7 +57,7 @@ import { replaceImageUrl } from "../utils/utils"
 import { getV2ApiJson } from "../utils/api"
 import TrackList from "./TrackList.vue"
 import { toast } from "vue-sonner"
-import { PartialTrack, PlaylistLike, Track } from "@/utils/types"
+import { PartialTrack, Playlist, PlaylistLike, Track } from "@/utils/types"
 import { i18n } from "@/systems/i18n"
 
 const playlistTracksCache = ref<Record<string | number, Track[]>>({}) // 系统播单id是string，歌单id是number
@@ -79,9 +79,8 @@ async function open(item: PlaylistLike) {
   try {
     let partialTracks: PartialTrack[]
     if (item.playlist) {
-      partialTracks = (
-        await getV2ApiJson(`/playlists/${item.playlist.id}`, { representation: "full" })
-      ).tracks
+      const resp = await getV2ApiJson(`/playlists/${item.playlist.id}`, { representation: "full" }) as Playlist
+      partialTracks = resp.tracks!
     } else {
       partialTracks = item.system_playlist.tracks
     }

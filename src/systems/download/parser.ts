@@ -11,7 +11,7 @@ interface ParsedDownload {
 // get transcodings in descending order of priority
 function sortTranscodings(track: Track, protocol?: "progressive" | "hls"): Transcoding[] {
   const transcodings = track.media.transcodings.sort((a: Transcoding, b: Transcoding) => {
-    return PRESET_ORDER.indexOf(b.preset) - PRESET_ORDER.indexOf(a.preset)
+    return PRESET_ORDER.indexOf(a.preset) - PRESET_ORDER.indexOf(b.preset)
   })
   if (!protocol) return transcodings
   return transcodings.filter((t: Transcoding) => t.format.protocol === protocol)

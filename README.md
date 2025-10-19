@@ -56,7 +56,7 @@ Recommended IDE Setup:
 - [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
 - [Prettier - Code formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 - [i18n Ally](https://marketplace.visualstudio.com/items?itemName=Lokalise.i18n-ally)
-- [CodeLLDB](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb) - Rust 调试支持
+- [CodeLLDB](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb)
 
 Report Issues / Submit Feature Requests: [Issues](https://github.com/hexadecimal233/cloudie/issues)
 
@@ -68,6 +68,4 @@ Pull Requests: [Pull Requests](https://github.com/hexadecimal233/cloudie/pulls)
 
 - [ ] 图标重新设计
 - [ ] 主题色重写
-- [ ] Table样式
-
-- [ ] 注释英文化
+- [ ] Table样式优化

@@ -20,7 +20,7 @@ export function formatMillis(millis: number) {
 }
 
 export function checkFFmpeg() {
-  // TODO: 检查 ffmpeg 是否存在
+  // TODO: check if ffmpeg is installed
 }
 
 export function getArtist(track: Track): string {

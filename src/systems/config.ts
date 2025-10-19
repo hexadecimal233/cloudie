@@ -5,7 +5,7 @@ import { i18n, LANGUAGE_OPTIONS } from "./i18n"
 
 class Config {
   //外观
-  language: typeof LANGUAGE_OPTIONS[number] = "en-US"
+  language: typeof LANGUAGE_OPTIONS[number] = "en"
   theme: "light" | "dark" = "light" // TODO: 主题
   // 下载
   savePath: string = ""
