@@ -40,15 +40,23 @@ This app does not use the Soundcloud API to perform token update, which reduces 
 
 ### Database Schema
 
-1. Modify the database schema in `src/systems/db/schema.ts` 
+1. Modify the database schema in `src/systems/db/schema.ts`
 2. Run `pnpm drizzle-kit generate` if a table upgrade is needed.
-3. Modify the import statement in `src/systems/db/index.ts` to include the new table.
+3. Modify the migrations in `src-tauri/src/lib.rs` to include the new table.
+4. (Optional) Run `pnpm drizzle-kit migrate` to apply the migrations.
 
 ### IDE Setup
 
 Recommended IDE Setup:
 
-[VS Code](https://code.visualstudio.com/) + [Vue - Official](https://marketplace.visualstudio.com/items?itemName=Vue.volar) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer) + [Prettier - Code formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+- [VS Code](https://code.visualstudio.com/)
+
+- [Vue - Official](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
+- [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode)
+- [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+- [Prettier - Code formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+- [i18n Ally](https://marketplace.visualstudio.com/items?itemName=Lokalise.i18n-ally)
+- [CodeLLDB](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb) - Rust 调试支持
 
 Report Issues / Submit Feature Requests: [Issues](https://github.com/hexadecimal233/cloudie/issues)
 

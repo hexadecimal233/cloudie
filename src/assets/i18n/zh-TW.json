@@ -1,0 +1,111 @@
+{
+  "cloudie": {
+    "langName": "中文 (繁體)",
+    "main": {
+      "searchBar": "搜尋 (暫未實現)",
+      "likes": "喜愛的音樂",
+      "playlists": "歌單與專輯",
+      "radio": "電台",
+      "history": "播放歷史",
+      "listening": "試聽清單",
+      "downloads": "下載",
+      "settings": "設定",
+      "feeds": "推薦"
+    },
+    "downloads": {
+      "clearAll": "清空所有下載",
+      "allDownloads": "所有下載",
+      "downloading": "下載中",
+      "getinfo": "取得資訊",
+      "completed": "已完成",
+      "failed": "失敗",
+      "paused": "已暫停",
+      "pending": "排隊中",
+      "songInfo": "歌曲資訊",
+      "playlist": "歌單",
+      "artist": "藝術家",
+      "addedTime": "加入時間",
+      "origFileName": "原始檔名",
+      "status": "狀態"
+    },
+    "trackList": {
+      "downloadSelected": "下載選取項目",
+      "search": "搜尋",
+      "selected": "已選取: {count}",
+      "searchResult": "{count} 項結果",
+      "song": "歌曲",
+      "genre": "流派",
+      "duration": "長度",
+      "downloadability": "可下載性",
+      "direct": "直鏈",
+      "geoRestrict": "地區限制",
+      "premium": "會員專屬",
+      "source": "{count} 軌",
+      "noGenre": "無流派"
+    },
+    "playlists": {
+      "playlist": "歌單",
+      "album": "專輯",
+      "systemPlaylist": "系統推薦",
+      "madeFor": "為 {name} 推薦"
+    },
+    "toasts": {
+      "playlistOpenFailed": "開啟歌單失敗",
+      "downloadFailed": "下載失敗",
+      "loginFailed": "登入失敗",
+      "loginSuccess": "登入成功"
+    },
+    "common": {
+      "loading": "載入中...",
+      "noMore": "沒有更多了",
+      "loadMore": "載入更多",
+      "empty": "這裡空空如也 (。・ω・。)",
+      "emptyDesc": "請嘗試重新整理或調整搜尋條件"
+    },
+    "settings": {
+      "config": {
+        "savePath": "儲存路徑",
+        "parallelDownloads": "同時下載數量",
+        "playlistSeparateDir": "將歌單下載儲存至獨立目錄",
+        "preferDirectDownload": "優先直鏈下載",
+        "nonMp3Convert": "非 MP3 檔案是否轉換為 MP3 或 FLAC",
+        "fileNaming": "檔案命名方式",
+        "addCover": "嵌入封面",
+        "alsoDeleteLocalTrack": "刪除任務時同時刪除本機檔案",
+        "analyzeBpmAndKey": "將 BPM 和調性儲存至本機",
+        "virtualDjSupport": "VirtualDJ 助手",
+        "clientId": "Soundcloud 客戶端 ID",
+        "oauthToken": "Soundcloud OAuth 權杖",
+        "theme": "主題",
+        "language": "語言"
+      },
+      "fileNamingTypes": {
+        "title": "標題",
+        "artistTitle": "藝術家 - 標題",
+        "titleArtist": "標題 - 藝術家"
+      },
+      "themeTypes": {
+        "dark": "暗黑 (TODO: change a name)",
+        "light": "亮色 (TODO: change a name)"
+      },
+      "sections": {
+        "appearance": "外觀",
+        "download": "下載",
+        "misc": "雜項",
+        "login": "登入",
+        "about": "關於"
+      },
+      "about": {
+        "desc": "一個可愛的 Soundcloud 客戶端",
+        "version": "版本: {version}, 最新版本: {latestVersion}",
+        "versionFailure": "版本檢查失敗",
+        "visitReleases": "訪問發佈頁面",
+        "repo": "專案地址",
+        "issue": "問題回報"
+      },
+      "etc": {
+        "loginSoundcloud": "登入 Soundcloud"
+      }
+    }
+  }
+}
