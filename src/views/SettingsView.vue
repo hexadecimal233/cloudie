@@ -29,10 +29,10 @@
           :placeholder="$t('cloudie.settings.config.savePath')"
           v-model="config.savePath" />
         <button class="btn join-item" @click="openSavePathDialog">
-          <Icon icon="mdi:folder-edit" height="auto" />
+          <i-mdi-folder-edit />
         </button>
         <button class="btn join-item" @click="openPath(config.savePath)">
-          <Icon icon="mdi:folder-open" height="auto" />
+          <i-mdi-folder-open />
         </button>
       </div>
 
@@ -113,7 +113,7 @@
           v-model="config.clientId" />
         <button class="btn join-item" @click="refreshClientId()">
           <!-- TODO: 可视化-->
-          <Icon icon="mdi:refresh" height="auto" />
+          <i-mdi-refresh />
         </button>
       </div>
 
@@ -151,18 +151,18 @@
             class="btn btn-sm"
             href="https://github.com/hexadecimal233/cloudie/releases"
             target="_blank">
-            <Icon icon="mdi:earth-arrow-up" height="auto"></Icon>
+            <i-mdi-earth-arrow-up />
             {{ $t("cloudie.settings.about.visitReleases") }}
           </a>
         </div>
 
         <div class="flex gap-2">
           <a class="btn" href="https://github.com/hexadecimal233/cloudie" target="_blank">
-            <Icon icon="mdi:github" height="auto"></Icon>
-            {{ $t("cloudie.settings.about.repo") }}
+            <i-mdi-github />
+            icon {{ $t("cloudie.settings.about.repo") }}
           </a>
           <a class="btn" href="https://github.com/hexadecimal233/cloudie/issues" target="_blank">
-            <Icon icon="mdi:bug" height="auto"></Icon>
+            <i-mdi-bug />
             {{ $t("cloudie.settings.about.issue") }}
           </a>
         </div>
@@ -172,7 +172,6 @@
 </template>
 
 <script setup lang="ts" name="SettingsView">
-import { Icon } from "@iconify/vue"
 import { config } from "@/systems/config"
 import { open } from "@tauri-apps/plugin-dialog"
 import { refreshClientId } from "@/utils/api"

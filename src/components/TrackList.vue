@@ -14,12 +14,13 @@
 
       <div class="btn join-item">
         <!-- TODO: TAG support -->
-        <Icon icon="mdi:tag" height="auto"></Icon>
+        <i-mdi-tag />
       </div>
 
       <div class="dropdown dropdown-end join-item">
         <div tabindex="0" role="button" class="btn join-item">
-          <Icon icon="mdi:music-note" height="auto"></Icon>
+          <i-mdi-music-note />
+          icon
         </div>
         <form
           tabindex="0"
@@ -124,10 +125,10 @@
           <td>
             <div class="flex">
               <button class="btn btn-ghost btn-sm" @click="download(item)">
-                <Icon icon="mdi:download" height="auto" />
+                <i-mdi-download />
               </button>
               <a class="btn btn-ghost btn-sm" :href="item.permalink_url" target="_blank">
-                <Icon icon="mdi:open-in-new" height="auto" />
+                <i-mdi-open-in-new />
               </a>
             </div>
           </td>
@@ -155,7 +156,6 @@
 import { ref, computed } from "vue"
 import { formatMillis, getArtist, getCoverUrl } from "../utils/utils"
 import { addDownloadTask } from "../systems/download/download"
-import { Icon } from "@iconify/vue"
 import { PlaylistLike, Track } from "@/utils/types"
 
 // 音乐显示
@@ -239,25 +239,29 @@ async function download(track: Track) {
 function isPossibleFreeDownload(track: Track) {
   // 检测简介或者标题 是否包含 FREE DOWNLOAD
   let isFreeDownload = track.downloadable
-  
+
   if (track.description) {
-    isFreeDownload = isFreeDownload ||
+    isFreeDownload =
+      isFreeDownload ||
       track.description.toLowerCase().includes("free download") ||
       track.description.toLowerCase().includes("free dl")
   }
-  isFreeDownload = isFreeDownload ||
+  isFreeDownload =
+    isFreeDownload ||
     track.title.toLowerCase().includes("free download") ||
     track.title.toLowerCase().includes("free dl")
 
   // 检测购买链接
   if (track.purchase_url) {
-    isFreeDownload = isFreeDownload ||
+    isFreeDownload =
+      isFreeDownload ||
       track.purchase_url.toLowerCase().includes("dropbox.com") ||
       track.purchase_url.toLowerCase().includes("drive.google.com") ||
       track.purchase_url.toLowerCase().includes("mega.nz")
   }
   if (track.purchase_title) {
-    isFreeDownload = isFreeDownload ||
+    isFreeDownload =
+      isFreeDownload ||
       track.purchase_title.toLowerCase().includes("free download") ||
       track.purchase_title.toLowerCase().includes("free dl")
   }

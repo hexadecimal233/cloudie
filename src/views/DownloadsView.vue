@@ -58,7 +58,7 @@
               <div class="h-12 w-12 rounded">
                 <img v-if="item.coverUrl" :src="item.coverUrl" :alt="item.title" />
                 <div v-else class="bg-base-300 flex h-full w-full items-center justify-center">
-                  <Icon icon="mdi:music" class="text-base-content opacity-50" />
+                  <i-mdi-music class="text-base-content opacity-50" />
                 </div>
               </div>
             </div>
@@ -95,22 +95,22 @@
               "
               @click="pauseDownload(item)"
               class="btn btn-sm btn-ghost">
-              <Icon icon="mdi:pause" height="auto"></Icon>
+              <i-mdi-pause />
             </button>
             <button
               v-if="item.status === 'paused' || item.status === 'failed'"
               @click="resumeDownload(item)"
               class="btn btn-sm btn-ghost">
-              <Icon icon="mdi:play" height="auto"></Icon>
+              <i-mdi-play />
             </button>
             <button
               v-if="item.status === 'completed'"
               class="btn btn-sm btn-ghost"
               @click="revealItemInDir(item.path ?? '')">
-              <Icon icon="mdi:folder-open" height="auto"></Icon>
+              <i-mdi-folder-open />
             </button>
             <button @click="deleteTask(item)" class="btn btn-sm btn-ghost">
-              <Icon icon="mdi:close" height="auto"></Icon>
+              <i-mdi-close />
             </button>
 
             <!-- TODO: Play in cloudie & Duration display -->
@@ -130,7 +130,6 @@ import {
   pauseDownload,
   resumeDownload,
 } from "@/systems/download/download"
-import { Icon } from "@iconify/vue"
 import { revealItemInDir } from "@tauri-apps/plugin-opener"
 
 const activeTab = ref<"all" | "downloading" | "completed" | "paused" | "failed">("all")

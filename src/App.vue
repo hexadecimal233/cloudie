@@ -24,31 +24,31 @@
 
           <li>
             <router-link to="/feeds">
-              <Icon icon="mdi:rss" height="auto" />
+              <i-mdi-rss />
               {{ $t("cloudie.main.feeds") }}
             </router-link>
           </li>
           <li>
             <router-link to="/likes">
-              <Icon icon="mdi:heart" height="auto" />
+              <i-mdi-heart />
               {{ $t("cloudie.main.likes") }}
             </router-link>
           </li>
           <li>
             <router-link to="/playlists">
-              <Icon icon="mdi:list-box" height="auto" />
+              <i-mdi-list-box />
               {{ $t("cloudie.main.playlists") }}
             </router-link>
           </li>
           <li>
             <router-link to="/radio">
-              <Icon icon="mdi:radio-tower" height="auto" />
+              <i-mdi-radio-tower />
               {{ $t("cloudie.main.radio") }}
             </router-link>
           </li>
           <li>
             <router-link to="/history">
-              <Icon icon="mdi:history" height="auto" />
+              <i-mdi-history />
               {{ $t("cloudie.main.history") }}
             </router-link>
           </li>
@@ -57,19 +57,19 @@
 
           <li>
             <router-link to="/listening">
-              <Icon icon="mdi:playlist-play" height="auto" />
+              <i-mdi-playlist-play />
               {{ $t("cloudie.main.listening") }}
             </router-link>
           </li>
           <li>
             <router-link to="/downloads">
-              <Icon icon="mdi:download" height="auto" />
+              <i-mdi-download />
               {{ $t("cloudie.main.downloads") }}
             </router-link>
           </li>
           <li>
             <router-link to="/settings">
-              <Icon icon="mdi:cog" height="auto" />
+              <i-mdi-cog />
               {{ $t("cloudie.main.settings") }}
             </router-link>
           </li>
@@ -81,7 +81,7 @@
         <div class="bg-base-100 rounded-box flex flex-1 flex-col overflow-y-auto px-8 py-4">
           <div class="join w-full">
             <button class="btn join-item" @click="$router.back()">
-              <Icon icon="mdi:chevron-left" height="auto" />
+              <i-mdi-chevron-left />
             </button>
             <input
               type="text"
@@ -116,7 +116,6 @@
 </template>
 
 <script setup lang="ts">
-import { Icon } from "@iconify/vue"
 import { onMounted, ref } from "vue"
 import { BasicUserInfo, getUserInfo } from "@/utils/api"
 import { Toaster } from "vue-sonner"
