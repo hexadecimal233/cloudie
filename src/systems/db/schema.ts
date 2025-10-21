@@ -36,7 +36,7 @@ export const downloadTasks = sqliteTable(
     origFileName: text("origFileName"),
     path: text("path").notNull(),
     status: text("status", {
-      enum: ["pending", "getinfo", "downloading", "paused", "completed", "failed"],
+      enum: ["paused", "completed", "failed"],
     }).notNull(),
   },
   (table) => [primaryKey({ columns: [table.trackId, table.playlistId] })],

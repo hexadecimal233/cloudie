@@ -20,7 +20,6 @@
       <div class="dropdown dropdown-end join-item">
         <div tabindex="0" role="button" class="btn join-item">
           <i-mdi-music-note />
-          icon
         </div>
         <form
           tabindex="0"
@@ -67,7 +66,7 @@
           <th></th>
         </tr>
       </thead>
-      <tbody>
+      <tbody ref="scrollContainer">
         <tr
           v-for="(item, index) in filteredItems"
           :key="item.id"
@@ -153,10 +152,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue"
+import { ref, computed, onMounted, useTemplateRef } from "vue"
 import { formatMillis, getArtist, getCoverUrl } from "../utils/utils"
 import { addDownloadTask } from "../systems/download/download"
 import { PlaylistLike, Track } from "@/utils/types"
+import { useInfiniteScroll } from "@vueuse/core"
 
 // 音乐显示
 
@@ -164,6 +164,7 @@ const selectedIds = ref<number[]>([])
 const freeFilter = ref(false)
 const searchQuery = ref("")
 const selectedGenres = ref<(string | null)[]>([]) // TODO: 获取tag_list
+const scrollContainer = useTemplateRef<HTMLDivElement>("scrollContainer")
 
 const filteredItems = computed(() => {
   let items = props.tracks
@@ -272,7 +273,17 @@ function isPossibleFreeDownload(track: Track) {
 const props = defineProps<{
   tracks: Track[]
   callbackItem?: PlaylistLike
+  scrollCallbacks?: { canLoadMore: () => boolean; onTrigger: () => void }
 }>()
+
+onMounted(() => {
+  if (props.scrollCallbacks) {
+    useInfiniteScroll(scrollContainer.value, props.scrollCallbacks.onTrigger, {
+      distance: 10,
+      canLoadMore: props.scrollCallbacks?.canLoadMore,
+    })
+  }
+})
 </script>
 
 <style scoped>

@@ -2,26 +2,58 @@
  * The Download Manager
  */
 
-// TODO: optimize the database operations
 import { ref, watch } from "vue"
 import { invoke } from "@tauri-apps/api/core"
 import { config } from "@/systems/config"
-import { getArtist } from "@/utils/utils"
-import { db, DownloadDetail, DownloadTask, getDownloadDetail, getDownloadTasks } from "@/systems/db"
+import { getArtist, getCoverUrl } from "@/utils/utils"
+import { db } from "@/systems/db"
 import * as schema from "@/systems/db/schema"
-import { and, eq } from "drizzle-orm"
+import { and, desc, eq } from "drizzle-orm"
 import { parseDownload } from "./parser"
 import { toast } from "vue-sonner"
 import { Playlist, SystemPlaylist, Track } from "@/utils/types"
 import { i18n } from "@/systems/i18n"
+
+interface DemoPlaylist {
+  title: string
+}
+
+type DownloadTask = typeof schema.downloadTasks.$inferSelect
+
+class DownloadStat {
+  progress: number = 0 // an integer from 0 to 100
+  name: "pending" | "getinfo" | "downloading" = "pending"
+}
+
+class DownloadDetail {
+  title: string
+  artist: string
+  coverUrl: string
+  playlistName?: string
+  playlist: Playlist | SystemPlaylist | DemoPlaylist
+  track: Track
+
+  constructor(playlist: Playlist | SystemPlaylist | DemoPlaylist, track: Track) {
+    this.title = track.title
+    this.artist = getArtist(track)
+    this.coverUrl = getCoverUrl(track)
+    this.playlistName = playlist.title || undefined
+    this.playlist = playlist
+    this.track = track
+  }
+}
+
+export interface FrontendDownloadTask extends DownloadTask {
+  state?: DownloadStat
+  details: DownloadDetail
+}
 
 interface DownloadResponse {
   path: string
   origFileName: string
 }
 
-const downloadTasks = ref<DownloadTask[]>([])
-export const downloadDetails = ref<DownloadDetail[]>([])
+export const downloadTasks = ref<FrontendDownloadTask[]>([])
 watch(
   downloadTasks,
   async (v, _oldV) => {
@@ -31,13 +63,45 @@ watch(
     for (const task of v) {
       await updateDownloadDBEntry(task) // TODO: 性能优化，只更新变化的字段
     }
-    downloadDetails.value = await getDownloadDetail(v)
   },
   { deep: true },
 )
 
 export async function initDownload() {
-  downloadTasks.value = await getDownloadTasks() // details will get updated in watcher
+  const rawResults = await db.query.downloadTasks.findMany({
+    orderBy: [desc(schema.downloadTasks.timestamp)],
+    with: {
+      localTrack: true,
+      playlist: true,
+    },
+  })
+
+  const results: FrontendDownloadTask[] = rawResults.map((row) => {
+    const track = JSON.parse(row.localTrack.meta)
+
+    let playlist = JSON.parse(row.playlist.meta)
+    let playlistName: string = playlist.title ?? undefined
+
+    return {
+      trackId: row.trackId,
+      playlistId: row.playlistId,
+      timestamp: row.timestamp,
+      origFileName: row.origFileName,
+      path: row.path,
+      status: row.status,
+      // details
+      details: {
+        title: track.title,
+        artist: getArtist(track),
+        coverUrl: getCoverUrl(track),
+        playlistName: playlistName,
+        playlist: playlist,
+        track: track,
+      },
+    }
+  })
+
+  downloadTasks.value = results
 }
 
 function getDownloadTitle(track: Track) {
@@ -69,7 +133,10 @@ async function updateDownloadDBEntry(params: DownloadTask) {
     )
 }
 
-export async function addDownloadTask(track: Track, playlist: SystemPlaylist | Playlist | undefined) {
+export async function addDownloadTask(
+  track: Track,
+  playlist: SystemPlaylist | Playlist | undefined,
+) {
   const playlistId = playlist ? (playlist.id as string) : "liked" // playlist.id is number when its user
   if (playlist) {
     await db
@@ -92,7 +159,7 @@ export async function addDownloadTask(track: Track, playlist: SystemPlaylist | P
     timestamp: Date.now(),
     origFileName: null,
     path: "",
-    status: "pending",
+    status: "paused",
   }
 
   await db
@@ -108,35 +175,38 @@ export async function addDownloadTask(track: Track, playlist: SystemPlaylist | P
       },
     })
 
-  const insertedTask = await db.insert(schema.downloadTasks).values(task).returning()
+  const pendingTask = (
+    await db.insert(schema.downloadTasks).values(task).returning()
+  )[0] as FrontendDownloadTask
+  pendingTask.state = new DownloadStat()
 
-  console.debug("New download task: ", insertedTask)
-  downloadTasks.value.push(insertedTask[0])
+  console.debug("New download task: ", pendingTask)
+  downloadTasks.value.push(pendingTask)
 }
 
-export async function resumeDownload(downloadTask: DownloadTask) {
-  const task = downloadTasks.value.find(
-    (t) => t.trackId === downloadTask.trackId && t.playlistId === downloadTask.playlistId,
-  )
-  if (task) {
-    task.status = "pending"
+export async function resumeDownload(downloadTask: FrontendDownloadTask) {
+  if (downloadTask.state) {
+    throw new Error("Download task is running")
   }
+
+  downloadTask.state = new DownloadStat()
 }
 
-export async function pauseDownload(_downloadTask: DownloadTask) {
-  throw new Error("Unimplemented")
+export async function pauseDownload(downloadTask: FrontendDownloadTask) {
+  if (!downloadTask.state) {
+    throw new Error("Download task is paused")
+  }
 
-  //  const task = downloadTasks.value.find(
-  //    (t) => t.trackId === downloadTask.trackId && t.playlistId === downloadTask.playlistId,
-  //  )
-  //  if (task) {
-  //    task.status = "paused"
-  //    await updateDownloadDBEntry(task)
-  //  }
+  downloadTask.state = undefined
+
+  console.error("TODO: Pause download. ", downloadTask)
 }
 
-export async function deleteTask(downloadTask: DownloadTask) {
-  await pauseDownload(downloadTask)
+export async function deleteTask(downloadTask: FrontendDownloadTask) {
+  try {
+    await pauseDownload(downloadTask)
+  } catch (err) {} // ignore already paused
+
   await db
     .delete(schema.downloadTasks)
     .where(
@@ -152,15 +222,22 @@ export async function deleteTask(downloadTask: DownloadTask) {
 }
 
 export async function deleteAllTasks() {
+  // 暂停所有任务
+  for (const task of downloadTasks.value) {
+    try {
+      await pauseDownload(task)
+    } catch (err) {} // ignore already paused
+  }
+
   await db.delete(schema.downloadTasks)
 
   downloadTasks.value = []
 }
 
 function tryRunTask() {
-  const pendingTasks = downloadTasks.value.filter((t) => t.status === "pending")
+  const pendingTasks = downloadTasks.value.filter((t) => t.state?.name === "pending")
   const runningTasks = downloadTasks.value.filter(
-    (t) => t.status === "getinfo" || t.status === "downloading",
+    (t) => t.state?.name === "getinfo" || t.state?.name === "downloading",
   )
 
   const availableSlots = Math.max(0, config.value.parallelDownloads - runningTasks.length)
@@ -171,27 +248,31 @@ function tryRunTask() {
   }
 }
 
-async function runTask(task: DownloadTask) {
-  const detail = (await getDownloadDetail([task]))[0]
-  task.status = "getinfo"
-  console.debug(task.status, task)
+async function runTask(task: FrontendDownloadTask) {
+  if (!task.state) {
+    throw new Error("Download task state is undefined")
+  }
+
+  task.state.name = "getinfo"
+  console.debug(task.state.name, task)
 
   try {
-    const info = await parseDownload(detail.track)
-    task.status = "downloading"
-    console.debug(task.status, task)
+    const info = await parseDownload(task.details.track)
+    task.state.name = "downloading"
+    console.debug(task.state.name, task)
 
     const response = await invoke<DownloadResponse>("download_track", {
       finalUrl: info.finalUrl,
       downloadType: info.downloadType,
       preset: info.preset,
-      title: getDownloadTitle(detail.track),
-      playlistName: detail.playlistName, // Target folder name
+      title: getDownloadTitle(task.details.track),
+      playlistName: task.details.playlistName, // Target folder name
     })
 
     task.path = response.path
     task.origFileName = response.origFileName
     task.status = "completed"
+    task.state = undefined
     console.debug(task.status, task)
   } catch (err) {
     console.error("Download failed: ", err)
@@ -199,5 +280,6 @@ async function runTask(task: DownloadTask) {
       description: err as string,
     })
     task.status = "failed"
+    task.state = undefined
   }
 }

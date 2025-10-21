@@ -1,20 +1,27 @@
 <template>
-  <TrackList :tracks="tracks">
-    <template #bottom>
-      <template v-if="loading">
-        <div class="loading loading-spinner loading-lg"></div>
-        <span class="ml-2">{{ $t("cloudie.common.loading") }}</span>
-      </template>
+  <div ref="scrollContainer">
+    <TrackList
+      :tracks="tracks"
+      :scroll-callbacks="{
+        onTrigger: fetchNext,
+        canLoadMore: () => !loading && hasNext,
+      }">
+      <template #bottom>
+        <template v-if="loading">
+          <div class="loading loading-spinner loading-lg"></div>
+          <span class="ml-2">{{ $t("cloudie.common.loading") }}</span>
+        </template>
 
-      <template v-else-if="hasNext">
-        <button class="btn" @click="fetchNext">{{ $t("cloudie.common.loadMore") }}</button>
-      </template>
+        <template v-else-if="hasNext">
+          <button class="btn" @click="fetchNext">{{ $t("cloudie.common.loadMore") }}</button>
+        </template>
 
-      <template v-else>
-        <span class="ml-2">{{ $t("cloudie.common.noMore") }}</span>
+        <template v-else>
+          <span class="ml-2">{{ $t("cloudie.common.noMore") }}</span>
+        </template>
       </template>
-    </template>
-  </TrackList>
+    </TrackList>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -57,5 +64,7 @@ async function fetchNext() {
   }
 }
 
-onMounted(fetchNext)
+onMounted(() => {
+  fetchNext()
+})
 </script>

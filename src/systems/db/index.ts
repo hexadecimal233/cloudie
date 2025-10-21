@@ -4,24 +4,7 @@
 
 import Database from "@tauri-apps/plugin-sql"
 import { drizzle } from "drizzle-orm/sqlite-proxy"
-import { getArtist, getCoverUrl } from "@/utils/utils"
-import { inArray, desc, and } from "drizzle-orm"
 import * as schema from "./schema"
-import { Playlist, SystemPlaylist, Track } from "@/utils/types"
-
-interface DemoPlaylist {
-  title: string
-}
-
-export type DownloadTask = typeof schema.downloadTasks.$inferSelect
-export interface DownloadDetail extends DownloadTask {
-  title: string
-  artist: string
-  coverUrl: string
-  playlistName?: string
-  playlist: Playlist | SystemPlaylist | DemoPlaylist
-  track: Track
-}
 
 let tauriDb: Database
 export const db = drizzle(
@@ -68,58 +51,4 @@ export async function initDb() {
       meta: JSON.stringify({ title: "" }), // empty string for liked playlist
     })
     .onConflictDoNothing()
-}
-
-export async function getDownloadDetail(downloadTasks: DownloadTask[]): Promise<DownloadDetail[]> {
-  const rawResult = await db.query.downloadTasks.findMany({
-    orderBy: [desc(schema.downloadTasks.timestamp)],
-    where: and(
-      inArray(
-        schema.downloadTasks.trackId,
-        downloadTasks.map((task) => task.trackId),
-      ),
-      inArray(
-        schema.downloadTasks.playlistId,
-        downloadTasks.map((task) => task.playlistId),
-      ),
-    ),
-    with: {
-      localTrack: true,
-      playlist: true,
-    },
-  })
-
-  const results: DownloadDetail[] = rawResult.map((row) => {
-    const track = JSON.parse(row.localTrack.meta)
-
-    let playlist = JSON.parse(row.playlist.meta)
-    let playlistName: string = playlist.title ?? undefined
-
-    return {
-      // basic fields
-      trackId: row.trackId,
-      playlistId: row.playlistId,
-      timestamp: row.timestamp,
-      origFileName: row.origFileName,
-      path: row.path,
-      status: row.status as DownloadDetail["status"],
-      // details
-      title: track.title,
-      artist: getArtist(track),
-      coverUrl: getCoverUrl(track),
-      playlistName: playlistName,
-      playlist: playlist,
-      track: track,
-    }
-  })
-
-  return results
-}
-
-export async function getDownloadTasks(): Promise<DownloadTask[]> {
-  const rawResults = await db.query.downloadTasks.findMany({
-    orderBy: [desc(schema.downloadTasks.timestamp)],
-  })
-
-  return rawResults
 }
