@@ -3,7 +3,7 @@
     <TrackList
       :tracks="tracks"
       :scroll-callbacks="{
-        onTrigger: fetchNext,
+        onTrigger: fetchNext, // TODO: fix auto loading
         canLoadMore: () => !loading && hasNext,
       }">
       <template #bottom>

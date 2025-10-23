@@ -91,8 +91,7 @@
             <progress
               v-if="item.state"
               class="progress w-56"
-              :value="item.state?.progress"
-              max="100"></progress>
+              :value="item.state.progress"></progress>
             {{ getStatusTranslation(item) }}
           </div>
         </td>

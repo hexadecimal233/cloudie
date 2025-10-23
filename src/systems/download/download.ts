@@ -3,25 +3,20 @@
  */
 
 import { ref, watch } from "vue"
-import { invoke } from "@tauri-apps/api/core"
 import { config } from "@/systems/config"
 import { getArtist, getCoverUrl } from "@/utils/utils"
-import { db } from "@/systems/db"
+import { db, DEMO_PLAYLIST, DemoPlaylist } from "@/systems/db"
 import * as schema from "@/systems/db/schema"
 import { and, desc, eq } from "drizzle-orm"
-import { parseDownload } from "./parser"
+import { downloadTrack, parseDownload } from "./parser"
 import { toast } from "vue-sonner"
 import { Playlist, SystemPlaylist, Track } from "@/utils/types"
 import { i18n } from "@/systems/i18n"
 
-interface DemoPlaylist {
-  title: string
-}
-
 type DownloadTask = typeof schema.downloadTasks.$inferSelect
 
 class DownloadStat {
-  progress: number = 0 // an integer from 0 to 100
+  progress: number = 0 // from 0 to 1
   name: "pending" | "getinfo" | "downloading" = "pending"
 }
 
@@ -48,10 +43,6 @@ export interface FrontendDownloadTask extends DownloadTask {
   details: DownloadDetail
 }
 
-interface DownloadResponse {
-  path: string
-  origFileName: string
-}
 
 export const downloadTasks = ref<FrontendDownloadTask[]>([])
 watch(
@@ -102,19 +93,6 @@ export async function initDownload() {
   })
 
   downloadTasks.value = results
-}
-
-function getDownloadTitle(track: Track) {
-  switch (config.value.fileNaming) {
-    case "title":
-      return track.title
-    case "artist-title":
-      return `${getArtist(track)} - ${track.title}`
-    case "title-artist":
-      return `${track.title} - ${getArtist(track)}`
-    default:
-      return track.title
-  }
 }
 
 async function updateDownloadDBEntry(params: DownloadTask) {
@@ -179,9 +157,10 @@ export async function addDownloadTask(
     await db.insert(schema.downloadTasks).values(task).returning()
   )[0] as FrontendDownloadTask
   pendingTask.state = new DownloadStat()
+  pendingTask.details = new DownloadDetail(playlist ?? DEMO_PLAYLIST, track)
 
   console.debug("New download task: ", pendingTask)
-  downloadTasks.value.push(pendingTask)
+  downloadTasks.value.unshift(pendingTask)
 }
 
 export async function resumeDownload(downloadTask: FrontendDownloadTask) {
@@ -257,16 +236,12 @@ async function runTask(task: FrontendDownloadTask) {
   console.debug(task.state.name, task)
 
   try {
-    const info = await parseDownload(task.details.track)
+    const parsed = await parseDownload(task.details.track)
     task.state.name = "downloading"
     console.debug(task.state.name, task)
 
-    const response = await invoke<DownloadResponse>("download_track", {
-      finalUrl: info.finalUrl,
-      downloadType: info.downloadType,
-      preset: info.preset,
-      title: getDownloadTitle(task.details.track),
-      playlistName: task.details.playlistName, // Target folder name
+    const response = await downloadTrack(parsed, task, (progress) => {
+      task.state!.progress = progress
     })
 
     task.path = response.path

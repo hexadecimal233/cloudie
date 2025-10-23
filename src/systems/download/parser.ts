@@ -1,6 +1,12 @@
 import { getJson, getV2ApiJson } from "@/utils/api"
 import { config } from "@/systems/config"
 import { Preset, PRESET_ORDER, Track, Transcoding } from "@/utils/types"
+import { FrontendDownloadTask } from "./download"
+import * as path from "@tauri-apps/api/path"
+import * as fs from "@tauri-apps/plugin-fs"
+import { invoke } from "@tauri-apps/api/core"
+import { getArtist } from "@/utils/utils"
+import { Buffer } from "buffer"
 
 interface ParsedDownload {
   finalUrl: string
@@ -61,4 +67,143 @@ export async function parseDownload(track: Track): Promise<ParsedDownload> {
   }
 
   throw new Error("无音频流或音频流已加密")
+}
+
+interface DownloadResponse {
+  path: string
+  origFileName: string | null
+}
+
+function getDownloadTitle(track: Track) {
+  switch (config.value.fileNaming) {
+    case "title":
+      return track.title
+    case "artist-title":
+      return `${getArtist(track)} - ${track.title}`
+    case "title-artist":
+      return `${track.title} - ${getArtist(track)}`
+    default:
+      return track.title
+  }
+}
+
+// Handle download progressed
+async function downloadProgressed(resp: Response, onProgress: (progress: number) => void) {
+  if (!resp.body) throw new Error("Response body is null")
+
+  const contentLength = parseInt(resp.headers.get("Content-Length") || "0")
+  if (contentLength == 0) console.warn("Content-Length is 0, but still called progressed download.")
+
+  const reader = resp.body!.getReader()
+  const bytes = new Uint8Array(contentLength)
+  let offset = 0
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    bytes.set(value, offset)
+    offset += value.length
+
+    if (contentLength > 0) onProgress(offset / contentLength)
+  }
+
+  return bytes
+}
+
+export async function downloadTrack(
+  parsed: ParsedDownload,
+  task: FrontendDownloadTask,
+  onProgress: (progress: number) => void,
+) {
+  const sanitizer = /[\\/:*?\"<>|]/g
+  const safeFileName = getDownloadTitle(task.details.track).replace(sanitizer, "_")
+  const playlistDir = await path.join(
+    config.value.savePath,
+    task.details.playlistName?.replace(sanitizer, "_") || "",
+  )
+
+  const finalDir = config.value.playlistSeparateDir ? playlistDir : config.value.savePath
+
+  if (!(await fs.exists(finalDir))) {
+    await fs.mkdir(finalDir, { recursive: true }) // TODO: maybe error
+  }
+
+  let origFileName = null
+  let ext = ""
+  let bytes: Uint8Array
+
+  switch (parsed.downloadType) {
+    case "direct": {
+      // 直链下载
+      // TODO: Error handling if null
+      const resp = await fetch(parsed.finalUrl)
+      ext = resp.headers.get("x-amz-meta-file-type")!
+      origFileName = resp.headers.get("Content-Disposition")!.split("filename*=utf-8''")[1]
+
+      bytes = await downloadProgressed(resp, onProgress)
+      break
+    }
+    case "progressive": {
+      const resp = await fetch(parsed.finalUrl)
+      ext = "mp3"
+
+      bytes = await downloadProgressed(resp, onProgress)
+
+      break
+    }
+    case "hls": {
+      if (parsed.preset.includes("aac")) {
+        // TODO: progress display & fix output path
+        const tempFileName = await invoke<string>("download_aac", {
+          m3u8Url: parsed.finalUrl,
+        })
+
+        await fs.rename(tempFileName, `${safeFileName}.m4a`)
+
+        return {
+          path: await path.join(finalDir, `${safeFileName}.m4a`),
+          origFileName,
+        } as DownloadResponse
+      } else if (parsed.preset === "opus_0_0" || parsed.preset.includes("mp3")) {
+        // Simply appending every chunk to the end of the previous one
+        const resp = await fetch(parsed.finalUrl)
+        const m3u8 = await resp.text()
+        const urls = m3u8.match(/(http)[^\s]*/g) || []
+        const urlProgressMap = new Map(urls.map((url) => [url, 0]))
+
+        const promises = urls.map(async (url) => {
+          const resp = await fetch(url)
+          return downloadProgressed(resp, (currProgress) => {
+            urlProgressMap.set(url, currProgress)
+
+            const totalProgress =
+              Array.from(urlProgressMap.values()).reduce((sum, p) => sum + p, 0) / urls.length
+            onProgress(totalProgress)
+          })
+        })
+
+        ext = parsed.preset.includes("opus") ? "opus" : "mp3"
+        bytes = Buffer.concat(await Promise.all(promises))
+      } else {
+        throw new Error(`Unknown preset ${parsed.preset}`) // prob abr_sq
+      }
+      break
+    }
+    default:
+      throw new Error(`Unknown download type ${parsed.downloadType}`)
+  }
+
+  const destFile = await path.join(finalDir, `${safeFileName}.${ext}`)
+
+  await fs.writeFile(destFile, bytes)
+
+  // TODO: mp3 convert
+  // const fileName = await invoke("convert_mp3", {
+  //   filePath: destFile,
+  // })
+
+  return {
+    path: destFile,
+    origFileName: origFileName,
+  } as DownloadResponse
 }

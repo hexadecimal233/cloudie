@@ -38,6 +38,12 @@ export const db = drizzle(
   { schema },
 )
 
+export class DemoPlaylist {
+  title = ""
+}
+
+export const DEMO_PLAYLIST = new DemoPlaylist()
+
 export async function initDb() {
   tauriDb = await Database.load("sqlite:soundcloud.db")
 
@@ -48,7 +54,7 @@ export async function initDb() {
     .insert(schema.playlists)
     .values({
       playlistId: "liked",
-      meta: JSON.stringify({ title: "" }), // empty string for liked playlist
+      meta: JSON.stringify(new DemoPlaylist()), // empty string for liked playlist
     })
     .onConflictDoNothing()
 }
