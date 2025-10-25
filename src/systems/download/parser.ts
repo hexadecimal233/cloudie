@@ -4,9 +4,9 @@ import { Preset, PRESET_ORDER, Track, Transcoding } from "@/utils/types"
 import { DownloadTask } from "./download"
 import { path } from "@tauri-apps/api"
 import * as fs from "@tauri-apps/plugin-fs"
-import { invoke } from "@tauri-apps/api/core"
-import { getArtist } from "@/utils/utils"
 import { Buffer } from "buffer"
+import { Command } from "@tauri-apps/plugin-shell"
+import { move } from "@/utils/utils"
 
 interface ParsedDownload {
   finalUrl: string
@@ -66,7 +66,7 @@ export async function parseDownload(track: Track): Promise<ParsedDownload> {
     }
   }
 
-  throw new Error("无音频流或音频流已加密")
+  throw new Error("No available streams or encrypted")
 }
 
 interface DownloadResponse {
@@ -74,17 +74,46 @@ interface DownloadResponse {
   origFileName: string | null
 }
 
-function getDownloadTitle(track: Track) {
+function getDownloadTitle(task: DownloadTask) {
   switch (config.value.fileNaming) {
     case "title":
-      return track.title
+      return task.details.title
     case "artist-title":
-      return `${getArtist(track)} - ${track.title}`
+      return `${task.details.artist} - ${task.details.title}`
     case "title-artist":
-      return `${track.title} - ${getArtist(track)}`
+      return `${task.details.title} - ${task.details.artist}`
     default:
-      return track.title
+      return task.details.title
   }
+}
+
+async function downloadAac(m3u8Url: string): Promise<string> {
+  const fileId = Math.random().toString(16).substring(2, 16)
+  const savePath = await path.join(await path.tempDir(), `cloudie_temp_${fileId}.m4a`)
+  const cmd = Command.create("ffmpeg", [
+    "-y",
+    "-loglevel",
+    "warning",
+    "-i",
+    m3u8Url,
+    "-bsf:a",
+    "aac_adtstoasc", // audio bitstream filter
+    "-vcodec",
+    "copy",
+    "-c",
+    "copy",
+    "-crf",
+    "50", // constant rate factor
+    savePath,
+  ])
+
+  const proc = await cmd.execute()
+  if (proc.code !== 0) {
+    console.error(proc.stderr)
+    throw new Error(`ffmpeg failed with code ${proc.code}`)
+  }
+
+  return savePath
 }
 
 // Handle download progressed
@@ -92,7 +121,8 @@ async function downloadProgressed(resp: Response, onProgress: (progress: number)
   if (!resp.body) throw new Error("Response body is null")
 
   const contentLength = parseInt(resp.headers.get("Content-Length") || "0")
-  if (contentLength == 0) console.warn("Content-Length is 0, but still called progressed download.")
+  if (contentLength === 0)
+    console.warn("Content-Length is 0, but still called progressed download.")
 
   const reader = resp.body!.getReader()
   const bytes = new Uint8Array(contentLength)
@@ -116,7 +146,7 @@ export async function downloadTrack(
   onProgress: (progress: number) => void,
 ) {
   const sanitizer = /[\\/:*?\"<>|]/g
-  const safeFileName = getDownloadTitle(task.details.track).replace(sanitizer, "_")
+  const safeFileName = getDownloadTitle(task).replace(sanitizer, "_")
   const playlistDir = await path.join(
     config.value.savePath,
     task.details.playlistName?.replace(sanitizer, "_") || "",
@@ -124,9 +154,9 @@ export async function downloadTrack(
 
   const finalDir = config.value.playlistSeparateDir ? playlistDir : config.value.savePath
 
-  if (!(await fs.exists(finalDir))) {
-    await fs.mkdir(finalDir, { recursive: true }) // TODO: maybe error
-  }
+  try {
+    await fs.mkdir(finalDir, { recursive: true })
+  } catch (_) {}
 
   let origFileName = null
   let ext = ""
@@ -153,17 +183,13 @@ export async function downloadTrack(
     }
     case "hls": {
       if (parsed.preset.includes("aac")) {
-        // TODO: progress display & fix output path
-        const tempFileName = await invoke<string>("download_aac", {
-          m3u8Url: parsed.finalUrl,
-        })
+        // TODO: progress display
+        const tempFileName = await downloadAac(parsed.finalUrl)
+        const finalPath = await path.join(finalDir, `${safeFileName}.m4a`)
 
-        await fs.rename(tempFileName, `${safeFileName}.m4a`)
+        await move(tempFileName, finalPath)
 
-        return {
-          path: await path.join(finalDir, `${safeFileName}.m4a`),
-          origFileName,
-        } as DownloadResponse
+        return { path: finalPath, origFileName } as DownloadResponse
       } else if (parsed.preset === "opus_0_0" || parsed.preset.includes("mp3")) {
         // Simply appending every chunk to the end of the previous one
         const resp = await fetch(parsed.finalUrl)
@@ -195,11 +221,6 @@ export async function downloadTrack(
 
   const destFile = await path.join(finalDir, `${safeFileName}.${ext}`)
   await fs.writeFile(destFile, bytes)
-
-  // TODO: mp3 convert
-  // const fileName = await invoke("convert_mp3", {
-  //   filePath: destFile,
-  // })
 
   return {
     path: destFile,

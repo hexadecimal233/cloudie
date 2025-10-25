@@ -13,7 +13,7 @@
       "feeds": "Feeds"
     },
     "downloads": {
-      "clearAll": "Clear All Downloads",
+      "deleteSelected": "Delete Selected",
       "allDownloads": "All Downloads",
       "downloading": "Downloading",
       "getinfo": "Getting Info",
@@ -60,7 +60,13 @@
       "playlistOpenFailed": "Failed to open playlist",
       "downloadFailed": "Download failed",
       "loginFailed": "Login failed",
-      "loginSuccess": "Login success"
+      "loginSuccess": "Login success",
+      "addDownloadFailed": "Failed to add download",
+      "confirmDelete": "Are you sure to delete the following {c} tasks?",
+      "deleteLocalFiles": "Delete Local Files",
+      "keepLocalFiles": "Keep Local Files",
+      "cancel": "Cancel",
+      "close": "Close"
     },
     "settings": {
       "config": {
@@ -68,10 +74,9 @@
         "parallelDownloads": "Parallel Downloads",
         "playlistSeparateDir": "Separate Playlist Download Folder",
         "preferDirectDownload": "Prefer Direct Download",
-        "nonMp3Convert": "Convert Non-MP3 Files to MP3 or FLAC",
+        "mp3ConvertExts": "Convert following extensions to MP3 (WARNING: Lossy)",
         "fileNaming": "File Naming",
         "addCover": "Embed Cover",
-        "alsoDeleteLocalTrack": "Delete Local Track When Deleting Task",
         "analyzeBpmAndKey": "Analyze BPM and Key Locally",
         "virtualDjSupport": "VirtualDJ Support",
         "clientId": "Soundcloud Client ID",

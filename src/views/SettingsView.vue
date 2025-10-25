@@ -69,19 +69,12 @@
         <span>{{ $t("cloudie.settings.config.preferDirectDownload") }}</span>
       </label>
 
-      <label class="label">
-        <input type="checkbox" class="toggle" v-model="config.nonMp3Convert" />
-        <span>{{ $t("cloudie.settings.config.nonMp3Convert") }}</span>
-      </label>
+      <label class="label">{{ $t("cloudie.settings.config.mp3ConvertExts") }}</label>
+      <input type="text" class="input" v-model="currentMp3" />
 
       <label class="label cursor-pointer">
         <input type="checkbox" class="toggle" v-model="config.addCover" />
         <span>{{ $t("cloudie.settings.config.addCover") }}</span>
-      </label>
-
-      <label class="label cursor-pointer">
-        <input type="checkbox" class="toggle" v-model="config.alsoDeleteLocalTrack" />
-        <span>{{ $t("cloudie.settings.config.alsoDeleteLocalTrack") }}</span>
       </label>
     </fieldset>
 
@@ -159,7 +152,7 @@
         <div class="flex gap-2">
           <a class="btn" href="https://github.com/hexadecimal233/cloudie" target="_blank">
             <i-mdi-github />
-            icon {{ $t("cloudie.settings.about.repo") }}
+            {{ $t("cloudie.settings.about.repo") }}
           </a>
           <a class="btn" href="https://github.com/hexadecimal233/cloudie/issues" target="_blank">
             <i-mdi-bug />
@@ -176,7 +169,7 @@ import { config } from "@/systems/config"
 import { open } from "@tauri-apps/plugin-dialog"
 import { refreshClientId } from "@/utils/api"
 import { getVersion } from "@tauri-apps/api/app"
-import { onMounted, ref } from "vue"
+import { computed, onMounted, ref } from "vue"
 import { invoke } from "@tauri-apps/api/core"
 import { openPath } from "@tauri-apps/plugin-opener"
 import { toast } from "vue-sonner"
@@ -187,6 +180,15 @@ const versionInfo = ref({
   latestVersion: "",
 })
 
+const currentMp3 = computed({
+  get() {
+    return config.value.mp3ConvertExts.join(",")
+  },
+  set(v) {
+    config.value.mp3ConvertExts = v.split(",")
+  },
+})
+
 onMounted(async () => {
   // TODO: check whether save path is valid & on change
   versionInfo.value.version = await getVersion()
@@ -194,7 +196,7 @@ onMounted(async () => {
     versionInfo.value.latestVersion = "xxxx"
     // TODO: 从github获取最新版本
   } catch (error) {
-    versionInfo.value.latestVersion = "获取失败"
+    versionInfo.value.latestVersion = i18n.global.t("cloudie.settings.about.versionFailure")
     console.error("Failed to get latest version: ", error)
   }
 })

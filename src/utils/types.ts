@@ -197,7 +197,25 @@ export type PlaylistLike = PlaylistLikeBase &
     | { system_playlist: SystemPlaylist; playlist?: never }
   )
 
-export interface Playlist {
+export interface BasePlaylist {
+  id: number | string
+  title: string
+  tracks?: PartialTrack[]
+}
+
+export class LikedPlaylist {
+  id = "liked"
+  title = "liked"
+  tracks: PartialTrack[] = []
+}
+
+export class ListenPlaylist {
+  id = "listen"
+  title = "listen"
+  tracks: PartialTrack[] = []
+}
+
+export interface Playlist extends BasePlaylist {
   artwork_url: null | string
   created_at: Date
   duration: number
@@ -227,7 +245,7 @@ export interface Playlist {
 
 export type PlaylistKind = "playlist"
 
-export interface SystemPlaylist {
+export interface SystemPlaylist extends BasePlaylist {
   urn: string
   query_urn: null | string
   permalink: string

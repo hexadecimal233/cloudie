@@ -13,7 +13,7 @@
       "feeds": "推荐"
     },
     "downloads": {
-      "clearAll": "清空所有下载",
+      "deleteSelected": "删除选中",
       "allDownloads": "所有下载",
       "downloading": "下载中",
       "getinfo": "获取信息",
@@ -53,7 +53,13 @@
       "playlistOpenFailed": "打开歌单失败",
       "downloadFailed": "下载失败",
       "loginFailed": "登录失败",
-      "loginSuccess": "登录成功"
+      "loginSuccess": "登录成功",
+      "addDownloadFailed": "添加下载失败",
+      "confirmDelete": "确定要删除以下 {c} 个任务吗？",
+      "deleteLocalFiles": "删除本地文件",
+      "keepLocalFiles": "保留本地文件",
+      "cancel": "取消",
+      "close": "关闭"
     },
     "common": {
       "loading": "加载中...",
@@ -68,10 +74,9 @@
         "parallelDownloads": "并行下载数量",
         "playlistSeparateDir": "将播单下载保存到单独目录",
         "preferDirectDownload": "优先直链下载",
-        "nonMp3Convert": "非 MP3 文件是否转换为 MP3 或 FLAC",
+        "mp3ConvertExts": "转换以下扩展名到 MP3 (警告: 有损压缩)",
         "fileNaming": "文件命名方式",
         "addCover": "嵌入封面",
-        "alsoDeleteLocalTrack": "删除任务时同时删除本地文件",
         "analyzeBpmAndKey": "将 BPM 和调性保存到本地",
         "virtualDjSupport": "VirtualDJ 助手",
         "clientId": "Soundcloud 客户端 ID",

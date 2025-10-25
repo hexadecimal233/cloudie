@@ -1,5 +1,6 @@
 <template>
   <Toaster closeButton closeButtonPosition="top-right" expand rich-colors />
+  <ModalsContainer />
   <div class="mx-auto flex h-screen flex-col">
     <div class="flex flex-1 overflow-hidden">
       <!-- 左侧 菜单栏 -->
@@ -119,7 +120,9 @@
 import { onMounted, ref } from "vue"
 import { BasicUserInfo, getUserInfo } from "@/utils/api"
 import { Toaster } from "vue-sonner"
+import { ModalsContainer } from "vue-final-modal"
 import "vue-sonner/style.css"
+import "vue-final-modal/style.css"
 
 const user = ref<BasicUserInfo>()
 const loading = ref(true)

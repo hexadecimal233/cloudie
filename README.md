@@ -13,7 +13,7 @@ Cloudie -- Yet another Kawaii Soundcloud Client.
 > [!WARNING]
 > This project is still under heavy development, and many features are not yet implemented or may not work as expected.
 
-- [ ] Browse & play Soundcloud tracks
+- [ ] Browse & Play Soundcloud tracks
 - [x] Download tracks or playlists from Soundcloud and embed covers
 - [x] Multilingual support
 - [ ] Auto add playlists to DJ software (TODO: dynamic playlist support)

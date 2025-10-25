@@ -5,13 +5,15 @@
 import { ref } from "vue"
 import { config } from "@/systems/config"
 import { getArtist, getCoverUrl } from "@/utils/utils"
-import { db, DEMO_PLAYLIST, DemoPlaylist } from "@/systems/db"
+import { db } from "@/systems/db"
 import * as schema from "@/systems/db/schema"
-import { desc, eq } from "drizzle-orm"
+import { desc, DrizzleQueryError, eq, inArray } from "drizzle-orm"
 import { downloadTrack, parseDownload } from "./parser"
 import { toast } from "vue-sonner"
-import { Playlist, SystemPlaylist, Track } from "@/utils/types"
+import { BasePlaylist, Track } from "@/utils/types"
 import { i18n } from "@/systems/i18n"
+import { invoke } from "@tauri-apps/api/core"
+import * as fs from "@tauri-apps/plugin-fs"
 
 type DownloadTask0 = typeof schema.downloadTasks.$inferSelect
 
@@ -19,6 +21,7 @@ export class DownloadTask {
   readonly task: DownloadTask0
   details: DownloadDetail
   downloadingState?: DownloadStat
+  failedReason: string = ""
 
   constructor(downloadTask: DownloadTask0, details: DownloadDetail, state?: DownloadStat) {
     this.task = downloadTask
@@ -43,7 +46,7 @@ export class DownloadTask {
     this.task.status = status
   }
 
-  async resume() {
+  resume() {
     if (this.downloadingState) {
       throw new Error("Download task is running")
     }
@@ -57,17 +60,9 @@ export class DownloadTask {
       throw new Error("Download task is paused")
     }
 
-    this.downloadingState = new DownloadStat()
-  }
+    await new Promise((resolve) => setTimeout(resolve, 100)) // simulated waiting TODO: implement pausing logic
 
-  async delete() {
-    try {
-      await this.pause()
-    } catch (err) {} // ignore already paused
-
-    await db.delete(schema.downloadTasks).where(eq(schema.downloadTasks.taskId, this.task.taskId))
-
-    downloadTasks.value = downloadTasks.value.filter((t) => t.task.taskId !== this.task.taskId)
+    this.downloadingState = undefined
   }
 
   async updateDb(attrs: Partial<DownloadTask0>) {
@@ -88,10 +83,10 @@ class DownloadDetail {
   artist: string
   coverUrl: string
   playlistName?: string
-  playlist: Playlist | SystemPlaylist | DemoPlaylist
+  playlist: BasePlaylist
   track: Track
 
-  constructor(playlist: Playlist | SystemPlaylist | DemoPlaylist, track: Track) {
+  constructor(playlist: BasePlaylist, track: Track) {
     this.title = track.title
     this.artist = getArtist(track)
     this.coverUrl = getCoverUrl(track)
@@ -126,25 +121,8 @@ export async function initDownload() {
   tryRunTask()
 }
 
-export async function addDownloadTask(
-  track: Track,
-  playlist: SystemPlaylist | Playlist | undefined,
-) {
-  const playlistId = playlist ? (playlist.id as string) : "liked" // playlist.id is number when its user
-  if (playlist) {
-    await db
-      .insert(schema.playlists)
-      .values({
-        playlistId,
-        meta: JSON.stringify(playlist),
-      })
-      .onConflictDoUpdate({
-        target: schema.playlists.playlistId,
-        set: {
-          meta: JSON.stringify(playlist),
-        },
-      })
-  }
+export async function addDownloadTask(track: Track, playlist: BasePlaylist) {
+  const playlistId = playlist ? playlist.id.toString() : "liked" // playlist.id is number when its user
 
   const task: typeof schema.downloadTasks.$inferInsert = {
     trackId: track.id,
@@ -155,40 +133,57 @@ export async function addDownloadTask(
     path: "",
   }
 
-  await db
-    .insert(schema.localTracks)
-    .values({
-      trackId: track.id,
-      meta: JSON.stringify(track),
-    })
-    .onConflictDoUpdate({
-      target: schema.localTracks.trackId,
-      set: {
-        meta: JSON.stringify(track),
-      },
-    })
+  try {
+    const pendingTask = new DownloadTask(
+      (await db.insert(schema.downloadTasks).values(task).returning())[0],
+      new DownloadDetail(playlist, track),
+    )
 
-  const pendingTask = new DownloadTask(
-    (await db.insert(schema.downloadTasks).values(task).returning())[0],
-    new DownloadDetail(playlist ?? DEMO_PLAYLIST, track),
-    new DownloadStat(),
-  )
+    downloadTasks.value.unshift(pendingTask) // add to the most recent
+    pendingTask.resume()
+    console.log("New download task: ", pendingTask)
+  } catch (err: any) {
+    if (err instanceof DrizzleQueryError) {
+      err.cause?.message.includes("UNIQUE constraint failed")
 
-  downloadTasks.value.unshift(pendingTask) // add to the most recent
-  pendingTask.resume()
-  console.debug("New download task: ", pendingTask)
+      console.warn("Duplicate download tasks: ", task)
+    } else {
+      console.error(": ", task)
+      toast.error(i18n.global.t("cloudie.toasts.addDownloadFailed"), {
+        description: err.message,
+      })
+    }
+  }
 }
 
-export async function deleteAllTasks() {
-  // 暂停所有任务
-  for (const task of downloadTasks.value) {
-    try {
-      await task.pause()
-    } catch (err) {} // ignore already paused
+export async function deleteTasks(tasks: DownloadTask[], deleteFile: boolean) {
+  if (tasks.length === 0) {
+    return
   }
 
-  await db.delete(schema.downloadTasks)
-  downloadTasks.value = []
+  const taskIds: number[] = []
+
+  for (const task of tasks) {
+    try {
+      await task.pause()
+    } catch (_) {} // already paused
+
+    taskIds.push(task.task.taskId)
+  }
+
+  if (deleteFile) {
+    for (const task of tasks) {
+      if (task.task.path) {
+        fs.remove(task.task.path).catch((err) => {
+          console.error("Error deleting file:", err)
+        })
+      }
+    }
+  }
+
+  await db.delete(schema.downloadTasks).where(inArray(schema.downloadTasks.taskId, taskIds))
+
+  downloadTasks.value = downloadTasks.value.filter((task) => !taskIds.includes(task.task.taskId))
 }
 
 function tryRunTask() {
@@ -226,15 +221,26 @@ async function runTask(task: DownloadTask) {
 
     task.setPath(response.path)
     task.setOrigFileName(response.origFileName)
+
+    try {
+      await invoke("add_tags", {
+        filePath: task.task.path,
+        title: task.details.title,
+        album: task.details.playlistName,
+        artist: task.details.artist,
+        coverUrl: config.value.addCover ? task.details.coverUrl : undefined,
+      })
+    } catch (error) {
+      console.error(`Error adding tags to ${task.task.path}，Ignoring tags...`, error)
+    }
+
     task.setStatus("completed")
     task.downloadingState = undefined
     console.debug(task.task.status, task)
   } catch (err) {
     console.error("Download failed: ", err)
-    toast.error(i18n.global.t("cloudie.toasts.downloadFailed"), {
-      description: err as string,
-    })
     task.setStatus("failed")
+    task.failedReason = err as string
     task.downloadingState = undefined
   }
 }

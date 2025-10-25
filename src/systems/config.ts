@@ -5,17 +5,16 @@ import { i18n, LANGUAGE_OPTIONS } from "./i18n"
 
 class Config {
   //外观
-  language: typeof LANGUAGE_OPTIONS[number] = "en"
+  language: (typeof LANGUAGE_OPTIONS)[number] = "en"
   theme: "light" | "dark" = "light" // TODO: 主题
   // 下载
   savePath: string = ""
   parallelDownloads: number = 3
   playlistSeparateDir: boolean = true
   preferDirectDownload: boolean = false
-  nonMp3Convert: true = true // TODO: 非 mp3 文件是否转换为 mp3
+  mp3ConvertExts: string[] = [] // TODO: 转换以下扩展名到 MP3 (警告: 有损压缩)
   fileNaming: "title-artist" | "artist-title" | "title" = "title-artist"
-  addCover: boolean = false // TODO: 下载时是否添加封面
-  alsoDeleteLocalTrack: boolean = false // TODO: 下载时是否删除本地文件
+  addCover: boolean = false
   // 杂项
   analyzeBpmAndKey: boolean = false
   virtualDjSupport: boolean = false

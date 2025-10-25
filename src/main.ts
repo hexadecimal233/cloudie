@@ -6,6 +6,7 @@ import { loadConfig as initConfig } from "./systems/config"
 import { initDb } from "./systems/db"
 import { initDownload } from "./systems/download/download"
 import { i18n, initI18n } from "./systems/i18n"
+import { createVfm } from "vue-final-modal"
 
 async function initApp() {
   // load systems
@@ -14,8 +15,11 @@ async function initApp() {
   await initConfig()
   await initDownload()
 
+  const vfm = createVfm()
+
   const app = createApp(App)
   app.use(i18n)
+  app.use(vfm)
   app.use(router)
 
   app.mount("#app")

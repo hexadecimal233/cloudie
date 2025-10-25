@@ -1,9 +1,10 @@
 <template>
-  <div class="mb-2 flex justify-end gap-2">
+  <div class="mb-2 flex items-center gap-2">
     <button class="btn btn-primary" @click="downloadSelected">
       {{ $t("cloudie.trackList.downloadSelected") }}
     </button>
-    <!-- TODO: add a label -->
+    <div class="flex-1"></div>
+    <label class="label">{{ $t("cloudie.trackList.freeDL") }}</label>
     <input type="checkbox" class="checkbox" v-model="freeFilter" />
     <div class="join">
       <input
@@ -155,7 +156,7 @@
 import { ref, computed, onMounted, useTemplateRef } from "vue"
 import { formatMillis, getArtist, getCoverUrl } from "../utils/utils"
 import { addDownloadTask } from "../systems/download/download"
-import { PlaylistLike, Track } from "@/utils/types"
+import { LikedPlaylist, PlaylistLike, Track } from "@/utils/types"
 import { useInfiniteScroll } from "@vueuse/core"
 
 // 音乐显示
@@ -234,7 +235,13 @@ async function downloadSelected() {
 }
 
 async function download(track: Track) {
-  await addDownloadTask(track, props.callbackItem?.playlist || props.callbackItem?.system_playlist)
+  // TODO: Local Playlists
+  await addDownloadTask(
+    track,
+    props.playlistResponse?.playlist ??
+      props.playlistResponse?.system_playlist ??
+      new LikedPlaylist(),
+  )
 }
 
 function isPossibleFreeDownload(track: Track) {
@@ -272,7 +279,7 @@ function isPossibleFreeDownload(track: Track) {
 
 const props = defineProps<{
   tracks: Track[]
-  callbackItem?: PlaylistLike
+  playlistResponse?: PlaylistLike
   scrollCallbacks?: { canLoadMore: () => boolean; onTrigger: () => void }
 }>()
 

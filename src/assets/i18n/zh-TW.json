@@ -13,7 +13,7 @@
       "feeds": "推薦"
     },
     "downloads": {
-      "clearAll": "清空所有下載",
+      "deleteSelected": "刪除選取項目",
       "allDownloads": "所有下載",
       "downloading": "下載中",
       "getinfo": "取得資訊",
@@ -53,7 +53,13 @@
       "playlistOpenFailed": "開啟歌單失敗",
       "downloadFailed": "下載失敗",
       "loginFailed": "登入失敗",
-      "loginSuccess": "登入成功"
+      "loginSuccess": "登入成功",
+      "addDownloadFailed": "新增下載失敗",
+      "confirmDelete": "確定要刪除以下 {c} 個任務嗎？",
+      "deleteLocalFiles": "刪除本地檔案",
+      "keepLocalFiles": "保留本地檔案",
+      "cancel": "取消",
+      "close": "關閉"
     },
     "common": {
       "loading": "載入中...",
@@ -68,10 +74,9 @@
         "parallelDownloads": "同時下載數量",
         "playlistSeparateDir": "將歌單下載儲存至獨立目錄",
         "preferDirectDownload": "優先直鏈下載",
-        "nonMp3Convert": "非 MP3 檔案是否轉換為 MP3 或 FLAC",
+        "mp3ConvertExts": "轉換以下副檔名到 MP3 (警告: 有损壓縮)",
         "fileNaming": "檔案命名方式",
         "addCover": "嵌入封面",
-        "alsoDeleteLocalTrack": "刪除任務時同時刪除本機檔案",
         "analyzeBpmAndKey": "將 BPM 和調性儲存至本機",
         "virtualDjSupport": "VirtualDJ 助手",
         "clientId": "Soundcloud 客戶端 ID",

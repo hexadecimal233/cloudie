@@ -5,6 +5,8 @@
 import Database from "@tauri-apps/plugin-sql"
 import { drizzle } from "drizzle-orm/sqlite-proxy"
 import * as schema from "./schema"
+import { LikedPlaylist, ListenPlaylist } from "@/utils/types"
+import { savePlaylist } from "../cache"
 
 let tauriDb: Database
 export const db = drizzle(
@@ -31,30 +33,20 @@ export const db = drizzle(
         return { rows: [] }
       }
     } catch (error) {
-      console.error("Tauri SQL Execution Error:", error)
-      throw error
+      // error is a string in Tauri SQL plugin
+      const theError = new Error(error as string)
+      throw theError
     }
   },
   { schema },
 )
-
-export class DemoPlaylist {
-  title = ""
-}
-
-export const DEMO_PLAYLIST = new DemoPlaylist()
 
 export async function initDb() {
   tauriDb = await Database.load("sqlite:soundcloud.db")
 
   await tauriDb.execute("PRAGMA optimize;")
 
-  // create default liked playlist
-  await db
-    .insert(schema.playlists)
-    .values({
-      playlistId: "liked",
-      meta: JSON.stringify(new DemoPlaylist()), // empty string for liked playlist
-    })
-    .onConflictDoNothing()
+  // create default playlists
+  savePlaylist(new ListenPlaylist())
+  savePlaylist(new LikedPlaylist())
 }

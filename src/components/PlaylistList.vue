@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!currentItem" class="flex flex-col">
+  <div class="flex flex-col">
     <!-- 空状态 TODO: 搜索歌单名字 -->
     <div v-if="items.length === 0" class="py-8 text-center">
       <div class="mb-2 text-lg">{{ $t("cloudie.common.empty") }}</div>
@@ -16,9 +16,13 @@
         @click="open(item)"
         :title="item.playlist?.title ?? item.system_playlist!.title"
         class="bg-base-200 rounded-box flex flex-col gap-1 overflow-hidden outline transition-all hover:-translate-y-1 hover:cursor-pointer hover:opacity-70">
-        <div class="bg-base-300 relative w-full">
-          <img :src="getImageUrl(item).value" alt="cover" class="h-full w-full object-cover" />
-          <!-- TODO: 加载中占位 -->
+        <div class="bg-base-300 relative w-full aspect-square">
+          <img
+            v-if="getImageUrl(item).value"
+            :src="getImageUrl(item).value"
+            alt="cover"
+            class="h-full w-full object-cover" />
+          <div v-else class="skeleton rounded-none h-full w-full absolute inset-0"></div>
         </div>
         <div class="flex flex-col p-3">
           <div class="text-base-content truncate font-bold">
@@ -43,26 +47,17 @@
       <slot name="bottom"></slot>
     </div>
   </div>
-
-  <div v-else>
-    <button class="btn btn-primary" @click="currentItem = undefined">返回 TODO: 图标</button>
-    <!-- TODO: 歌单标题显示 -->
-    <TrackList :tracks="currentItem" :callback-item="currentResponse"></TrackList>
-  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed } from "vue"
 import { replaceImageUrl } from "../utils/utils"
-import { getV2ApiJson } from "../utils/api"
-import TrackList from "./TrackList.vue"
 import { toast } from "vue-sonner"
-import { PartialTrack, Playlist, PlaylistLike, Track } from "@/utils/types"
+import { PlaylistLike, Track } from "@/utils/types"
 import { i18n } from "@/systems/i18n"
-
-const playlistTracksCache = ref<Record<string | number, Track[]>>({}) // 系统播单id是string，歌单id是number
-const currentItem = ref<Track[]>()
-const currentResponse = ref<PlaylistLike>()
+import TracklistModal from "./modals/TracklistModal.vue"
+import { useModal } from "vue-final-modal"
+import { fetchPlaylistUpdates, getPlaylist, savePlaylist } from "@/systems/cache"
 
 const props = defineProps<{
   items: PlaylistLike[]
@@ -70,43 +65,36 @@ const props = defineProps<{
 }>()
 
 // TODO: 可视化加载
-async function open(item: PlaylistLike) {
-  let playlistId = item.playlist ? item.playlist.id : item.system_playlist.id
-  if (playlistTracksCache.value[playlistId]) {
-    currentItem.value = playlistTracksCache.value[playlistId]
-  }
+async function open(likeResp: PlaylistLike) {
+  let playlistId = likeResp.playlist ? likeResp.playlist.id : likeResp.system_playlist.id
 
   try {
-    let partialTracks: PartialTrack[]
-    if (item.playlist) {
-      const resp = await getV2ApiJson(`/playlists/${item.playlist.id}`, { representation: "full" }) as Playlist
-      partialTracks = resp.tracks!
-    } else {
-      partialTracks = item.system_playlist.tracks
+    let currentPlaylist = await getPlaylist(playlistId)
+    if (!currentPlaylist) {
+      currentPlaylist = await fetchPlaylistUpdates(likeResp)
     }
 
-    // 一次请求最多50个id (并行)
-    const promises = []
-    for (let i = 0; i < partialTracks.length; i += 50) {
-      promises.push(
-        getV2ApiJson("/tracks", {
-          ids: partialTracks
-            .slice(i, i + 50)
-            .map((item) => item.id)
-            .join(","),
-        }),
-      )
-    }
-    const finalTracks = (await Promise.all(promises)).flat()
+    const { open, close } = useModal({
+      component: TracklistModal,
+      attrs: {
+        tracks: currentPlaylist!.tracks as Track[],
+        currentResponse: likeResp,
+        shouldAutoUpdate: !currentPlaylist,
+        onClose() {
+          close()
+        },
+      },
+    })
 
-    currentResponse.value = item
-    playlistTracksCache.value[playlistId] = finalTracks
-    currentItem.value = finalTracks
+    open()
+
+    savePlaylist(currentPlaylist)
   } catch (err: any) {
     console.error("PlaylistList open error:", err)
     toast.error(i18n.global.t("cloudie.toasts.playlistOpenFailed"), {
       description: err.message,
     })
+    return
   }
 }
 

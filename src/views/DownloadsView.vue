@@ -1,7 +1,7 @@
 <template>
-  <!-- TODO: 更新删除UI -->
-  <button @click="deleteAllTasks" class="btn btn-sm btn-error">
-    {{ $t("cloudie.downloads.clearAll") }}
+  <!-- TODO: 更新删除UI，多选 -->
+  <button class="btn btn-sm btn-error">
+    {{ $t("cloudie.downloads.deleteSelected") }}
   </button>
 
   <div class="tabs tabs-border mb-6">
@@ -93,6 +93,9 @@
               class="progress w-56"
               :value="item.downloadingState.progress"></progress>
             {{ getStatusTranslation(item) }}
+            <div v-if="item.task.status === 'failed'" class="tooltip" :data-tip="item.failedReason">
+              <i-mdi-information class="text-base-content/70"></i-mdi-information>
+            </div>
           </div>
         </td>
         <td>
@@ -112,7 +115,7 @@
               @click="revealItemInDir(item.task.path ?? '')">
               <i-mdi-folder-open />
             </button>
-            <button @click="item.delete()" class="btn btn-sm btn-ghost">
+            <button @click="promptDelete([item])" class="btn btn-sm btn-ghost">
               <i-mdi-close />
             </button>
 
@@ -126,9 +129,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
-import { deleteAllTasks, downloadTasks, DownloadTask } from "@/systems/download/download"
+import { deleteTasks, downloadTasks, DownloadTask } from "@/systems/download/download"
 import { revealItemInDir } from "@tauri-apps/plugin-opener"
 import { i18n } from "@/systems/i18n"
+import { message } from "@tauri-apps/plugin-dialog"
 
 const activeTab = ref<"all" | "downloading" | "completed" | "paused" | "failed">("all")
 
@@ -153,5 +157,20 @@ function getStatusTranslation(item: DownloadTask) {
     return i18n.global.t(`cloudie.downloads.${item.downloadingState.name}`)
   }
   return i18n.global.t(`cloudie.downloads.${item.task.status}`)
+}
+
+async function promptDelete(tasks: DownloadTask[]) {
+  const result = await message(i18n.global.t("cloudie.toasts.confirmDelete", { c: tasks.length }), {
+    buttons: {
+      yes: i18n.global.t("cloudie.toasts.deleteLocalFiles"),
+      no: i18n.global.t("cloudie.toasts.keepLocalFiles"),
+      cancel: i18n.global.t("cloudie.toasts.cancel"),
+    },
+  })
+  if (result === i18n.global.t("cloudie.toasts.deleteLocalFiles")) {
+    await deleteTasks(tasks, true)
+  } else if (result === i18n.global.t("cloudie.toasts.keepLocalFiles")) {
+    await deleteTasks(tasks, false)
+  }
 }
 </script>

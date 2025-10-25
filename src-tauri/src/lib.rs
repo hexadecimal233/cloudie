@@ -1,75 +1,85 @@
-use std::path::PathBuf;
-use std::process::Command;
+use audiotags::{Album, MimeType, Picture, Tag};
+use reqwest::Client;
+use std::path::Path;
 use std::sync::{Arc, Mutex};
 use tauri::{
     AppHandle, Manager, Url, WebviewUrl, WebviewWindow, WebviewWindowBuilder, WindowEvent,
 };
 use tauri_plugin_log::log;
 use tauri_plugin_sql::{Migration, MigrationKind};
-use tauri_plugin_store::StoreExt;
 use tokio;
 use tokio::sync::oneshot;
 
 #[tauri::command]
-async fn download_aac(m3u8_url: String, app_handle: AppHandle) -> Result<String, String> {
-    let store = app_handle
-        .store("cloudie.json")
-        .map_err(|e| e.to_string())?;
+async fn add_tags(
+    file_path: String,
+    title: Option<String>,
+    album: Option<String>,
+    artist: Option<String>,
+    cover_url: Option<String>,
+    _app_handle: AppHandle,
+) -> Result<(), String> {
+    if !Path::new(&file_path).exists() {
+        return Err(format!("File not found: {}", file_path));
+    }
 
-    // 从配置中获取保存路径
-    let save_path = PathBuf::from(
-        store
-            .get("savePath")
-            .and_then(|v| v.as_str().map(|s| s.to_string()))
-            .ok_or("Failed to get savePath from config")?,
-    );
+    let mut tag = Tag::new()
+        .read_from_path(&file_path)
+        .map_err(|e| format!("Failed to read tag from {}: {}", file_path, e))?;
 
-    let temp_name = save_path.join(format!("cloudie_temp_{}.m4a", uuid::Uuid::new_v4()));
+    if let Some(t) = title.as_ref() {
+        tag.set_title(t.as_str());
+    }
+    if let Some(a) = album.as_ref() {
+        tag.set_album(Album::with_title(a.as_str()));
+    }
+    if let Some(ar) = artist.as_ref() {
+        tag.set_artist(ar.as_str());
+    }
 
-    let temp_name_clone = temp_name.clone();
+    // Embedding album cover
+    if let Some(url) = cover_url.as_ref() {
+        let client = Client::new();
+        let resp = client
+            .get(url)
+            .send()
+            .await
+            .map_err(|e| format!("Failed to request cover URL: {}", e))?;
 
-    let result = tokio::task::spawn_blocking(move || -> Result<String, String> {
-        let args = vec![
-            "-y",
-            "-loglevel",
-            "warning",
-            "-i",
-            &m3u8_url,
-            "-bsf:a",
-            "aac_adtstoasc", // audio bitstream filter
-            "-vcodec",
-            "copy",
-            "-c",
-            "copy",
-            "-crf",
-            "50", // constant rate factor
-            temp_name.to_str().unwrap(),
-        ];
-
-        let mut command = Command::new("ffmpeg");
-        command.args(args);
-
-        let mut child = command.spawn().map_err(|e| e.to_string())?;
-
-        let status = child.wait().map_err(|e| e.to_string())?;
-        if !status.success() {
-            return Err(format!("FFmpeg failed with status: {:?}", status));
+        if !resp.status().is_success() {
+            return Err(format!("Cover download failed: HTTP {}", resp.status()));
         }
 
-        Ok(temp_name_clone.to_str().unwrap().to_string())
-    })
-    .await
-    .map_err(|e| e.to_string());
+        let content_type = resp
+            .headers()
+            .get("Content-Type")
+            .map(|v| v.to_str().unwrap().to_string())
+            .ok_or("Failed to get Content-Type header")?;
 
-    result.map_err(|e| e.to_string())?
-}
+        let cover_bytes = resp
+            .bytes()
+            .await
+            .map_err(|e| format!("Failed to read cover bytes: {}", e))?
+            .to_vec();
 
-#[tauri::command]
-async fn write_meta(
-    file_path: String,
-    cover_url: String,
-    app_handle: AppHandle,
-) -> Result<(), String> {
+            println!("Content-Type: {}", content_type);
+        let mime_guess = match content_type.as_str() {
+            "image/jpeg" => MimeType::Jpeg,
+            "image/png" => MimeType::Png,
+            _ => return Err("Unsupported cover image format".to_string()),
+        };
+
+        let picture = Picture {
+            mime_type: mime_guess,
+            data: &cover_bytes[..],
+        };
+
+        tag.set_album_cover(picture);
+    }
+
+    tag.write_to_path(&file_path)
+        .map_err(|e| format!("Failed to write tags to {}: {}", file_path, e))?;
+
     Ok(())
 }
 
@@ -143,7 +153,7 @@ async fn login_soundcloud(app_handle: AppHandle) -> Result<String, String> {
         }
     });
 
-    // 等待登录完成
+    // wait for login completion
     let oauth_token = rx.await.map_err(|e| format!("Login interrupted: {}", e))?;
 
     match oauth_token {
@@ -154,6 +164,7 @@ async fn login_soundcloud(app_handle: AppHandle) -> Result<String, String> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // add migrations
     let migrations = vec![Migration {
         version: 0,
         description: "init",
@@ -162,6 +173,9 @@ pub fn run() {
     }];
 
     let mut builder = tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
+        // register commands
+        .invoke_handler(tauri::generate_handler![login_soundcloud, add_tags])
         .plugin(
             tauri_plugin_log::Builder::new()
                 .target(tauri_plugin_log::Target::new(
@@ -183,6 +197,7 @@ pub fn run() {
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_opener::init());
 
+    // use single instance plugin on desktop
     #[cfg(desktop)]
     {
         builder = builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
@@ -194,7 +209,6 @@ pub fn run() {
     }
 
     builder
-        .invoke_handler(tauri::generate_handler![download_aac, login_soundcloud])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

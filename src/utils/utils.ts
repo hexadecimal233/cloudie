@@ -1,3 +1,4 @@
+import { path } from "@tauri-apps/api"
 import { Track } from "./types"
 
 export function replaceImageUrl(url: string, size: number = 500) {
@@ -29,4 +30,75 @@ export function getArtist(track: Track): string {
 
 export function getCoverUrl(track: Track): string {
   return track.artwork_url ?? track.user.avatar_url ?? ""
+}
+
+import * as fs from "@tauri-apps/plugin-fs"
+
+export async function copyDir(
+  srcDir: string,
+  destDir: string,
+  copyOptions?: fs.CopyFileOptions,
+): Promise<void> {
+  try {
+    await fs.mkdir(destDir)
+  } catch (e) {} // ignore if exists
+
+  const entries = await fs.readDir(srcDir)
+
+  for (const entry of entries) {
+    const srcPath = await path.join(srcDir, entry.name)
+    const destPath = await path.join(destDir, entry.name)
+
+    if (entry.isDirectory) {
+      await copyDir(srcPath, destPath)
+    } else {
+      await fs.copyFile(srcPath, destPath, copyOptions)
+    }
+  }
+}
+
+export async function move(src: string, dst: string, copyOptions?: fs.CopyFileOptions): Promise<string> {
+  if (!(await fs.exists(src))) {
+    throw new Error(`Source path '${src}' does not exist.`)
+  }
+
+  let real_dst = dst
+  const isSrcDir = (await fs.lstat(src)).isDirectory
+
+  if (await fs.exists(dst)) {
+    const isDstDir = (await fs.lstat(dst)).isDirectory
+
+    if (isDstDir) {
+      const basename = src.split(/[/\\]/).pop()
+      if (!basename) {
+        throw new Error(`Invalid source path '${src}'.`)
+      }
+      real_dst = `${dst}/${basename}`
+
+      if (await fs.exists(real_dst)) {
+        throw new Error(`Destination path '${real_dst}' already exists.`)
+      }
+    }
+  }
+
+  try {
+    await fs.rename(src, real_dst)
+    return real_dst
+  } catch (renameError) {
+    try {
+      if (isSrcDir) {
+        await copyDir(src, real_dst, copyOptions)
+        await fs.remove(src, { recursive: true })
+      } else {
+        await fs.copyFile(src, real_dst, copyOptions)
+        await fs.remove(src)
+      }
+    } catch (copyRemoveError) {
+      throw new Error(
+        `Failed to move '${src}' to '${real_dst}' after rename attempt: ${copyRemoveError}`,
+      )
+    }
+  }
+
+  return real_dst
 }
