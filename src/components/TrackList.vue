@@ -118,13 +118,15 @@
                   })
                 }}
               </div>
-              <!-- 未知：MONETIZE-->
             </div>
           </td>
 
           <td>
-            <div class="flex">
-              <button class="btn btn-ghost btn-sm" @click="download(item)">
+            <div class="flex justify-center">
+              <div
+                v-if="getDownloadTask(item).value?.downloadingState"
+                class="loading loading-spinner loading-md"></div>
+              <button v-else class="btn btn-ghost btn-sm" @click="download(item)">
                 <i-mdi-download />
               </button>
               <a class="btn btn-ghost btn-sm" :href="item.permalink_url" target="_blank">
@@ -154,18 +156,37 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, useTemplateRef } from "vue"
-import { formatMillis, getArtist, getCoverUrl } from "../utils/utils"
-import { addDownloadTask } from "../systems/download/download"
+import { formatMillis, getArtist, getCoverUrl } from "@/utils/utils"
+import { addDownloadTask, downloadTasks } from "@/systems/download/download"
 import { LikedPlaylist, PlaylistLike, Track } from "@/utils/types"
 import { useInfiniteScroll } from "@vueuse/core"
-
-// 音乐显示
 
 const selectedIds = ref<number[]>([])
 const freeFilter = ref(false)
 const searchQuery = ref("")
 const selectedGenres = ref<(string | null)[]>([]) // TODO: 获取tag_list
-const scrollContainer = useTemplateRef<HTMLDivElement>("scrollContainer")
+const scrollContainer = useTemplateRef<HTMLDivElement>("scrollContainer") // TODO: fix virtual scroll
+
+const props = defineProps<{
+  tracks: Track[]
+  playlistResponse?: PlaylistLike
+  scrollCallbacks?: { canLoadMore: () => boolean; onTrigger: () => void }
+}>()
+
+onMounted(() => {
+  if (props.scrollCallbacks) {
+    useInfiniteScroll(scrollContainer.value, props.scrollCallbacks.onTrigger, {
+      distance: 10,
+      canLoadMore: props.scrollCallbacks?.canLoadMore,
+    })
+  }
+})
+
+function getDownloadTask(item: Track) {
+  return computed(() => {
+    return downloadTasks.value.find((t) => t.task.trackId === item.id)
+  })
+}
 
 const filteredItems = computed(() => {
   let items = props.tracks
@@ -276,21 +297,6 @@ function isPossibleFreeDownload(track: Track) {
 
   return isFreeDownload
 }
-
-const props = defineProps<{
-  tracks: Track[]
-  playlistResponse?: PlaylistLike
-  scrollCallbacks?: { canLoadMore: () => boolean; onTrigger: () => void }
-}>()
-
-onMounted(() => {
-  if (props.scrollCallbacks) {
-    useInfiniteScroll(scrollContainer.value, props.scrollCallbacks.onTrigger, {
-      distance: 10,
-      canLoadMore: props.scrollCallbacks?.canLoadMore,
-    })
-  }
-})
 </script>
 
 <style scoped>

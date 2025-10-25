@@ -70,6 +70,7 @@
       </label>
 
       <label class="label">{{ $t("cloudie.settings.config.mp3ConvertExts") }}</label>
+      <!-- TODO: Update UX -->
       <input type="text" class="input" v-model="currentMp3" />
 
       <label class="label cursor-pointer">
@@ -80,8 +81,6 @@
 
     <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">
       <legend class="fieldset-legend">{{ $t("cloudie.settings.sections.misc") }}</legend>
-
-      <!-- TODO: 写入封面 -->
 
       <label class="label cursor-pointer">
         <span>{{ $t("cloudie.settings.config.analyzeBpmAndKey") }}</span>

@@ -97,14 +97,12 @@ async function downloadAac(m3u8Url: string): Promise<string> {
     "-i",
     m3u8Url,
     "-bsf:a",
-    "aac_adtstoasc", // audio bitstream filter
-    "-vcodec",
-    "copy",
+    "aac_adtstoasc", // remove adts headers
     "-c",
-    "copy",
-    "-crf",
-    "50", // constant rate factor
-    savePath,
+    "copy", // copy audio stream
+    "-f",
+    "mp4", // output as m4a
+    savePath, 
   ])
 
   const proc = await cmd.execute()

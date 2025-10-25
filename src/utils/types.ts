@@ -112,7 +112,7 @@ export type Quality = "sq" | "hq" // sq and hq makes no difference, only affects
 
 export type MonetizationModel = "NOT_APPLICABLE" | "AD_SUPPORTED" | "BLACKBOX"
 
-export type Policy = "ALLOW" | "SNIP" | "BLOCK" | "MONETIZE"
+export type Policy = "ALLOW" | "SNIP" | "BLOCK" | "MONETIZE" // Monetize is unknown
 
 export interface PublisherMetadata {
   id: number

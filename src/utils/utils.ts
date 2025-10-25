@@ -1,12 +1,11 @@
 import { path } from "@tauri-apps/api"
 import { Track } from "./types"
 
-export function replaceImageUrl(url: string, size: number = 500) {
-  /*
-  availableSizes: [[20, "t20x20"], [50, "t50x50"], [120, "t120x120"], [200, "t200x200"], [500, "t500x500"], [1080, "t1080x1080"]],
-  availableVisualsSizes: [[1240, "t1240x260"], [2480, "t2480x520"]],
-  */
-  return url.replace("-large", `-t${size}x${size}`)
+export function replaceImageUrl(url: string, size:
+  "20x20" | "50x50" | "120x120" | "200x200" | "500x500" | "1080x1080" | // Cover / Avatar sizes
+  "1240x260" | "2480x520" // Visual sizes
+  = "500x500") {
+  return url.replace("-large", `-t${size}`)
 }
 
 export function formatMillis(millis: number) {
@@ -41,7 +40,7 @@ export async function copyDir(
 ): Promise<void> {
   try {
     await fs.mkdir(destDir)
-  } catch (e) {} // ignore if exists
+  } catch (e) { } // ignore if exists
 
   const entries = await fs.readDir(srcDir)
 

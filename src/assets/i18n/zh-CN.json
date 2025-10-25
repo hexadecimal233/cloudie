@@ -26,7 +26,8 @@
       "artist": "艺术家",
       "addedTime": "添加时间",
       "origFileName": "原文件名",
-      "status": "状态"
+      "status": "状态",
+      "tag": "添加音频元数据"
     },
     "trackList": {
       "downloadSelected": "下载选中",
@@ -41,7 +42,8 @@
       "geoRestrict": "地区限制",
       "premium": "会员专属",
       "source": "{count} 轨",
-      "noGenre": "无流派"
+      "noGenre": "无流派",
+      "freeDL": "免费下载"
     },
     "playlists": {
       "playlist": "歌单",

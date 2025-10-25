@@ -41,7 +41,8 @@
       "geoRestrict": "地區限制",
       "premium": "會員專屬",
       "source": "{count} 軌",
-      "noGenre": "無流派"
+      "noGenre": "無流派",
+      "freeDL": "免費下載"
     },
     "playlists": {
       "playlist": "歌單",
@@ -59,7 +60,8 @@
       "deleteLocalFiles": "刪除本地檔案",
       "keepLocalFiles": "保留本地檔案",
       "cancel": "取消",
-      "close": "關閉"
+      "close": "關閉",
+      "tag": "添加元數據"
     },
     "common": {
       "loading": "載入中...",

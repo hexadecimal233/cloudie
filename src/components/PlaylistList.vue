@@ -16,13 +16,13 @@
         @click="open(item)"
         :title="item.playlist?.title ?? item.system_playlist!.title"
         class="bg-base-200 rounded-box flex flex-col gap-1 overflow-hidden outline transition-all hover:-translate-y-1 hover:cursor-pointer hover:opacity-70">
-        <div class="bg-base-300 relative w-full aspect-square">
+        <div class="bg-base-300 relative aspect-square w-full">
           <img
             v-if="getImageUrl(item).value"
             :src="getImageUrl(item).value"
             alt="cover"
             class="h-full w-full object-cover" />
-          <div v-else class="skeleton rounded-none h-full w-full absolute inset-0"></div>
+          <div v-else class="skeleton absolute inset-0 h-full w-full rounded-none"></div>
         </div>
         <div class="flex flex-col p-3">
           <div class="text-base-content truncate font-bold">
@@ -52,12 +52,9 @@
 <script setup lang="ts">
 import { computed } from "vue"
 import { replaceImageUrl } from "../utils/utils"
-import { toast } from "vue-sonner"
-import { PlaylistLike, Track } from "@/utils/types"
-import { i18n } from "@/systems/i18n"
+import { PlaylistLike } from "@/utils/types"
 import TracklistModal from "./modals/TracklistModal.vue"
 import { useModal } from "vue-final-modal"
-import { fetchPlaylistUpdates, getPlaylist, savePlaylist } from "@/systems/cache"
 
 const props = defineProps<{
   items: PlaylistLike[]
@@ -66,36 +63,17 @@ const props = defineProps<{
 
 // TODO: 可视化加载
 async function open(likeResp: PlaylistLike) {
-  let playlistId = likeResp.playlist ? likeResp.playlist.id : likeResp.system_playlist.id
-
-  try {
-    let currentPlaylist = await getPlaylist(playlistId)
-    if (!currentPlaylist) {
-      currentPlaylist = await fetchPlaylistUpdates(likeResp)
-    }
-
-    const { open, close } = useModal({
-      component: TracklistModal,
-      attrs: {
-        tracks: currentPlaylist!.tracks as Track[],
-        currentResponse: likeResp,
-        shouldAutoUpdate: !currentPlaylist,
-        onClose() {
-          close()
-        },
+  const { open, close } = useModal({
+    component: TracklistModal,
+    attrs: {
+      currentResp: likeResp,
+      onClose() {
+        close()
       },
-    })
+    },
+  })
 
-    open()
-
-    savePlaylist(currentPlaylist)
-  } catch (err: any) {
-    console.error("PlaylistList open error:", err)
-    toast.error(i18n.global.t("cloudie.toasts.playlistOpenFailed"), {
-      description: err.message,
-    })
-    return
-  }
+  open()
 }
 
 function getImageUrl(item: PlaylistLike) {
@@ -109,7 +87,7 @@ function getImageUrl(item: PlaylistLike) {
 
     if (!artworkUrl) return ""
 
-    return replaceImageUrl(artworkUrl, 200)
+    return replaceImageUrl(artworkUrl)
   })
 }
 </script>

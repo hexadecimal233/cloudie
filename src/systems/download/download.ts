@@ -4,7 +4,7 @@
 
 import { ref } from "vue"
 import { config } from "@/systems/config"
-import { getArtist, getCoverUrl } from "@/utils/utils"
+import { getArtist, getCoverUrl, replaceImageUrl } from "@/utils/utils"
 import { db } from "@/systems/db"
 import * as schema from "@/systems/db/schema"
 import { desc, DrizzleQueryError, eq, inArray } from "drizzle-orm"
@@ -75,7 +75,7 @@ export class DownloadTask {
 
 class DownloadStat {
   progress: number = 0 // from 0 to 1
-  name: "pending" | "getinfo" | "downloading" = "pending"
+  name: "pending" | "getinfo" | "downloading" | "tag" = "pending"
 }
 
 class DownloadDetail {
@@ -219,27 +219,28 @@ async function runTask(task: DownloadTask) {
       task.downloadingState!.progress = progress
     })
 
-    task.setPath(response.path)
-    task.setOrigFileName(response.origFileName)
+    await task.setPath(response.path)
+    await task.setOrigFileName(response.origFileName)
 
     try {
+      task.downloadingState.name = "tag"
       await invoke("add_tags", {
         filePath: task.task.path,
         title: task.details.title,
         album: task.details.playlistName,
         artist: task.details.artist,
-        coverUrl: config.value.addCover ? task.details.coverUrl : undefined,
+        coverUrl: config.value.addCover ? replaceImageUrl(task.details.coverUrl, "1080x1080") : undefined,
       })
     } catch (error) {
       console.error(`Error adding tags to ${task.task.path}，Ignoring tags...`, error)
     }
 
-    task.setStatus("completed")
+    await task.setStatus("completed")
     task.downloadingState = undefined
     console.debug(task.task.status, task)
   } catch (err) {
     console.error("Download failed: ", err)
-    task.setStatus("failed")
+    await task.setStatus("failed")
     task.failedReason = err as string
     task.downloadingState = undefined
   }

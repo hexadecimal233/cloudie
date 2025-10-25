@@ -26,7 +26,8 @@
       "artist": "Artist",
       "addedTime": "Added Time",
       "origFileName": "Original File Name",
-      "status": "Status"
+      "status": "Status",
+      "tag": "Applying Metadata"
     },
     "trackList": {
       "downloadSelected": "Download Selected",
@@ -41,7 +42,8 @@
       "geoRestrict": "Geo",
       "premium": "Premium",
       "source": "1 Source | {count} Sources",
-      "noGenre": "No Genre"
+      "noGenre": "No Genre",
+      "freeDL": "Free DLs"
     },
     "playlists": {
       "playlist": "Playlist",
