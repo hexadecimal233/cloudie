@@ -1,14 +1,14 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "701d2482-4f53-4ebc-8ac8-360a57c08b78",
+  "id": "015cc416-e286-47b4-8a82-1072d2d8298b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "DownloadTasks": {
       "name": "DownloadTasks",
       "columns": {
-        "id": {
-          "name": "id",
+        "taskId": {
+          "name": "taskId",
           "type": "integer",
           "primaryKey": true,
           "notNull": true,
@@ -25,7 +25,7 @@
           "name": "playlistId",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "timestamp": {
@@ -57,7 +57,16 @@
           "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "DownloadTasks_trackId_playlistId_unique": {
+          "name": "DownloadTasks_trackId_playlistId_unique",
+          "columns": [
+            "trackId",
+            "playlistId"
+          ],
+          "isUnique": true
+        }
+      },
       "foreignKeys": {
         "DownloadTasks_trackId_LocalTracks_trackId_fk": {
           "name": "DownloadTasks_trackId_LocalTracks_trackId_fk",

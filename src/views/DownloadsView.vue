@@ -68,7 +68,7 @@
             </div>
             <div class="flex flex-col">
               <div class="font-bold">{{ item.details.title }}</div>
-              <div class="text-sm opacity-70">ID: {{ item.trackId }}</div>
+              <div class="text-sm opacity-70">ID: {{ item.task.trackId }}</div>
             </div>
           </div>
         </td>
@@ -79,40 +79,40 @@
           {{ item.details.playlistName ?? "-" }}
         </td>
         <td>
-          {{ new Date(item.timestamp).toLocaleString() }}
+          {{ new Date(item.task.timestamp).toLocaleString() }}
         </td>
         <td>
-          <div class="truncate font-mono" :title="item.origFileName ?? ''">
-            {{ item.origFileName ?? "-" }}
+          <div class="truncate font-mono" :title="item.task.origFileName ?? ''">
+            {{ item.task.origFileName ?? "-" }}
           </div>
         </td>
         <td>
           <div class="flex items-center gap-2">
             <progress
-              v-if="item.state"
+              v-if="item.downloadingState"
               class="progress w-56"
-              :value="item.state.progress"></progress>
+              :value="item.downloadingState.progress"></progress>
             {{ getStatusTranslation(item) }}
           </div>
         </td>
         <td>
           <div class="flex gap-1">
-            <button v-if="item.state" @click="pauseDownload(item)" class="btn btn-sm btn-ghost">
+            <button v-if="item.downloadingState" @click="item.pause()" class="btn btn-sm btn-ghost">
               <i-mdi-pause />
             </button>
             <button
-              v-else-if="item.status === 'paused' || item.status === 'failed'"
-              @click="resumeDownload(item)"
+              v-else-if="item.task.status === 'paused' || item.task.status === 'failed'"
+              @click="item.resume()"
               class="btn btn-sm btn-ghost">
               <i-mdi-play />
             </button>
             <button
-              v-if="item.status === 'completed'"
+              v-if="item.task.status === 'completed'"
               class="btn btn-sm btn-ghost"
-              @click="revealItemInDir(item.path ?? '')">
+              @click="revealItemInDir(item.task.path ?? '')">
               <i-mdi-folder-open />
             </button>
-            <button @click="deleteTask(item)" class="btn btn-sm btn-ghost">
+            <button @click="item.delete()" class="btn btn-sm btn-ghost">
               <i-mdi-close />
             </button>
 
@@ -126,14 +126,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
-import {
-  deleteAllTasks,
-  deleteTask,
-  downloadTasks,
-  FrontendDownloadTask,
-  pauseDownload,
-  resumeDownload,
-} from "@/systems/download/download"
+import { deleteAllTasks, downloadTasks, DownloadTask } from "@/systems/download/download"
 import { revealItemInDir } from "@tauri-apps/plugin-opener"
 import { i18n } from "@/systems/i18n"
 
@@ -145,20 +138,20 @@ const filteredItems = computed(() => {
     case "all":
       return items
     case "downloading":
-      return items.filter((item) => item.state)
+      return items.filter((item) => item.downloadingState)
     case "completed":
-      return items.filter((item) => item.status === "completed")
+      return items.filter((item) => item.task.status === "completed")
     case "paused":
-      return items.filter((item) => item.status === "paused")
+      return items.filter((item) => item.task.status === "paused")
     case "failed":
-      return items.filter((item) => item.status === "failed")
+      return items.filter((item) => item.task.status === "failed")
   }
 })
 
-function getStatusTranslation(item: FrontendDownloadTask) {
-  if (item.state) {
-    return i18n.global.t(`cloudie.downloads.${item.state.name}`)
+function getStatusTranslation(item: DownloadTask) {
+  if (item.downloadingState) {
+    return i18n.global.t(`cloudie.downloads.${item.downloadingState.name}`)
   }
-  return i18n.global.t(`cloudie.downloads.${item.status}`)
+  return i18n.global.t(`cloudie.downloads.${item.task.status}`)
 }
 </script>

@@ -1,8 +1,8 @@
 import { getJson, getV2ApiJson } from "@/utils/api"
 import { config } from "@/systems/config"
 import { Preset, PRESET_ORDER, Track, Transcoding } from "@/utils/types"
-import { FrontendDownloadTask } from "./download"
-import * as path from "@tauri-apps/api/path"
+import { DownloadTask } from "./download"
+import { path } from "@tauri-apps/api"
 import * as fs from "@tauri-apps/plugin-fs"
 import { invoke } from "@tauri-apps/api/core"
 import { getArtist } from "@/utils/utils"
@@ -112,7 +112,7 @@ async function downloadProgressed(resp: Response, onProgress: (progress: number)
 
 export async function downloadTrack(
   parsed: ParsedDownload,
-  task: FrontendDownloadTask,
+  task: DownloadTask,
   onProgress: (progress: number) => void,
 ) {
   const sanitizer = /[\\/:*?\"<>|]/g
@@ -194,7 +194,6 @@ export async function downloadTrack(
   }
 
   const destFile = await path.join(finalDir, `${safeFileName}.${ext}`)
-
   await fs.writeFile(destFile, bytes)
 
   // TODO: mp3 convert

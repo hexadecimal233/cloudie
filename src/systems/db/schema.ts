@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm"
-import { sqliteTable, integer, text, primaryKey } from "drizzle-orm/sqlite-core"
+import { sqliteTable, integer, text, unique } from "drizzle-orm/sqlite-core"
 
 export const localTracks = sqliteTable("LocalTracks", {
   trackId: integer("trackId").primaryKey().notNull(),
@@ -13,6 +13,7 @@ export const playlists = sqliteTable("Playlists", {
 
 /**
  * Download tasks table:
+ * - taskId: Unique id for each download task
  * - trackId: The exact id from SoundCloud
  * - playlistId:
  *   Since soundcloud returns a urn for system playlists, we need to modify normal playlist ids a string.
@@ -26,6 +27,7 @@ export const playlists = sqliteTable("Playlists", {
 export const downloadTasks = sqliteTable(
   "DownloadTasks",
   {
+    taskId: integer("taskId").primaryKey({autoIncrement: true}).notNull(),
     trackId: integer("trackId")
       .references(() => localTracks.trackId)
       .notNull(),
@@ -39,7 +41,7 @@ export const downloadTasks = sqliteTable(
       enum: ["paused", "completed", "failed"],
     }).notNull(),
   },
-  (table) => [primaryKey({ columns: [table.trackId, table.playlistId] })],
+  (table) => [unique().on(table.trackId, table.playlistId)],
 )
 
 export const listeningList = sqliteTable("ListeningList", {

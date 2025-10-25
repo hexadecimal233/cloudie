@@ -4,12 +4,13 @@ import tailwindcss from "@tailwindcss/vite"
 import Icons from "unplugin-icons/vite"
 import Components from "unplugin-vue-components/vite"
 import IconsResolver from "unplugin-icons/resolver"
+
 import path from "path"
 
 const host = process.env.TAURI_DEV_HOST
 
 // https://vite.dev/config/
-export default defineConfig(async () => ({
+export default defineConfig(async ({ command }) => ({
   plugins: [
     vue(),
     tailwindcss(),

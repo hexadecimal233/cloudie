@@ -1,7 +1,7 @@
 CREATE TABLE `DownloadTasks` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`taskId` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`trackId` integer NOT NULL,
-	`playlistId` text,
+	`playlistId` text NOT NULL,
 	`timestamp` integer NOT NULL,
 	`origFileName` text,
 	`path` text NOT NULL,
@@ -10,6 +10,7 @@ CREATE TABLE `DownloadTasks` (
 	FOREIGN KEY (`playlistId`) REFERENCES `Playlists`(`playlistId`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
+CREATE UNIQUE INDEX `DownloadTasks_trackId_playlistId_unique` ON `DownloadTasks` (`trackId`,`playlistId`);--> statement-breakpoint
 CREATE TABLE `ListeningList` (
 	`trackId` integer PRIMARY KEY NOT NULL,
 	`timestamp` integer NOT NULL,

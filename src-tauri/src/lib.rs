@@ -64,6 +64,15 @@ async fn download_aac(m3u8_url: String, app_handle: AppHandle) -> Result<String,
     result.map_err(|e| e.to_string())?
 }
 
+#[tauri::command]
+async fn write_meta(
+    file_path: String,
+    cover_url: String,
+    app_handle: AppHandle,
+) -> Result<(), String> {
+    Ok(())
+}
+
 /// Check if SoundCloud is logged in, login will auto refresh on soundcloud.com
 fn check_cookies(window: &WebviewWindow) -> Option<String> {
     let url = Url::parse("https://soundcloud.com").unwrap();
@@ -148,7 +157,7 @@ pub fn run() {
     let migrations = vec![Migration {
         version: 0,
         description: "init",
-        sql: include_str!("../drizzle/0000_broad_the_order.sql"),
+        sql: include_str!("../drizzle/0000_init.sql"),
         kind: MigrationKind::Up,
     }];
 
