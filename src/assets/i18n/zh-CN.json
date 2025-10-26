@@ -95,12 +95,8 @@
       },
       "fileNamingTypes": {
         "title": "标题",
-        "artistTitle": "艺术家 - 标题",
-        "titleArtist": "标题 - 艺术家"
-      },
-      "themeTypes": {
-        "dark": "暗黑 (TODO: change a name)",
-        "light": "亮色 (TODO: change a name)"
+        "artist-title": "艺术家 - 标题",
+        "title-artist": "标题 - 艺术家"
       },
       "sections": {
         "appearance": "外观",

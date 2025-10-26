@@ -26,7 +26,8 @@
       "artist": "藝術家",
       "addedTime": "加入時間",
       "origFileName": "原始檔名",
-      "status": "狀態"
+      "status": "狀態",
+      "tag": "添加元數據"
     },
     "trackList": {
       "downloadSelected": "下載選取項目",
@@ -67,8 +68,7 @@
       "deleteLocalFiles": "刪除本地檔案",
       "keepLocalFiles": "保留本地檔案",
       "cancel": "取消",
-      "close": "關閉",
-      "tag": "添加元數據"
+      "close": "關閉"
     },
     "common": {
       "loading": "載入中...",
@@ -95,12 +95,8 @@
       },
       "fileNamingTypes": {
         "title": "標題",
-        "artistTitle": "藝術家 - 標題",
-        "titleArtist": "標題 - 藝術家"
-      },
-      "themeTypes": {
-        "dark": "暗黑 (TODO: change a name)",
-        "light": "亮色 (TODO: change a name)"
+        "artist-title": "藝術家 - 標題",
+        "title-artist": "標題 - 藝術家"
       },
       "sections": {
         "appearance": "外觀",
