@@ -80,6 +80,7 @@
 
           <td>
             <div class="flex gap-2">
+              <!-- TODO: add loading skeleton -->
               <img :src="getCoverUrl(item)" alt="cover" class="size-16 rounded-md object-contain" />
 
               <div class="flex w-full flex-col justify-center">
@@ -129,6 +130,9 @@
               <button v-else class="btn btn-ghost btn-sm" @click="download(item)">
                 <i-mdi-download />
               </button>
+              <button class="btn btn-ghost btn-sm" @click="addToPlaylist(item)">
+                <i-mdi-plus />
+              </button>
               <a class="btn btn-ghost btn-sm" :href="item.permalink_url" target="_blank">
                 <i-mdi-open-in-new />
               </a>
@@ -160,6 +164,7 @@ import { formatMillis, getArtist, getCoverUrl } from "@/utils/utils"
 import { addDownloadTask, downloadTasks } from "@/systems/download/download"
 import { LikedPlaylist, PlaylistLike, Track } from "@/utils/types"
 import { useInfiniteScroll } from "@vueuse/core"
+import { addToPlaylist } from "@/systems/player/playlist"
 
 const selectedIds = ref<number[]>([])
 const freeFilter = ref(false)
@@ -182,6 +187,7 @@ onMounted(() => {
   }
 })
 
+// TODO: enhance download task display
 function getDownloadTask(item: Track) {
   return computed(() => {
     return downloadTasks.value.find((t) => t.task.trackId === item.id)

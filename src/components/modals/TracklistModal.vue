@@ -54,7 +54,8 @@ onMounted(async () => {
   try {
     let currentPlaylist = await getPlaylist(playlistId)
     const newCreatedPlaylist = !currentPlaylist
-    if (newCreatedPlaylist) {
+    if (!currentPlaylist) {
+      // typescript is dumb and cannot infer currentPlaylist is no longer null
       currentPlaylist = await fetchPlaylistUpdates(props.currentResp)
     }
 

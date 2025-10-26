@@ -16,7 +16,8 @@ export default defineConfig(async ({ command }) => ({
     tailwindcss(),
     Icons({
       autoInstall: true,
-      scale: 1.4,
+      scale: 1.5
+      ,
     }),
     Components({
       resolvers: [IconsResolver()],

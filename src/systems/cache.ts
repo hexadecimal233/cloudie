@@ -1,7 +1,7 @@
 import { BasePlaylist, PartialTrack, Playlist, PlaylistLike, SystemPlaylist, Track } from "@/utils/types"
 import * as schema from "@/systems/db/schema"
 import { eq, inArray, sql } from "drizzle-orm"
-import { db } from "./db"
+import { db } from "./db/db"
 import { getV2ApiJson } from "@/utils/api"
 
 export async function getPlaylist(
@@ -26,9 +26,9 @@ export async function getPlaylist(
   const playlist = JSON.parse(rawPlaylist.meta)
   const trackIds = playlist.tracks.map((t: { id: number }) => t.id)
 
-  const rawResult = await db.query.localTracks.findMany({
-    where: inArray(schema.localTracks.trackId, trackIds),
-  })
+  const rawResult = await db.select()
+    .from(schema.localTracks)
+    .where(inArray(schema.localTracks.trackId, trackIds))
 
   const tracks = rawResult.map((row) => {
     const track = JSON.parse(row.meta)

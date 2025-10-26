@@ -49,7 +49,7 @@ export const listeningList = sqliteTable("ListeningList", {
     .references(() => localTracks.trackId)
     .primaryKey()
     .notNull(),
-  timestamp: integer("timestamp").notNull(),
+  index: integer("index").notNull(),
 })
 
 export const downloadTasksRelations = relations(downloadTasks, ({ one }) => ({

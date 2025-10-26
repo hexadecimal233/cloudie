@@ -50,6 +50,9 @@ importers:
       drizzle-orm:
         specifier: ^0.44.6
         version: 0.44.6(better-sqlite3@12.4.1)
+      hls.js:
+        specifier: ^1.6.13
+        version: 1.6.13
       tailwindcss:
         specifier: ^4.1.13
         version: 4.1.14
@@ -1175,6 +1178,9 @@ packages:
   he@1.2.0:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
+
+  hls.js@1.6.13:
+    resolution: {integrity: sha512-hNEzjZNHf5bFrUNvdS4/1RjIanuJ6szpWNfTaX5I6WfGynWXGT7K/YQLYtemSvFExzeMdgdE4SsyVLJbd5PcZA==}
 
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
@@ -2429,6 +2435,8 @@ snapshots:
   graceful-fs@4.2.11: {}
 
   he@1.2.0: {}
+
+  hls.js@1.6.13: {}
 
   ieee754@1.2.1: {}
 

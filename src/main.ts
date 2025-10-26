@@ -3,8 +3,9 @@ import App from "./App.vue"
 import "./style.css"
 import router from "./router"
 import { loadConfig as initConfig } from "./systems/config"
-import { initDb } from "./systems/db"
+import { initDb } from "./systems/db/db"
 import { initDownload } from "./systems/download/download"
+import { initMedia } from "./systems/player/playlist"
 import { i18n, initI18n } from "./systems/i18n"
 import { createVfm } from "vue-final-modal"
 
@@ -14,6 +15,7 @@ async function initApp() {
   await initDb()
   await initConfig()
   await initDownload()
+  await initMedia()
 
   const vfm = createVfm()
 

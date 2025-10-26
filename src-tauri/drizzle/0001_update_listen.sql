@@ -1,0 +1,1 @@
+ALTER TABLE `ListeningList` RENAME COLUMN "timestamp" TO "index";

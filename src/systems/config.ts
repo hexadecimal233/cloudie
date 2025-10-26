@@ -2,9 +2,13 @@ import { load, Store } from "@tauri-apps/plugin-store"
 import { ref, watch } from "vue"
 import { refreshClientId } from "@/utils/api"
 import { i18n, LANGUAGE_OPTIONS } from "./i18n"
+import { PlayOrder } from "./player/playlist"
 
 class Config {
-  //外观
+  // Player
+  currentIndex: number = -1 // Visible via AudioPlayer
+  playOrder: PlayOrder = PlayOrder.Ordered // Visible via AudioPlayer
+  // 外观
   language: (typeof LANGUAGE_OPTIONS)[number] = "en"
   theme: "light" | "dark" = "light" // TODO: 主题
   // 下载
@@ -12,7 +16,7 @@ class Config {
   parallelDownloads: number = 3
   playlistSeparateDir: boolean = true
   preferDirectDownload: boolean = false
-  mp3ConvertExts: string[] = [] // TODO: 转换以下扩展名到 MP3 (警告: 有损压缩)
+  mp3ConvertExts: string[] = [] // TODO: 转换以下扩展名到 MP3 (警告: 有损压缩) + details
   fileNaming: "title-artist" | "artist-title" | "title" = "title-artist"
   addCover: boolean = false
   // 杂项

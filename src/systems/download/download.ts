@@ -5,7 +5,7 @@
 import { ref } from "vue"
 import { config } from "@/systems/config"
 import { getArtist, getCoverUrl, replaceImageUrl } from "@/utils/utils"
-import { db } from "@/systems/db"
+import { db } from "@/systems/db/db"
 import * as schema from "@/systems/db/schema"
 import { desc, DrizzleQueryError, eq, inArray } from "drizzle-orm"
 import { downloadTrack, parseDownload } from "./parser"
@@ -166,7 +166,7 @@ export async function deleteTasks(tasks: DownloadTask[], deleteFile: boolean) {
   for (const task of tasks) {
     try {
       await task.pause()
-    } catch (_) {} // already paused
+    } catch (_) { } // already paused
 
     taskIds.push(task.task.taskId)
   }

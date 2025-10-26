@@ -12,6 +12,13 @@
       "settings": "Settings",
       "feeds": "Feeds"
     },
+    "player": {
+      "ordered-no-repeat": "Ordered No Repeat",
+      "ordered": "Ordered",
+      "single-repeat": "Single Repeat",
+      "shuffle": "Shuffle",
+      "removeSelected": "Remove Selected"
+    },
     "downloads": {
       "deleteSelected": "Delete Selected",
       "allDownloads": "All Downloads",

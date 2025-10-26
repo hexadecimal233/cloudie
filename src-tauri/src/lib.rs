@@ -170,6 +170,12 @@ pub fn run() {
         description: "init",
         sql: include_str!("../drizzle/0000_init.sql"),
         kind: MigrationKind::Up,
+    }, 
+    Migration {
+        version: 1,
+        description: "update listening list index",
+        sql: include_str!("../drizzle/0001_update_listen.sql"),
+        kind: MigrationKind::Up,
     }];
 
     let mut builder = tauri::Builder::default()

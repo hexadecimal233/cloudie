@@ -106,13 +106,7 @@
     </div>
 
     <!-- 播放器 UI -->
-    <div class="bg-base-200 border-base-300/70 flex h-20 border-t-2">
-      <img src="" alt="cover" class="object-cover" />
-      <div class="flex flex-col">
-        <p>示例标题</p>
-        <p>示例艺术家</p>
-      </div>
-    </div>
+    <AudioPlayer />
   </div>
 </template>
 
@@ -123,6 +117,7 @@ import { Toaster } from "vue-sonner"
 import { ModalsContainer } from "vue-final-modal"
 import "vue-sonner/style.css"
 import "vue-final-modal/style.css"
+import AudioPlayer from "./components/AudioPlayer.vue"
 
 const user = ref<BasicUserInfo>()
 const loading = ref(true)

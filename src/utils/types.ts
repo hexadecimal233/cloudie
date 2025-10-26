@@ -25,8 +25,8 @@ export interface Track extends PartialTrack {
   description: null | string
   downloadable: boolean
   download_count: number | null
-  duration: number
-  full_duration: number
+  duration: number // will be affected by SNIP
+  full_duration: number // will not be affected by POLICY 
   embeddable_by: EmbeddableBy
   genre: null | string
   has_downloads_left: boolean

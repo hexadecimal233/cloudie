@@ -1,0 +1,201 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "f913d70e-f158-4852-86ed-cd284f5bce8d",
+  "prevId": "015cc416-e286-47b4-8a82-1072d2d8298b",
+  "tables": {
+    "DownloadTasks": {
+      "name": "DownloadTasks",
+      "columns": {
+        "taskId": {
+          "name": "taskId",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "trackId": {
+          "name": "trackId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "playlistId": {
+          "name": "playlistId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "timestamp": {
+          "name": "timestamp",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "origFileName": {
+          "name": "origFileName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "path": {
+          "name": "path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "DownloadTasks_trackId_playlistId_unique": {
+          "name": "DownloadTasks_trackId_playlistId_unique",
+          "columns": [
+            "trackId",
+            "playlistId"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "DownloadTasks_trackId_LocalTracks_trackId_fk": {
+          "name": "DownloadTasks_trackId_LocalTracks_trackId_fk",
+          "tableFrom": "DownloadTasks",
+          "tableTo": "LocalTracks",
+          "columnsFrom": [
+            "trackId"
+          ],
+          "columnsTo": [
+            "trackId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "DownloadTasks_playlistId_Playlists_playlistId_fk": {
+          "name": "DownloadTasks_playlistId_Playlists_playlistId_fk",
+          "tableFrom": "DownloadTasks",
+          "tableTo": "Playlists",
+          "columnsFrom": [
+            "playlistId"
+          ],
+          "columnsTo": [
+            "playlistId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "ListeningList": {
+      "name": "ListeningList",
+      "columns": {
+        "trackId": {
+          "name": "trackId",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "index": {
+          "name": "index",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ListeningList_trackId_LocalTracks_trackId_fk": {
+          "name": "ListeningList_trackId_LocalTracks_trackId_fk",
+          "tableFrom": "ListeningList",
+          "tableTo": "LocalTracks",
+          "columnsFrom": [
+            "trackId"
+          ],
+          "columnsTo": [
+            "trackId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "LocalTracks": {
+      "name": "LocalTracks",
+      "columns": {
+        "trackId": {
+          "name": "trackId",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "meta": {
+          "name": "meta",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "Playlists": {
+      "name": "Playlists",
+      "columns": {
+        "playlistId": {
+          "name": "playlistId",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "meta": {
+          "name": "meta",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {
+      "\"ListeningList\".\"timestamp\"": "\"ListeningList\".\"index\""
+    }
+  },
+  "internal": {
+    "indexes": {}
+  }
+}
