@@ -20,8 +20,8 @@ class Config {
   fileNaming: "title-artist" | "artist-title" | "title" = "title-artist"
   addCover: boolean = false
   // 杂项
-  analyzeBpmAndKey: boolean = false
-  virtualDjSupport: boolean = false
+  analyzeBpmAndKey: boolean = false // TODO: unimplemented
+  virtualDjSupport: boolean = false // TODO: unimplemented
   // 登录
   clientId: string = ""
   oauthToken: string = ""

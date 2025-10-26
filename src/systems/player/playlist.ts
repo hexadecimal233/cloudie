@@ -99,30 +99,30 @@ function mod(a: number, n: number) {
 /**
  * Get the offset track in the listening list, shuffle seed is changed on add or delete.
  * @param offset The offset from the current track. Default is 1.
- * @returns The offset track index in the listening list, or undefined if there is no such track.
+ * @returns The offset track index in the listening list, or -1 if there is no such track.
  */
 export async function getNextTrackIndex(offset: number = 1) {
   let { currentIndex, playOrder } = config.value
 
   // back to first track if goes beyond the end
-  const index = mod(currentIndex + offset, listeningList.value.length)
+  const newIdx = mod(currentIndex + offset, listeningList.value.length)
 
   switch (playOrder) {
     case PlayOrder.Ordered:
-      currentIndex = index
+      currentIndex = newIdx
       return currentIndex
     case PlayOrder.OrderedNoRepeat:
-      // Returns undefined if its the last track, pausing playback
+      // Returns -1 if its the last track, pausing playback
       if (currentIndex + offset >= listeningList.value.length) {
-        return undefined
+        return -1
       } else {
-        currentIndex = index
+        currentIndex = newIdx
         return currentIndex
       }
     case PlayOrder.SingleRepeat:
       return currentIndex
     case PlayOrder.Shuffle: {
-      const realMusicIndex = shuffledIndexMapping.get(index)
+      const realMusicIndex = shuffledIndexMapping.get(newIdx)
       if (realMusicIndex === undefined) {
         throw Error("Shuffled index not found")
       }

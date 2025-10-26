@@ -173,7 +173,6 @@ import { invoke } from "@tauri-apps/api/core"
 import { openPath } from "@tauri-apps/plugin-opener"
 import { toast } from "vue-sonner"
 import { i18n, LANGUAGE_OPTIONS } from "@/systems/i18n"
-import AudioPlayer from "@/components/AudioPlayer.vue"
 
 const versionInfo = ref({
   version: "",

@@ -25,10 +25,10 @@ function sortTranscodings(track: Track, protocol?: "progressive" | "hls"): Trans
 
 // TODO: https://developers.soundcloud.com/blog/api-streaming-urls 所述 opus 和 progressive 要没了
 // track_authorization only affects get stream from API, transcoding cache is not affected
-export async function parseDownload(track: Track): Promise<ParsedDownload> {
+export async function parseDownload(track: Track, ignoreDirect: boolean = false): Promise<ParsedDownload> {
   // TODO: 自选编码
   // TODO: secret_token参数获取私人下载链接
-  if (track["downloadable"] && config.value.preferDirectDownload) {
+  if (!ignoreDirect && track["downloadable"] && config.value.preferDirectDownload) {
     // 处理直连下载 TODO: 开设新section
     try {
       const downloadObj = await getV2ApiJson(`/tracks/${track.id}/download`)
