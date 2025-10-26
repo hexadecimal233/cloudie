@@ -14,6 +14,12 @@ interface ParsedDownload {
   preset: Preset | "none"
 }
 
+export enum FileNaming {
+  TitleArtist = "title-artist",
+  ArtistTitle = "artist-title",
+  Title = "title",
+}
+
 // get transcodings in descending order of priority
 function sortTranscodings(track: Track, protocol?: "progressive" | "hls"): Transcoding[] {
   const transcodings = track.media.transcodings.sort((a: Transcoding, b: Transcoding) => {
@@ -23,12 +29,21 @@ function sortTranscodings(track: Track, protocol?: "progressive" | "hls"): Trans
   return transcodings.filter((t: Transcoding) => t.format.protocol === protocol)
 }
 
-// TODO: https://developers.soundcloud.com/blog/api-streaming-urls 所述 opus 和 progressive 要没了
+export async function parseHlsLink(track: Track) {
+  const trans = sortTranscodings(track, "hls").find(
+    (t: Transcoding) => t.preset === "abr_sq" || t.preset === "aac_256k" || t.preset === "aac_160k",
+  )
+  if (trans) {
+    const m3u8meta = await getJson(trans.url, true, true)
+    return m3u8meta.url
+  }
+  throw new Error("No available HLS streams")
+}
+
 // track_authorization only affects get stream from API, transcoding cache is not affected
-export async function parseDownload(track: Track, ignoreDirect: boolean = false): Promise<ParsedDownload> {
-  // TODO: 自选编码
+export async function parseDownload(track: Track): Promise<ParsedDownload> {
   // TODO: secret_token参数获取私人下载链接
-  if (!ignoreDirect && track["downloadable"] && config.value.preferDirectDownload) {
+  if (track["downloadable"] && config.value.preferDirectDownload) {
     // 处理直连下载 TODO: 开设新section
     try {
       const downloadObj = await getV2ApiJson(`/tracks/${track.id}/download`)
@@ -76,15 +91,32 @@ interface DownloadResponse {
 
 function getDownloadTitle(task: DownloadTask) {
   switch (config.value.fileNaming) {
-    case "title":
+    case FileNaming.Title:
       return task.details.title
-    case "artist-title":
+    case FileNaming.ArtistTitle:
       return `${task.details.artist} - ${task.details.title}`
-    case "title-artist":
+    case FileNaming.TitleArtist:
       return `${task.details.title} - ${task.details.artist}`
     default:
       return task.details.title
   }
+}
+
+async function getDownloadPathWithoutExt(task: DownloadTask) {
+  const sanitizer = /[\\/:*?\"<>|]/g
+  const safeFileName = getDownloadTitle(task).replace(sanitizer, "_")
+  const playlistDir = await path.join(
+    config.value.savePath,
+    task.details.playlistName?.replace(sanitizer, "_") || "",
+  )
+
+  const finalDir = config.value.playlistSeparateDir ? playlistDir : config.value.savePath
+
+  try {
+    await fs.mkdir(finalDir, { recursive: true })
+  } catch (_) {}
+
+  return await path.join(finalDir, safeFileName)
 }
 
 async function downloadAac(m3u8Url: string): Promise<string> {
@@ -102,7 +134,7 @@ async function downloadAac(m3u8Url: string): Promise<string> {
     "copy", // copy audio stream
     "-f",
     "mp4", // output as m4a
-    savePath, 
+    savePath,
   ])
 
   const proc = await cmd.execute()
@@ -143,19 +175,6 @@ export async function downloadTrack(
   task: DownloadTask,
   onProgress: (progress: number) => void,
 ) {
-  const sanitizer = /[\\/:*?\"<>|]/g
-  const safeFileName = getDownloadTitle(task).replace(sanitizer, "_")
-  const playlistDir = await path.join(
-    config.value.savePath,
-    task.details.playlistName?.replace(sanitizer, "_") || "",
-  )
-
-  const finalDir = config.value.playlistSeparateDir ? playlistDir : config.value.savePath
-
-  try {
-    await fs.mkdir(finalDir, { recursive: true })
-  } catch (_) {}
-
   let origFileName = null
   let ext = ""
   let bytes: Uint8Array
@@ -183,11 +202,15 @@ export async function downloadTrack(
       if (parsed.preset.includes("aac")) {
         // TODO: progress display
         const tempFileName = await downloadAac(parsed.finalUrl)
-        const finalPath = await path.join(finalDir, `${safeFileName}.m4a`)
+
+        const finalPath = (await getDownloadPathWithoutExt(task)) + `.${ext}`
 
         await move(tempFileName, finalPath)
 
-        return { path: finalPath, origFileName } as DownloadResponse
+        return {
+          path: finalPath,
+          origFileName: origFileName,
+        } as DownloadResponse
       } else if (parsed.preset === "opus_0_0" || parsed.preset.includes("mp3")) {
         // Simply appending every chunk to the end of the previous one
         const resp = await fetch(parsed.finalUrl)
@@ -217,7 +240,8 @@ export async function downloadTrack(
       throw new Error(`Unknown download type ${parsed.downloadType}`)
   }
 
-  const destFile = await path.join(finalDir, `${safeFileName}.${ext}`)
+  const destFile = (await getDownloadPathWithoutExt(task)) + `.${ext}`
+
   await fs.writeFile(destFile, bytes)
 
   return {

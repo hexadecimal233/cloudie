@@ -67,7 +67,7 @@
           <th></th>
         </tr>
       </thead>
-      <tbody ref="scrollContainer">
+      <tbody>
         <tr
           v-for="(item, index) in filteredItems"
           :key="item.id"
@@ -126,12 +126,15 @@
             <div class="flex justify-center">
               <div
                 v-if="getDownloadTask(item).value?.downloadingState"
-                class="loading loading-spinner loading-md"></div>
+                class="loading loading-spinner loading-lg"></div>
               <button v-else class="btn btn-ghost btn-sm" @click="download(item)">
                 <i-mdi-download />
               </button>
               <button class="btn btn-ghost btn-sm" @click="addToPlaylist(item)">
                 <i-mdi-plus />
+              </button>
+              <button class="btn btn-ghost btn-sm" @click="addAndPlay(item)">
+                <i-mdi-play />
               </button>
               <a class="btn btn-ghost btn-sm" :href="item.permalink_url" target="_blank">
                 <i-mdi-open-in-new />
@@ -159,33 +162,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, useTemplateRef } from "vue"
+import { ref, computed } from "vue"
 import { formatMillis, getArtist, getCoverUrl } from "@/utils/utils"
 import { addDownloadTask, downloadTasks } from "@/systems/download/download"
-import { LikedPlaylist, PlaylistLike, Track } from "@/utils/types"
-import { useInfiniteScroll } from "@vueuse/core"
-import { addToPlaylist } from "@/systems/player/playlist"
+import { ExactPlaylist, Track } from "@/utils/types"
+import { addAndPlay, addToPlaylist } from "@/systems/player/playlist"
+
+// TODO: Implement useInfiniteScroll
 
 const selectedIds = ref<number[]>([])
 const freeFilter = ref(false)
 const searchQuery = ref("")
 const selectedGenres = ref<(string | null)[]>([]) // TODO: 获取tag_list
-const scrollContainer = useTemplateRef<HTMLDivElement>("scrollContainer") // TODO: fix virtual scroll
 
 const props = defineProps<{
-  tracks: Track[]
-  playlistResponse?: PlaylistLike
-  scrollCallbacks?: { canLoadMore: () => boolean; onTrigger: () => void }
+  playlist: ExactPlaylist
 }>()
-
-onMounted(() => {
-  if (props.scrollCallbacks) {
-    useInfiniteScroll(scrollContainer.value, props.scrollCallbacks.onTrigger, {
-      distance: 10,
-      canLoadMore: props.scrollCallbacks?.canLoadMore,
-    })
-  }
-})
 
 // TODO: enhance download task display
 function getDownloadTask(item: Track) {
@@ -195,7 +187,7 @@ function getDownloadTask(item: Track) {
 }
 
 const filteredItems = computed(() => {
-  let items = props.tracks
+  let items = props.playlist.tracks
 
   // 搜索过滤
   if (searchQuery.value) {
@@ -222,7 +214,7 @@ const filteredItems = computed(() => {
 })
 
 const allGenres = computed(() => {
-  const tags = props.tracks.map((item) => item.genre).filter(Boolean)
+  const tags = props.playlist.tracks.map((item) => item.genre).filter(Boolean)
   return [...new Set(tags)]
 })
 
@@ -254,7 +246,7 @@ function resetFilters() {
 // 下载选中
 async function downloadSelected() {
   for (const id of selectedIds.value) {
-    const track = props.tracks.find((item) => item.id === id)
+    const track = props.playlist.tracks.find((item) => item.id === id)
     if (track) {
       await download(track)
     }
@@ -262,12 +254,9 @@ async function downloadSelected() {
 }
 
 async function download(track: Track) {
-  // TODO: Local Playlists
   await addDownloadTask(
     track,
-    props.playlistResponse?.playlist ??
-      props.playlistResponse?.system_playlist ??
-      new LikedPlaylist(),
+    props.playlist 
   )
 }
 

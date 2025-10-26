@@ -1,6 +1,10 @@
 import { path } from "@tauri-apps/api"
 import { Track } from "./types"
 
+export function capitalizeFirstLetter(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
 export function replaceImageUrl(url: string, size:
   "20x20" | "50x50" | "120x120" | "200x200" | "500x500" | "1080x1080" | // Cover / Avatar sizes
   "1240x260" | "2480x520" // Visual sizes

@@ -5,7 +5,7 @@
     <div class="flex flex-1 overflow-hidden">
       <!-- 左侧 菜单栏 -->
       <div class="bg-base-200 w-72 flex-shrink-0">
-        <ul class="menu menu-lg w-full gap-y-2">
+        <ul class="menu menu-lg w-full gap-y-1">
           <img src="/logo.png" alt="cloudie" class="h-24 object-contain" />
 
           <div class="mx-4 flex items-center gap-2">

@@ -3,6 +3,48 @@ import { ref, watch } from "vue"
 import { refreshClientId } from "@/utils/api"
 import { i18n, LANGUAGE_OPTIONS } from "./i18n"
 import { PlayOrder } from "./player/playlist"
+import { FileNaming } from "./download/parser"
+
+export const THEMES = [
+  "cloudie",
+  "light",
+  "dark",
+  "cupcake",
+  "bumblebee",
+  "emerald",
+  "corporate",
+  "synthwave",
+  "retro",
+  "cyberpunk",
+  "valentine",
+  "halloween",
+  "garden",
+  "forest",
+  "aqua",
+  "lofi",
+  "pastel",
+  "fantasy",
+  "wireframe",
+  "black",
+  "luxury",
+  "dracula",
+  "cmyk",
+  "autumn",
+  "business",
+  "acid",
+  "lemonade",
+  "night",
+  "coffee",
+  "winter",
+  "dim",
+  "nord",
+  "sunset",
+  "caramellatte",
+  "abyss",
+  "silk",
+] as const
+
+type Theme = (typeof THEMES)[number]
 
 class Config {
   // Player
@@ -10,14 +52,14 @@ class Config {
   playOrder: PlayOrder = PlayOrder.Ordered // Visible via AudioPlayer
   // 外观
   language: (typeof LANGUAGE_OPTIONS)[number] = "en"
-  theme: "light" | "dark" = "light" // TODO: 主题
+  theme: Theme = "cloudie"
   // 下载
   savePath: string = ""
   parallelDownloads: number = 3
   playlistSeparateDir: boolean = true
   preferDirectDownload: boolean = false
   mp3ConvertExts: string[] = [] // TODO: 转换以下扩展名到 MP3 (警告: 有损压缩) + details
-  fileNaming: "title-artist" | "artist-title" | "title" = "title-artist"
+  fileNaming: FileNaming = FileNaming.TitleArtist
   addCover: boolean = false
   // 杂项
   analyzeBpmAndKey: boolean = false // TODO: unimplemented
@@ -72,6 +114,8 @@ export async function loadConfig() {
 async function saveConfig() {
   // Refresh display language
   i18n.global.locale.value = config.value.language
+  // Update theme class
+  document.documentElement.setAttribute("data-theme", config.value.theme)
 
   const currentConfig = config.value
 

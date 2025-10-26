@@ -1,4 +1,12 @@
-import { BasePlaylist, PartialTrack, Playlist, PlaylistLike, SystemPlaylist, Track } from "@/utils/types"
+import {
+  BasePlaylist,
+  ExactPlaylist,
+  PartialTrack,
+  Playlist,
+  PlaylistLike,
+  SystemPlaylist,
+  Track,
+} from "@/utils/types"
 import * as schema from "@/systems/db/schema"
 import { eq, inArray, sql } from "drizzle-orm"
 import { db } from "./db/db"
@@ -6,7 +14,7 @@ import { getV2ApiJson } from "@/utils/api"
 
 export async function getPlaylist(
   playlistId: string | number,
-): Promise<SystemPlaylist | Playlist | null> {
+): Promise<ExactPlaylist| null> {
   const rawPlaylist = await db
     .select()
     .from(schema.playlists)
@@ -26,7 +34,8 @@ export async function getPlaylist(
   const playlist = JSON.parse(rawPlaylist.meta)
   const trackIds = playlist.tracks.map((t: { id: number }) => t.id)
 
-  const rawResult = await db.select()
+  const rawResult = await db
+    .select()
     .from(schema.localTracks)
     .where(inArray(schema.localTracks.trackId, trackIds))
 
@@ -42,14 +51,14 @@ export async function getPlaylist(
   }
 }
 
-// TODO: Make like lists cachable
+// TODO: Make LOCAL like lists cachable
 
-export async function savePlaylist(playlist: BasePlaylist) {
+export async function savePlaylist(playlist: ExactPlaylist) {
   // Save all track metadatas
 
-  let omittedPlaylist = playlist
+  let omittedPlaylist: BasePlaylist = playlist
 
-  if (playlist.tracks && playlist.tracks.length > 0) {
+  if (playlist.tracks.length > 0) {
     const data = playlist.tracks.map((t) => {
       // dumb way to detect if it is a Track not a PartialTrack
       if (!(t as Track).title) {
@@ -117,7 +126,7 @@ export async function fetchPlaylistUpdates(likeResp: PlaylistLike, existTrackIds
   }
 
   if (partialTracks.length === 0) {
-    return currentPlaylist
+    return currentPlaylist as unknown as ExactPlaylist
   }
 
   // 50 requests each time is the maximum supported by the API
@@ -134,18 +143,16 @@ export async function fetchPlaylistUpdates(likeResp: PlaylistLike, existTrackIds
   }
   const currentItem = (await Promise.all(promises)).flat()
 
-  if (likeResp.playlist) {
-    currentPlaylist = {
-      ...likeResp.playlist,
-      tracks: currentItem,
-    }
-  } else {
-    currentPlaylist = {
-      ...likeResp.system_playlist,
-      tracks: currentItem,
-    }
-  }
+  const finalPlaylist: ExactPlaylist = likeResp.playlist
+    ? {
+        ...likeResp.playlist,
+        tracks: currentItem,
+      }
+    : {
+        ...likeResp.system_playlist,
+        tracks: currentItem,
+      }
 
-  savePlaylist(currentPlaylist)
-  return currentPlaylist
+  savePlaylist(finalPlaylist)
+  return finalPlaylist
 }

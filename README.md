@@ -5,7 +5,7 @@
 </div>
 
 <p align="center">
-Cloudie -- Yet another Kawaii Soundcloud Client.
+Cloudie -- Yet another Open Source Kawaii Soundcloud Client.
 </p>
 
 ## Features
@@ -13,11 +13,11 @@ Cloudie -- Yet another Kawaii Soundcloud Client.
 > [!WARNING]
 > This project is still under heavy development, and many features are not yet implemented or may not work as expected.
 
-- [ ] Browse & Play Soundcloud tracks
+- [x] Browse & Play Soundcloud tracks
 - [x] Download tracks or playlists from Soundcloud and embed covers
 - [x] Multilingual support
 - [ ] Auto add playlists to DJ software (TODO: dynamic playlist support)
-- [ ] Playing Manager service support (eg. last.fm)
+- [ ] Scrobbling support (eg. last.fm)
 
 ## Logging in
 
@@ -54,5 +54,5 @@ Pull Requests: [Pull Requests](https://github.com/hexadecimal233/cloudie/pulls)
 ## TODO List
 
 - [ ] 图标重新设计
-- [ ] 主题色重写
 - [ ] Table样式优化
+- [ ] More Tooltips!

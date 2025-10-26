@@ -45,6 +45,13 @@
       "noGenre": "无流派",
       "freeDL": "免费下载"
     },
+    "player": {
+      "ordered-no-repeat": "有序播放 (不循环)",
+      "ordered": "有序播放",
+      "single-repeat": "单曲循环",
+      "shuffle": "随机播放",
+      "removeSelected": "删除选中"
+    },
     "playlists": {
       "playlist": "歌单",
       "album": "专辑",

@@ -15,7 +15,7 @@
         :key="item.playlist?.id ?? item.system_playlist!.id"
         @click="open(item)"
         :title="item.playlist?.title ?? item.system_playlist!.title"
-        class="bg-base-200 rounded-box flex flex-col gap-1 overflow-hidden outline transition-all hover:-translate-y-1 hover:cursor-pointer hover:opacity-70">
+        class="bg-base-200 rounded-box flex flex-col gap-1 overflow-hidden shadow-xs transition-all hover:-translate-y-1 hover:cursor-pointer hover:opacity-70">
         <div class="bg-base-300 relative aspect-square w-full">
           <img
             v-if="getImageUrl(item).value"
@@ -58,11 +58,10 @@ import { useModal } from "vue-final-modal"
 
 const props = defineProps<{
   items: PlaylistLike[]
-  cache: Record<number, any> // TODO: 性能优化
+  cache: Record<number, any>
 }>()
 
-// TODO: 可视化加载
-async function open(likeResp: PlaylistLike) {
+function open(likeResp: PlaylistLike) {
   const { open, close } = useModal({
     component: TracklistModal,
     attrs: {

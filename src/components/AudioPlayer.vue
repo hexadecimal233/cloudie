@@ -1,19 +1,24 @@
 <template>
-  <audio
+  <video
     @timeupdate="onTimeUpdate"
-    @onended="onEnded"
+    @ended="onEnded"
     @loadedmetadata="onLoadedMetadata"
-    ref="audio"></audio>
+    ref="mediaRef"
+    autoplay
+    style="visibility: hidden; position: absolute"></video>
 
-  <div class="bg-base-200 relative h-24">
+  <div v-if="track" class="bg-base-200 relative h-24">
+    <!-- Progress Bar and Needle-->
     <progress
-      class="progress hover absolute top-0 h-1.5 rounded-none transition-all hover:-top-1.5 hover:h-3"
+      class="progress absolute top-0 h-1.5 w-full rounded-none transition-all hover:-top-1.5 hover:h-3"
       :value="playerState.currentTime"
-      :max="playerState.duration"></progress>
+      :max="playerState.duration"
+      @click="onProgressClick"></progress>
+
     <div class="flex h-full w-full px-4 py-3">
       <div class="flex flex-1/3 gap-2">
         <img :src="getCoverUrl(track)" alt="cover" class="skeleton object-cover" />
-        <div v-if="track" class="flex flex-col">
+        <div class="flex flex-col">
           <p class="font-bold">{{ track.title }}</p>
           <p class="text-base-content/70">{{ getArtist(track) }}</p>
         </div>
@@ -27,7 +32,8 @@
           <i-mdi-rewind />
         </button>
         <button class="btn btn-primary btn-circle" @click="togglePlay">
-          <i-mdi-play v-if="playerState.paused" />
+          <div v-if="playerState.loading" class="loading loading-spinner loading-lg"></div>
+          <i-mdi-play v-else-if="playerState.paused" />
           <i-mdi-pause v-else />
         </button>
         <button class="btn btn-ghost btn-circle" @click="nextTrack(1)">
@@ -41,40 +47,81 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue"
+import { computed, reactive, ref, onMounted, onUnmounted, watch } from "vue"
 import PlayOrderSwitch from "./PlayOrderSwitch.vue"
-import { getNextTrackIndex as getNextTrackIdx, listeningList } from "@/systems/player/playlist"
+import { getNextTrackIndex as getNextTrackIdx, listeningList, getCurrentTrack } from "@/systems/player/playlist"
 import { config } from "@/systems/config"
 import { getArtist, getCoverUrl } from "@/utils/utils"
-import { parseDownload } from "@/systems/download/parser"
+import { parseHlsLink } from "@/systems/download/parser"
+import Hls from "hls.js"
 
-const playerState = reactive({
+// --- HLS 相关的状态和 Ref ---
+const mediaRef = ref<HTMLVideoElement | null>(null)
+const hlsPlayer = ref<Hls | null>(null)
+// 记录当前加载的 URL，用于避免重复加载
+const currentMediaUrl = ref<string>()
+
+// --- 播放器状态 ---
+const playerState = reactive<{
+  currentTime: number
+  duration: number | undefined // 允许 undefined 以表示加载中
+  loading: boolean
+  paused: boolean
+}>({
   currentTime: 0,
-  duration: 0,
+  duration: undefined, // 初始设置为 undefined
+  loading: false,
   paused: true,
 })
 
-const audio = ref<HTMLAudioElement | null>(null)
+// --- Computed Track ---
+const track = computed(() => {
+  return getCurrentTrack()
+})
+
+watch(track, (v) => {
+  loadSong()
+})
+
+onMounted(() => {
+  // Initialize HLS player if supported
+  if (Hls.isSupported() && mediaRef.value) {
+    const hls = new Hls()
+    hlsPlayer.value = hls
+    hls.attachMedia(mediaRef.value)
+
+    hls.on(Hls.Events.ERROR, (_event, data) => {
+      console.error("HLS Error:", data.type, data.details, data.fatal ? "FATAL" : "NON-FATAL")
+      if (data.fatal) {
+        hls.destroy()
+        // ...
+      }
+    })
+  } else if (mediaRef.value?.canPlayType("application/vnd.apple.mpegurl")) {
+    console.log("Using native HLS support.")
+  } else {
+    console.error("HLS is not supported on this browser.")
+  }
+})
+
+onUnmounted(() => {
+  if (hlsPlayer.value) {
+    hlsPlayer.value.destroy()
+  }
+})
+
+// --- 播放器事件处理 ---
 
 function onTimeUpdate(_event: Event) {
-  if (audio.value) {
-    playerState.currentTime = audio.value.currentTime
-    playerState.duration = audio.value.duration
-  }
-}
+  if (mediaRef.value) {
+    playerState.currentTime = mediaRef.value.currentTime
 
-async function nextTrack(offset: number = 1) {
-  const trackIndex = await getNextTrackIdx(offset)
-  if (trackIndex == -1) {
-    // pause and set time to 0 when no next track
-    seek(0)
-    pause()
-    return
+    // 修复 NaN/Infinity 错误: 仅当 duration 是有效数字时才更新
+    const duration = mediaRef.value.duration
+    if (isFinite(duration) && duration > 0) {
+      playerState.duration = duration
+    }
   }
-
-  config.value.currentIndex = trackIndex
-  seek(0)
-  resume()
 }
 
 function onEnded() {
@@ -82,56 +129,152 @@ function onEnded() {
 }
 
 function onLoadedMetadata() {
-  if (audio.value) {
-    playerState.duration = audio.value.duration
-    playerState.paused = audio.value.paused
+  if (mediaRef.value) {
+    // metadata 加载后，duration 通常是正确的了
+    const duration = mediaRef.value.duration
+    if (isFinite(duration) && duration > 0) {
+      playerState.duration = duration
+      playerState.loading = false
+    } else {
+      playerState.duration = undefined // 确保非正常值时进入加载状态
+      playerState.loading = true
+    }
+    playerState.paused = mediaRef.value.paused
   }
 }
 
+// --- 播放器控制方法 ---
+
 function seek(time: number) {
-  if (!audio.value) {
+  if (!mediaRef.value || !isFinite(time)) {
+    return
+  }
+  mediaRef.value.currentTime = time
+}
+
+// 处理进度条点击事件以实现 Seek
+function onProgressClick(event: MouseEvent) {
+  const progressElement = event.currentTarget as HTMLProgressElement
+  if (!progressElement || playerState.duration === undefined) {
     return
   }
 
-  audio.value.currentTime = time
+  // 1. 获取点击位置的百分比
+  const rect = progressElement.getBoundingClientRect()
+  const clickX = event.clientX - rect.left
+  const percent = clickX / rect.width
+
+  // 2. 计算目标时间
+  const targetTime = percent * playerState.duration
+
+  // 3. 寻址
+  seek(targetTime)
+
+  // 4. 如果是暂停状态，寻址后应尝试播放 (用户交互)
+  if (playerState.paused) {
+    resume()
+  }
 }
 
 function pause() {
-  if (!audio.value) {
+  if (!mediaRef.value) {
     return
   }
-
-  audio.value.pause()
+  mediaRef.value.pause()
   playerState.paused = true
 }
 
-async function resume() {
-  if (!audio.value) {
+async function loadSong() {
+  if (!mediaRef.value || !track.value || playerState.loading) {
     return
   }
 
-  const parsedDownload = await parseDownload(track.value, true)
-  audio.value.src = parsedDownload.finalUrl
+  // 加载新源之前，将 duration 设为 undefined，显示加载状态
+  playerState.loading = true
+  playerState.duration = undefined
 
-  // TODO: error handling
+  const finalUrl = await parseHlsLink(track.value)
+  const isHls = finalUrl.includes(".m3u8")
 
-  await audio.value.play()
-  playerState.paused = false
+  if (isHls && hlsPlayer.value) {
+    // 2a. 使用 hls.js 播放 M3U8
+    hlsPlayer.value.loadSource(finalUrl)
+
+    hlsPlayer.value.once(Hls.Events.MANIFEST_PARSED, async () => {
+      try {
+        // 等待 HLS 解析完成后再播放
+        await mediaRef.value!.play()
+        playerState.paused = false
+        currentMediaUrl.value = finalUrl
+      } catch (error) {
+        console.error("HLS Play Failed:", error)
+        playerState.paused = true
+      }
+    })
+  } else {
+    // 2b. 普通音频/原生 HLS 逻辑
+    mediaRef.value.src = finalUrl
+    mediaRef.value.load() // 必须调用 load() 来触发加载
+
+    try {
+      // 尝试播放
+      await mediaRef.value.play()
+      playerState.paused = false
+      currentMediaUrl.value = finalUrl
+    } catch (error) {
+      console.error("Play Failed (Native):", error)
+      playerState.paused = true
+    }
+  }
+}
+
+async function resume() {
+  if (!mediaRef.value || !track.value) {
+    return
+  }
+
+  // --- 1. 检查是否已经加载并准备好播放 ---
+
+  if (mediaRef.value.readyState >= HTMLMediaElement.HAVE_METADATA) {
+    try {
+      await mediaRef.value.play()
+      playerState.paused = false
+      return
+    } catch (error) {
+      console.error("Direct Play Failed (likely policy issue, will try reload):", error)
+      // 播放失败（例如，用户交互策略），继续执行下面的加载逻辑，强制刷新源
+    }
+  }
+
+  loadSong()
 }
 
 async function togglePlay() {
-  if (!audio.value) {
+  if (!mediaRef.value) {
     return
   }
 
-  if (audio.value.paused) {
+  if (mediaRef.value.paused) {
     await resume()
   } else {
     pause()
   }
 }
 
-const track = computed(() => {
-  return listeningList.value[config.value.currentIndex]
-})
+async function nextTrack(offset: number = 1) {
+  const trackIndex = await getNextTrackIdx(offset)
+
+  if (trackIndex === -1) {
+    seek(0)
+    pause()
+    return
+  }
+
+  // Always restart if user clicked the same track
+  config.value.currentIndex = trackIndex
+
+  // track will be loaded and resumed by watcher
+  seek(0)
+  pause()
+}
 </script>

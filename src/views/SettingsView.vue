@@ -12,8 +12,9 @@
 
       <label class="label cursor-pointer">{{ $t("cloudie.settings.config.theme") }}</label>
       <select class="select" v-model="config.theme">
-        <option value="light">{{ $t("cloudie.settings.themeTypes.light") }}</option>
-        <option value="dark">{{ $t("cloudie.settings.themeTypes.dark") }}</option>
+        <option v-for="theme in THEMES" :key="theme" :value="theme">
+          {{ capitalizeFirstLetter(theme) }}
+        </option>
       </select>
     </fieldset>
 
@@ -22,12 +23,16 @@
 
       <!-- TODO: doesnt exist indicator -->
       <label class="label">{{ $t("cloudie.settings.config.savePath") }}</label>
-      <div class="join">
-        <input
-          type="text"
-          class="input join-item"
-          :placeholder="$t('cloudie.settings.config.savePath')"
-          v-model="config.savePath" />
+
+      <div class="join w-full">
+        <label class="input join-item">
+          <i-mdi-alert v-if="!isPathValid" />
+          <input
+            type="text"
+            class="grow"
+            :placeholder="$t('cloudie.settings.config.savePath')"
+            v-model="config.savePath" />
+        </label>
         <button class="btn join-item" @click="openSavePathDialog">
           <i-mdi-folder-edit />
         </button>
@@ -50,12 +55,8 @@
 
       <label class="label cursor-pointer">{{ $t("cloudie.settings.config.fileNaming") }}</label>
       <select class="select" v-model="config.fileNaming">
-        <option value="title">{{ $t("cloudie.settings.fileNamingTypes.title") }}</option>
-        <option value="artist-title">
-          {{ $t("cloudie.settings.fileNamingTypes.artistTitle") }}
-        </option>
-        <option value="title-artist">
-          {{ $t("cloudie.settings.fileNamingTypes.titleArtist") }}
+        <option v-for="naming in FileNaming" :key="naming" :value="naming">
+          {{ $t(`cloudie.settings.fileNamingTypes.${naming}`) }}
         </option>
       </select>
 
@@ -164,7 +165,7 @@
 </template>
 
 <script setup lang="ts" name="SettingsView">
-import { config } from "@/systems/config"
+import { config, THEMES } from "@/systems/config"
 import { open } from "@tauri-apps/plugin-dialog"
 import { refreshClientId } from "@/utils/api"
 import { getVersion } from "@tauri-apps/api/app"
@@ -173,7 +174,11 @@ import { invoke } from "@tauri-apps/api/core"
 import { openPath } from "@tauri-apps/plugin-opener"
 import { toast } from "vue-sonner"
 import { i18n, LANGUAGE_OPTIONS } from "@/systems/i18n"
+import * as fs from "@tauri-apps/plugin-fs"
+import { FileNaming } from "@/systems/download/parser"
+import { capitalizeFirstLetter } from "@/utils/utils"
 
+const isPathValid = ref(false)
 const versionInfo = ref({
   version: "",
   latestVersion: "",
@@ -189,7 +194,7 @@ const currentMp3 = computed({
 })
 
 onMounted(async () => {
-  // TODO: check whether save path is valid & on change
+  isPathValid.value = await fs.exists(config.value.savePath)
   versionInfo.value.version = await getVersion()
   try {
     versionInfo.value.latestVersion = "xxxx"

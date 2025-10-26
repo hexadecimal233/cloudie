@@ -82,7 +82,7 @@
 </template>
 
 <script setup lang="ts">
-import { removeSong, listeningList } from "@/systems/player/playlist"
+import { removeMultipleSongs, listeningList, removeSong } from "@/systems/player/playlist"
 
 import { ref } from "vue"
 import { formatMillis, getArtist, getCoverUrl } from "@/utils/utils"
@@ -97,12 +97,9 @@ function selectAll() {
   }
 }
 
-// TODO: Fix modification index error
 async function removeSelected() {
   try {
-    for (const idx of selectedIdxs.value) {
-      await removeSong(idx)
-    }
+    await removeMultipleSongs(selectedIdxs.value)
     selectedIdxs.value = []
   } catch (error) {
     console.error("Error removing selected songs:", error)

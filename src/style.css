@@ -1,9 +1,11 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: all;
+}
 
 @plugin "daisyui/theme" {
   name: "cloudie";
-  default: true;
+  default: false;
   prefersdark: false;
   color-scheme: "light";
   --color-base-100: oklch(98% 0.003 247.858);
@@ -29,8 +31,8 @@
   --radius-selector: 0.5rem;
   --radius-field: 1rem;
   --radius-box: 1rem;
-  --size-selector: 0.28125rem;
-  --size-field: 0.28125rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
   --border: 2px;
   --depth: 0;
   --noise: 0;

@@ -26,7 +26,7 @@ export interface Track extends PartialTrack {
   downloadable: boolean
   download_count: number | null
   duration: number // will be affected by SNIP
-  full_duration: number // will not be affected by POLICY 
+  full_duration: number // will not be affected by POLICY
   embeddable_by: EmbeddableBy
   genre: null | string
   has_downloads_left: boolean
@@ -96,14 +96,17 @@ export type MIMEType =
 export type Protocol = "hls" | "progressive" | "ctr-encrypted-hls" | "cbc-encrypted-hls" // TODO: Encrypted HLS currently not supported
 
 export const PRESET_ORDER = [
+  // Non-legacy transcodings
   "aac_256k",
   "aac_160k",
+  "abr_sq",
+  // "abr_hq", is there an option?
+  // Legacy transcodings (being removed soom: https://developers.soundcloud.com/blog/api-streaming-urls)
   "mp3_1_0",
   "opus_0_0",
   "mp3_0_1",
   "mp3_standard",
   "mp3_0_0",
-  "abr_sq",
 ] as const
 
 export type Preset = (typeof PRESET_ORDER)[number]
@@ -203,16 +206,19 @@ export interface BasePlaylist {
   tracks?: PartialTrack[]
 }
 
-export class LikedPlaylist {
-  id = "liked"
-  title = "liked"
-  tracks: PartialTrack[] = []
+export interface ExactPlaylist extends BasePlaylist {
+  tracks: Track[]
 }
 
-export class ListenPlaylist {
-  id = "listen"
-  title = "listen"
-  tracks: PartialTrack[] = []
+export class LocalPlaylist {
+  id: string
+  title: string
+  tracks: Track[] = []
+
+  constructor(name: string) {
+    this.id = name
+    this.title = name
+  }
 }
 
 export interface Playlist extends BasePlaylist {

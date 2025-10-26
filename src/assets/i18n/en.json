@@ -95,12 +95,8 @@
       },
       "fileNamingTypes": {
         "title": "Title",
-        "artistTitle": "Artist - Title",
-        "titleArtist": "Title - Artist"
-      },
-      "themeTypes": {
-        "dark": "Dark (TODO: change a name)",
-        "light": "Light (TODO: change a name)"
+        "artist-title": "Artist - Title",
+        "title-artist": "Title - Artist"
       },
       "sections": {
         "appearance": "Appearance",
@@ -110,7 +106,7 @@
         "about": "About"
       },
       "about": {
-        "desc": "A Kawaii Soundcloud client",
+        "desc": "Yet another Open Source Kawaii Soundcloud Client.",
         "version": "Version: {version}, Latest Version: {latestVersion}",
         "versionFailure": "Version Check Failed",
         "visitReleases": "Releases",

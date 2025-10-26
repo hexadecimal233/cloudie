@@ -5,8 +5,6 @@
 import Database from "@tauri-apps/plugin-sql"
 import { drizzle } from "drizzle-orm/sqlite-proxy"
 import * as schema from "./schema"
-import { LikedPlaylist, ListenPlaylist } from "@/utils/types"
-import { savePlaylist } from "../cache"
 
 let tauriDb: Database
 export const db = drizzle(
@@ -45,8 +43,4 @@ export async function initDb() {
   tauriDb = await Database.load("sqlite:soundcloud.db")
 
   await tauriDb.execute("PRAGMA optimize;")
-
-  // create default playlists
-  savePlaylist(new ListenPlaylist())
-  savePlaylist(new LikedPlaylist())
 }
