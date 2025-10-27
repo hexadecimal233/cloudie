@@ -48,7 +48,10 @@ async function fetchNext() {
 
   try {
     const res: CollectionResp<TrackLike> = await promise
-    playlist.value.tracks = [...playlist.value.tracks, ...(res.collection.map((item) => item.track) || [])]
+    playlist.value.tracks = [
+      ...playlist.value.tracks,
+      ...(res.collection.map((item) => item.track) || []),
+    ]
     hasNext.value = !!res.next_href
     nextHref.value = res.next_href
     savePlaylist(playlist.value)

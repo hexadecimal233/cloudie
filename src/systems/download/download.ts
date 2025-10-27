@@ -166,7 +166,7 @@ export async function deleteTasks(tasks: DownloadTask[], deleteFile: boolean) {
   for (const task of tasks) {
     try {
       await task.pause()
-    } catch (_) { } // already paused
+    } catch (_) {} // already paused
 
     taskIds.push(task.task.taskId)
   }
@@ -229,7 +229,9 @@ async function runTask(task: DownloadTask) {
         title: task.details.title,
         album: task.details.playlistName,
         artist: task.details.artist,
-        coverUrl: config.value.addCover ? replaceImageUrl(task.details.coverUrl, "1080x1080") : undefined,
+        coverUrl: config.value.addCover
+          ? replaceImageUrl(task.details.coverUrl, "1080x1080")
+          : undefined,
       })
     } catch (error) {
       console.error(`Error adding tags to ${task.task.path}，Ignoring tags...`, error)

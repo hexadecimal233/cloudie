@@ -5,10 +5,18 @@ export function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-export function replaceImageUrl(url: string, size:
-  "20x20" | "50x50" | "120x120" | "200x200" | "500x500" | "1080x1080" | // Cover / Avatar sizes
-  "1240x260" | "2480x520" // Visual sizes
-  = "500x500") {
+export function replaceImageUrl(
+  url: string,
+  size:
+    | "20x20"
+    | "50x50"
+    | "120x120"
+    | "200x200"
+    | "500x500"
+    | "1080x1080" // Cover / Avatar sizes
+    | "1240x260"
+    | "2480x520" = "500x500", // Visual sizes
+) {
   return url.replace("-large", `-t${size}`)
 }
 
@@ -44,7 +52,7 @@ export async function copyDir(
 ): Promise<void> {
   try {
     await fs.mkdir(destDir)
-  } catch (e) { } // ignore if exists
+  } catch (e) {} // ignore if exists
 
   const entries = await fs.readDir(srcDir)
 
@@ -60,7 +68,11 @@ export async function copyDir(
   }
 }
 
-export async function move(src: string, dst: string, copyOptions?: fs.CopyFileOptions): Promise<string> {
+export async function move(
+  src: string,
+  dst: string,
+  copyOptions?: fs.CopyFileOptions,
+): Promise<string> {
   if (!(await fs.exists(src))) {
     throw new Error(`Source path '${src}' does not exist.`)
   }

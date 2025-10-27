@@ -254,10 +254,7 @@ async function downloadSelected() {
 }
 
 async function download(track: Track) {
-  await addDownloadTask(
-    track,
-    props.playlist 
-  )
+  await addDownloadTask(track, props.playlist)
 }
 
 function isPossibleFreeDownload(track: Track) {

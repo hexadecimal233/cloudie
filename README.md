@@ -33,9 +33,6 @@ This app does not use the Soundcloud API to perform token update, which reduces 
 3. Run the project: `pnpm tauri dev`
 4. Build the project locally: `pnpm tauri build`
 
-> [!NOTE]
-> We use PNPM as our package manager, so make sure you have it installed.
-
 ## Contributing
 
 ### Database Schema
@@ -43,7 +40,7 @@ This app does not use the Soundcloud API to perform token update, which reduces 
 1. Modify the database schema in `src/systems/db/schema.ts`
 2. Run `pnpm drizzle-kit generate` if a table upgrade is needed.
 3. Modify the migrations in `src-tauri/src/lib.rs` to include the new table.
-4. (Optional) Run `pnpm drizzle-kit migrate` to apply the migrations.
+4. (Optional) Run the program using `pnpm tauri dev` to apply the migrations on-runtime.
 
 Report Issues / Submit Feature Requests: [Issues](https://github.com/hexadecimal233/cloudie/issues)
 
@@ -56,3 +53,4 @@ Pull Requests: [Pull Requests](https://github.com/hexadecimal233/cloudie/pulls)
 - [ ] 图标重新设计
 - [ ] Table样式优化
 - [ ] More Tooltips!
+- [ ] HLS本地缓存

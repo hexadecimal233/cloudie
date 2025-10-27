@@ -27,7 +27,7 @@ export const playlists = sqliteTable("Playlists", {
 export const downloadTasks = sqliteTable(
   "DownloadTasks",
   {
-    taskId: integer("taskId").primaryKey({autoIncrement: true}).notNull(),
+    taskId: integer("taskId").primaryKey({ autoIncrement: true }).notNull(),
     trackId: integer("trackId")
       .references(() => localTracks.trackId)
       .notNull(),
