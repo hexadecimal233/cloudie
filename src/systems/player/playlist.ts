@@ -12,6 +12,8 @@ export enum PlayOrder {
   Shuffle = "shuffle",
 }
 
+export class CurrentTrackDeletionError extends Error {}
+
 export const listeningList = ref<Track[]>([])
 const shuffledIndexMapping = new Map<number, number>() // <shuffled index, original index>
 
@@ -28,11 +30,10 @@ export async function initMedia() {
   shuffle()
 }
 
-// update shuffled index mapping ( randomization )
+// update shuffled index mapping ( Fisher–Yates shuffle )
 function shuffle() {
   const len = listeningList.value.length
   const indices = Array.from({ length: len }, (_, i) => i)
-  // Fisher–Yates 洗牌
   for (let i = len - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[indices[i], indices[j]] = [indices[j], indices[i]]
@@ -83,50 +84,52 @@ export async function addToPlaylist(track: Track) {
   }
 
   // add right after current track
-  listeningList.value.splice(config.value.currentIndex + 1, 0, track)
+  listeningList.value.splice(config.value.listenIndex + 1, 0, track)
 
   await refreshTrackIds()
 }
 
-export async function addAndPlay(track: Track) {
-  await addToPlaylist(track)
-  config.value.currentIndex = await getNextTrackIndex(1, true)
+let trackUpdateCallback: (idx: number) => void = () => {}
+// To solve single repeat issue and watch doesnt update
+export function setTrackUpdateCallback(callback: (idx: number) => void) {
+  trackUpdateCallback = callback
 }
 
-export async function removeSong(idx: number) {
-  if (config.value.currentIndex === idx) {
-    return // Cannot delete current track
-  }
+export async function addAndPlay(track: Track) {
+  await addToPlaylist(track)
+  config.value.listenIndex = await getNextTrackIndex(1, true)
+  trackUpdateCallback(config.value.listenIndex)
+}
 
+async function removeSong(idx: number) {
   // delete from listening list
   listeningList.value.splice(idx, 1)
   await refreshTrackIds()
 }
 
-export async function removeSongByTrackId(trackId: number) {
-  const idx = listeningList.value.findIndex((t) => t.id === trackId)
-  if (idx === -1) {
-    throw Error("Track not found in listening list")
+export async function removeMultipleSongs(indexes: number[]) {
+  if (indexes.includes(config.value.listenIndex)) {
+    throw CurrentTrackDeletionError // Cannot delete current track
   }
 
-  await removeSong(idx)
-}
-
-export async function removeMultipleSongs(indexes: number[]) {
-  // 按索引从大到小排序，避免删除时索引变化导致的错误
-  const sortedIndexes = [...indexes].sort((a, b) => b - a)
+  const sortedIndexes = [...indexes].sort((a, b) => b - a) // prevent index error
 
   for (const idx of sortedIndexes) {
     await removeSong(idx)
   }
 }
 
+export function getNthTrack(idx: number) {
+  return listeningList.value[idx]
+}
+
 export function getCurrentTrack() {
-  return listeningList.value[config.value.currentIndex]
+  return getNthTrack(config.value.listenIndex)
 }
 
 export function setCurrentTrack(index: number) {
-  config.value.currentIndex = index
+  config.value.listenIndex = index
+  trackUpdateCallback(index)
 }
 
 function mod(a: number, n: number) {
@@ -136,10 +139,10 @@ function mod(a: number, n: number) {
 /**
  * Get the offset track in the listening list, shuffle seed is changed on add or delete.
  * @param offset The offset from the current track. Default is 1.
- * @returns The offset track index in the listening list, or -1 if there is no such track.
+ * @returns The offset track index in the listening list, -1 if there is no such track.
  */
 export async function getNextTrackIndex(offset: number = 1, ignoreShuffle: boolean = false) {
-  let { currentIndex, playOrder } = config.value
+  let { listenIndex: currentIndex, playOrder } = config.value
 
   // back to first track if goes beyond the end
   const newIdx = mod(currentIndex + offset, listeningList.value.length)

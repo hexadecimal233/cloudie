@@ -48,7 +48,7 @@ type Theme = (typeof THEMES)[number]
 
 class Config {
   // Player
-  currentIndex: number = -1 // Visible via AudioPlayer
+  listenIndex: number = -1 // Visible via AudioPlayer
   playOrder: PlayOrder = PlayOrder.Ordered // Visible via AudioPlayer
   // 外观
   language: (typeof LANGUAGE_OPTIONS)[number] = "en"

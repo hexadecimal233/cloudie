@@ -8,6 +8,7 @@
     hidden></video>
 
   <div v-if="track" class="bg-base-200 relative h-24">
+    <!-- FIXME: ERROR on delete track -->
     <!-- Progress Bar and Needle-->
     <progress
       class="progress absolute top-0 h-1.5 w-full rounded-none transition-all hover:-top-1.5 hover:h-3"
@@ -47,10 +48,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, onMounted, onUnmounted, watch } from "vue"
+import { computed, reactive, ref, onMounted, onUnmounted } from "vue"
 import PlayOrderSwitch from "./PlayOrderSwitch.vue"
-import { getNextTrackIndex as getNextTrackIdx, getCurrentTrack } from "@/systems/player/playlist"
-import { config } from "@/systems/config"
+import {
+  getNextTrackIndex as getNextTrackIdx,
+  getCurrentTrack,
+  setCurrentTrack,
+  setTrackUpdateCallback,
+  getNthTrack,
+} from "@/systems/player/playlist"
 import { getArtist, getCoverUrl, replaceImageUrl } from "@/utils/utils"
 import { parseHlsLink } from "@/systems/download/parser"
 import Hls from "hls.js"
@@ -96,11 +102,6 @@ const track = computed(() => {
   return getCurrentTrack()
 })
 
-watch(track, (t) => {
-  updateMedia(t)
-  loadSong()
-})
-
 onMounted(() => {
   // init MediaSession Handlers
   // NOTE: Updating Media here will cause OS not to display before clicking play
@@ -131,6 +132,13 @@ onMounted(() => {
       nextTrack(1)
     })
   }
+
+  // set track update callbacks
+
+  setTrackUpdateCallback((idx) => {
+    updateMedia(getNthTrack(idx)) // FIXME: dont update when single repeat.
+    loadSong()
+  })
 
   // Initialize HLS player if supported
   if (Hls.isSupported() && mediaRef.value) {
@@ -319,7 +327,7 @@ async function nextTrack(offset: number = 1) {
   }
 
   // Always restart if user clicked the same track
-  config.value.currentIndex = trackIndex
+  setCurrentTrack(trackIndex)
 
   // track will be loaded and resumed by watcher
   seek(0)

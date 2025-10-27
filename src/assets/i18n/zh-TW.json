@@ -69,7 +69,8 @@
       "keepLocalFiles": "保留本地檔案",
       "cancel": "取消",
       "close": "關閉",
-      "userInfoErr": "更新用戶信息失敗"
+      "userInfoErr": "更新用戶信息失敗",
+      "deleteCurrentTrack": "無法刪除當前播放的曲目。"
     },
     "common": {
       "loading": "載入中...",

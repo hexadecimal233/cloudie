@@ -57,7 +57,7 @@
 
           <td>
             <div class="flex justify-center">
-              <button class="btn btn-ghost btn-sm" @click="removeSong(index)">
+              <button class="btn btn-ghost btn-sm" @click="removeSongs([index])">
                 <i-mdi-close />
               </button>
               <a class="btn btn-ghost btn-sm" :href="item.permalink_url" target="_blank">
@@ -82,10 +82,16 @@
 </template>
 
 <script setup lang="ts">
-import { removeMultipleSongs, listeningList, removeSong } from "@/systems/player/playlist"
+import {
+  removeMultipleSongs,
+  listeningList,
+  CurrentTrackDeletionError,
+} from "@/systems/player/playlist"
 
 import { ref } from "vue"
 import { formatMillis, getArtist, getCoverUrl } from "@/utils/utils"
+import { i18n } from "@/systems/i18n"
+import { toast } from "vue-sonner"
 
 const selectedIdxs = ref<number[]>([])
 
@@ -93,17 +99,26 @@ function selectAll() {
   if (selectedIdxs.value.length === listeningList.value.length && listeningList.value.length > 0) {
     selectedIdxs.value = []
   } else {
-    selectedIdxs.value = listeningList.value.map((item, index) => index)
+    selectedIdxs.value = listeningList.value.map((_item, index) => index)
+  }
+}
+
+async function removeSongs(idxs: number[]) {
+  try {
+    await removeMultipleSongs(idxs)
+    selectedIdxs.value = []
+  } catch (error: unknown) {
+    if (error instanceof CurrentTrackDeletionError) {
+      toast.error(i18n.global.t("cloudie.toasts.deleteCurrentTrack"))
+    } else {
+      console.error(error)
+    }
   }
 }
 
 async function removeSelected() {
-  try {
-    await removeMultipleSongs(selectedIdxs.value)
-    selectedIdxs.value = []
-  } catch (error) {
-    console.error("Error removing selected songs:", error)
-  }
+  removeSongs(selectedIdxs.value)
+  selectedIdxs.value = []
 }
 </script>
 

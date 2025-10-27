@@ -76,7 +76,8 @@
       "keepLocalFiles": "Keep Local Files",
       "cancel": "Cancel",
       "close": "Close",
-      "userInfoErr": "Failed to Update User Info"
+      "userInfoErr": "Failed to Update User Info.",
+      "deleteCurrentTrack": "Cannot delete the current playing track."
     },
     "settings": {
       "config": {

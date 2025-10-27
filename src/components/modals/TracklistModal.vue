@@ -67,6 +67,7 @@ onMounted(async () => {
     : props.currentResp.system_playlist.id
 
   try {
+    // FIXME: the orders are messed up after querying from database
     let currentPlaylist = await getPlaylist(playlistId)
     const newCreatedPlaylist = !currentPlaylist
     if (!currentPlaylist) {
