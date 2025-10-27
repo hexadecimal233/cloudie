@@ -1,13 +1,13 @@
 import { createApp } from "vue"
 import App from "./App.vue"
 import "./style.css"
+import { createVfm } from "vue-final-modal"
 import router from "./router"
 import { loadConfig as initConfig } from "./systems/config"
 import { initDb } from "./systems/db/db"
 import { initDownload } from "./systems/download/download"
-import { initMedia } from "./systems/player/playlist"
 import { i18n, initI18n } from "./systems/i18n"
-import { createVfm } from "vue-final-modal"
+import { initMedia } from "./systems/player/playlist"
 
 async function initApp() {
   // load systems
