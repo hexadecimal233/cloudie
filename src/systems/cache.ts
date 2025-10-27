@@ -12,9 +12,7 @@ import { eq, inArray, sql } from "drizzle-orm"
 import { db } from "./db/db"
 import { getV2ApiJson } from "@/utils/api"
 
-export async function getPlaylist(
-  playlistId: string | number,
-): Promise<ExactPlaylist| null> {
+export async function getPlaylist(playlistId: string | number): Promise<ExactPlaylist | null> {
   const rawPlaylist = await db
     .select()
     .from(schema.playlists)
@@ -107,7 +105,7 @@ export async function savePlaylist(playlist: ExactPlaylist) {
     .returning()
 }
 
-export async function fetchPlaylistUpdates(likeResp: PlaylistLike, existTrackIds?: number[]) {
+export async function fetchPlaylistUpdates(likeResp: PlaylistLike, _existTrackIds?: number[]) {
   let currentPlaylist: SystemPlaylist | Playlist = likeResp.playlist ?? likeResp.system_playlist
 
   let partialTracks: PartialTrack[]
@@ -120,10 +118,11 @@ export async function fetchPlaylistUpdates(likeResp: PlaylistLike, existTrackIds
     partialTracks = likeResp.system_playlist.tracks
   }
 
-  // calculate the difference
-  if (existTrackIds) {
-    partialTracks = partialTracks.filter((t) => !existTrackIds.includes(t.id))
-  }
+  // FIXME: calculate the difference
+  // currently updating all tracks (for deletion and addition)
+  // if (existTrackIds) {
+  //   partialTracks = partialTracks.filter((t) => !existTrackIds.includes(t.id))
+  // }
 
   if (partialTracks.length === 0) {
     return currentPlaylist as unknown as ExactPlaylist

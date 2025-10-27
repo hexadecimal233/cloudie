@@ -5,7 +5,7 @@
     @loadedmetadata="onLoadedMetadata"
     ref="mediaRef"
     autoplay
-    style="visibility: hidden; position: absolute"></video>
+    hidden></video>
 
   <div v-if="track" class="bg-base-200 relative h-24">
     <!-- Progress Bar and Needle-->
@@ -49,11 +49,12 @@
 <script setup lang="ts">
 import { computed, reactive, ref, onMounted, onUnmounted, watch } from "vue"
 import PlayOrderSwitch from "./PlayOrderSwitch.vue"
-import { getNextTrackIndex as getNextTrackIdx, listeningList, getCurrentTrack } from "@/systems/player/playlist"
+import { getNextTrackIndex as getNextTrackIdx, getCurrentTrack } from "@/systems/player/playlist"
 import { config } from "@/systems/config"
-import { getArtist, getCoverUrl } from "@/utils/utils"
+import { getArtist, getCoverUrl, replaceImageUrl } from "@/utils/utils"
 import { parseHlsLink } from "@/systems/download/parser"
 import Hls from "hls.js"
+import { Track } from "@/utils/types"
 
 // --- HLS 相关的状态和 Ref ---
 const mediaRef = ref<HTMLVideoElement | null>(null)
@@ -74,16 +75,63 @@ const playerState = reactive<{
   paused: true,
 })
 
-// --- Computed Track ---
+function updateMedia(track: Track) {
+  // Update MediaSession
+  if ("mediaSession" in navigator) {
+    const coverUrl = getCoverUrl(track)
+    const type = coverUrl.includes("png") ? "image/png" : "image/jpeg"
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: track.title,
+      artist: getArtist(track),
+      artwork: [
+        { src: replaceImageUrl(coverUrl, "120x120"), sizes: "120x120", type: type },
+        { src: replaceImageUrl(coverUrl, "200x200"), sizes: "200x200", type: type },
+      ],
+    })
+  }
+}
+
 const track = computed(() => {
   return getCurrentTrack()
 })
 
-watch(track, (v) => {
+watch(track, (t) => {
+  updateMedia(t)
   loadSong()
 })
 
 onMounted(() => {
+  // init MediaSession Handlers
+  // NOTE: Updating Media here will cause OS not to display before clicking play
+  if ("mediaSession" in navigator) {
+    navigator.mediaSession.setActionHandler("play", () => {
+      resume()
+    })
+    navigator.mediaSession.setActionHandler("pause", () => {
+      pause()
+    })
+    navigator.mediaSession.setActionHandler("seekto", (details) => {
+      seek(details.seekTime!)
+    })
+    navigator.mediaSession.setActionHandler("seekforward", (details) => {
+      seek(details.seekOffset ?? 10)
+    })
+    navigator.mediaSession.setActionHandler("seekbackward", (details) => {
+      seek(details.seekOffset ?? -10)
+    })
+    navigator.mediaSession.setActionHandler("stop", () => {
+      pause()
+      seek(0)
+    })
+    navigator.mediaSession.setActionHandler("previoustrack", () => {
+      nextTrack(-1)
+    })
+    navigator.mediaSession.setActionHandler("nexttrack", () => {
+      nextTrack(1)
+    })
+  }
+
   // Initialize HLS player if supported
   if (Hls.isSupported() && mediaRef.value) {
     const hls = new Hls()

@@ -146,7 +146,7 @@ export async function getNextTrackIndex(offset: number = 1, ignoreShuffle: boole
 
   switch (playOrder) {
     case PlayOrder.Ordered:
-      return currentIndex
+      return newIdx
     case PlayOrder.OrderedNoRepeat:
       // Returns -1 if its the last track, pausing playback
       if (currentIndex + offset >= listeningList.value.length) {

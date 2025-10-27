@@ -13,12 +13,12 @@
               <img
                 :src="user?.avatar_url"
                 alt="user"
-                class="skeleton size-12 rounded-full object-contain ring-2" />
+                class="skeleton size-12 rounded-full object-contain ring" />
               <div class="text-lg font-bold">{{ user?.username }}</div>
             </template>
 
             <template v-else>
-              <div class="skeleton size-12 rounded-full ring-2" />
+              <div class="skeleton size-12 rounded-full ring" />
               <div class="skeleton h-6 w-24"></div>
             </template>
           </div>
@@ -123,7 +123,7 @@ const user = ref<BasicUserInfo>()
 const loading = ref(true)
 
 onMounted(async () => {
-  const userInfo = await getUserInfo()
+  const userInfo = await getUserInfo(true)
   if (userInfo) {
     user.value = userInfo
     loading.value = false

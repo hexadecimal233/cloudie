@@ -75,7 +75,8 @@
       "deleteLocalFiles": "Delete Local Files",
       "keepLocalFiles": "Keep Local Files",
       "cancel": "Cancel",
-      "close": "Close"
+      "close": "Close",
+      "userInfoErr": "Failed to Update User Info"
     },
     "settings": {
       "config": {

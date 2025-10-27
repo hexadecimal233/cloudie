@@ -1,5 +1,7 @@
 import { fetch } from "@tauri-apps/plugin-http"
 import { config } from "@/systems/config"
+import { toast } from "vue-sonner"
+import { i18n } from "@/systems/i18n"
 
 let clientIdRefreshing = false
 const v2Url = "https://api-v2.soundcloud.com"
@@ -98,14 +100,13 @@ export interface BasicUserInfo {
   username: string
   avatar_url: string
   permalink: string
-  last_refreshed_at: number // 最后刷新时间
 }
 
-export async function getUserInfo() {
+// Get basic info for current user
+export async function getUserInfo(shallUpdate: boolean = false) {
   const userStr = localStorage.getItem("user")
-  if (userStr) {
+  if (userStr && !shallUpdate) {
     const user = JSON.parse(userStr) as BasicUserInfo
-    // TODO: 检查是否过期
     return user
   } else {
     try {
@@ -115,17 +116,16 @@ export async function getUserInfo() {
         username: res.username,
         avatar_url: res.avatar_url,
         permalink: res.permalink,
-        last_refreshed_at: Date.now(),
       } as BasicUserInfo
     } catch (err) {
-      console.log(err)
-      // TODO: 重新登录或者刷新token
+      console.error("Get UserInfo Error", err)
+      // TODO: some sort of log out logic (like cleaning the oauth token kinda brutal but wanna make sure its a 401 or 403 and we do this)
+      toast.error(i18n.global.t("cloudie.toasts.userInfoErr"), { description: err as string })
       return {
         id: -1,
         username: "",
         avatar_url: "",
         permalink: "",
-        last_refreshed_at: 0,
       }
     }
   }

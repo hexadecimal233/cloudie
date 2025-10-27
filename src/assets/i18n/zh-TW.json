@@ -68,7 +68,8 @@
       "deleteLocalFiles": "刪除本地檔案",
       "keepLocalFiles": "保留本地檔案",
       "cancel": "取消",
-      "close": "關閉"
+      "close": "關閉",
+      "userInfoErr": "更新用戶信息失敗"
     },
     "common": {
       "loading": "載入中...",
