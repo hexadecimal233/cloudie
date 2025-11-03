@@ -62,7 +62,6 @@ async fn add_tags(
             .map_err(|e| format!("Failed to read cover bytes: {}", e))?
             .to_vec();
 
-            println!("Content-Type: {}", content_type);
         let mime_guess = match content_type.as_str() {
             "image/jpeg" => MimeType::Jpeg,
             "image/png" => MimeType::Png,
@@ -165,18 +164,26 @@ async fn login_soundcloud(app_handle: AppHandle) -> Result<String, String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // add migrations
-    let migrations = vec![Migration {
-        version: 0,
-        description: "init",
-        sql: include_str!("../drizzle/0000_init.sql"),
-        kind: MigrationKind::Up,
-    }, 
-    Migration {
-        version: 1,
-        description: "update listening list index",
-        sql: include_str!("../drizzle/0001_update_listen.sql"),
-        kind: MigrationKind::Up,
-    }];
+    let migrations = vec![
+        Migration {
+            version: 0,
+            description: "init",
+            sql: include_str!("../drizzle/0000_init.sql"),
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 1,
+            description: "update listening list index",
+            sql: include_str!("../drizzle/0001_update_listen.sql"),
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 2,
+            description: "update m3u8 cache",
+            sql: include_str!("../drizzle/0002_m3u8_cache.sql"),
+            kind: MigrationKind::Up,
+        },
+    ];
 
     let mut builder = tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())

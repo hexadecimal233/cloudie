@@ -58,9 +58,12 @@ import {
   getNthTrack,
 } from "@/systems/player/playlist"
 import { getArtist, getCoverUrl, replaceImageUrl } from "@/utils/utils"
-import { parseHlsLink } from "@/systems/download/parser"
 import Hls from "hls.js"
 import { Track } from "@/utils/types"
+import { CachedLoader } from "@/systems/player/loader"
+import { M3U8_CACHE_MANAGER } from "@/systems/player/cache"
+import { i18n } from "@/systems/i18n"
+import { toast } from "vue-sonner"
 
 // --- HLS 相关的状态和 Ref ---
 const mediaRef = ref<HTMLVideoElement | null>(null)
@@ -142,7 +145,9 @@ onMounted(() => {
 
   // Initialize HLS player if supported
   if (Hls.isSupported() && mediaRef.value) {
-    const hls = new Hls()
+    const hls = new Hls({
+      fLoader: CachedLoader,
+    })
     hlsPlayer.value = hls
     hls.attachMedia(mediaRef.value)
 
@@ -249,38 +254,41 @@ async function loadSong() {
   playerState.loading = true
   playerState.duration = undefined
 
-  const finalUrl = await parseHlsLink(track.value)
-  const isHls = finalUrl.includes(".m3u8")
+  try {
+    const trackLink = await M3U8_CACHE_MANAGER.getTrackLink(track.value)
+    
+    if (hlsPlayer.value) {
+      // 2a. 使用 hls.js 播放 M3U8
+      hlsPlayer.value.loadSource(trackLink)
 
-  if (isHls && hlsPlayer.value) {
-    // 2a. 使用 hls.js 播放 M3U8
-    hlsPlayer.value.loadSource(finalUrl)
+      // load text into a blob to create a url
+      const enc = new TextEncoder();
+      const blob = new Blob([enc.encode(trackLink)], { type: "application/vnd.apple.mpegurl" });
+      hlsPlayer.value.loadSource(URL.createObjectURL(blob));
 
-    hlsPlayer.value.once(Hls.Events.MANIFEST_PARSED, async () => {
-      try {
-        // 等待 HLS 解析完成后再播放
-        await mediaRef.value!.play()
-        playerState.paused = false
-        currentMediaUrl.value = finalUrl
-      } catch (error) {
-        console.error("HLS Play Failed:", error)
-        playerState.paused = true
-      }
-    })
-  } else {
-    // 2b. 普通音频/原生 HLS 逻辑
-    mediaRef.value.src = finalUrl
-    mediaRef.value.load() // 必须调用 load() 来触发加载
-
-    try {
-      // 尝试播放
-      await mediaRef.value.play()
-      playerState.paused = false
-      currentMediaUrl.value = finalUrl
-    } catch (error) {
-      console.error("Play Failed (Native):", error)
-      playerState.paused = true
+      hlsPlayer.value.once(Hls.Events.MANIFEST_PARSED, async () => {
+        try {
+          // 等待 HLS 解析完成后再播放
+          await mediaRef.value!.play()
+          playerState.paused = false
+          currentMediaUrl.value = trackLink
+        } catch (error) {
+          console.error("HLS Play Failed:", error)
+          playerState.paused = true
+        }
+      })
     }
+  } catch (error) {
+    console.error("Failed to get track link:", error)
+    playerState.loading = false
+    toast.error(i18n.global.t("cloudie.toasts.loadFailed"), { description: error instanceof Error ? error.message : String(error) })
+
+    // automatically loads after a few seconds
+    
+    setTimeout(async () => {
+      await nextTrack()
+      loadSong()
+    }, 5000)
   }
 }
 

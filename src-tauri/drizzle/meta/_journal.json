@@ -15,6 +15,13 @@
       "when": 1761449064396,
       "tag": "0001_update_listen",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1762172923353,
+      "tag": "0002_m3u8_cache",
+      "breakpoints": true
     }
   ]
 }

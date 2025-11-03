@@ -70,7 +70,8 @@
       "cancel": "取消",
       "close": "关闭",
       "userInfoErr": "更新用户信息失败",
-      "deleteCurrentTrack": "无法删除当前播放的曲目。"
+      "deleteCurrentTrack": "无法删除当前播放的曲目。",
+      "loadFailed": "加载曲目失败, 将在5秒后播放下一单曲"
     },
     "common": {
       "loading": "加载中...",

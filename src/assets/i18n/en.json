@@ -77,7 +77,8 @@
       "cancel": "Cancel",
       "close": "Close",
       "userInfoErr": "Failed to Update User Info.",
-      "deleteCurrentTrack": "Cannot delete the current playing track."
+      "deleteCurrentTrack": "Cannot delete the current playing track.",
+      "loadFailed": "Failed to load track. Will try next track in 5 seconds."
     },
     "settings": {
       "config": {

@@ -53,4 +53,4 @@ Pull Requests: [Pull Requests](https://github.com/hexadecimal233/cloudie/pulls)
 - [ ] 图标重新设计
 - [ ] Table样式优化
 - [ ] More Tooltips!
-- [ ] HLS本地缓存
+- [ ] Refactor: check throws

@@ -1,6 +1,6 @@
 import { getJson, getV2ApiJson } from "@/utils/api"
 import { config } from "@/systems/config"
-import { Preset, PRESET_ORDER, Track, Transcoding } from "@/utils/types"
+import { Preset, PRESET_ORDER, Protocol, Track, Transcoding } from "@/utils/types"
 import { DownloadTask } from "./download"
 import { path } from "@tauri-apps/api"
 import * as fs from "@tauri-apps/plugin-fs"
@@ -10,7 +10,7 @@ import { move } from "@/utils/utils"
 
 interface ParsedDownload {
   finalUrl: string
-  downloadType: "direct" | "progressive" | "hls" | "ctr-encrypted-hls" | "cbc-encrypted-hls"
+  downloadType: "direct" | Protocol
   preset: Preset | "none"
 }
 
@@ -21,16 +21,17 @@ export enum FileNaming {
 }
 
 // get transcodings in descending order of priority
-function sortTranscodings(track: Track, protocol?: "progressive" | "hls"): Transcoding[] {
+function sortTranscodings(track: Track, protocols?: Protocol[]): Transcoding[] {
   const transcodings = track.media.transcodings.sort((a: Transcoding, b: Transcoding) => {
     return PRESET_ORDER.indexOf(a.preset) - PRESET_ORDER.indexOf(b.preset)
   })
-  if (!protocol) return transcodings
-  return transcodings.filter((t: Transcoding) => t.format.protocol === protocol)
+  if (!protocols) return transcodings
+  return transcodings.filter((t: Transcoding) => protocols.includes(t.format.protocol))
 }
 
+// Does not support FairPlay & PlayReady rn
 export async function parseHlsLink(track: Track) {
-  const trans = sortTranscodings(track, "hls").find(
+  const trans = sortTranscodings(track, ["hls"]).find(
     (t: Transcoding) => t.preset === "abr_sq" || t.preset === "aac_256k" || t.preset === "aac_160k",
   )
   if (trans) {
@@ -43,7 +44,7 @@ export async function parseHlsLink(track: Track) {
 // track_authorization only affects get stream from API, transcoding cache is not affected
 export async function parseDownload(track: Track): Promise<ParsedDownload> {
   // TODO: secret_token参数获取私人下载链接
-  if (track["downloadable"] && config.value.preferDirectDownload) {
+  if (track.downloadable && config.value.preferDirectDownload) {
     // 处理直连下载 TODO: 开设新section
     try {
       const downloadObj = await getV2ApiJson(`/tracks/${track.id}/download`)
@@ -60,7 +61,7 @@ export async function parseDownload(track: Track): Promise<ParsedDownload> {
     }
   }
 
-  for (const trans of sortTranscodings(track, "hls")) {
+  for (const trans of sortTranscodings(track, ["hls"])) {
     console.debug(`Downloading ${trans.preset} encoding for track ${track.title}`)
     const m3u8meta = await getJson(trans.url, true, true)
     return {
@@ -71,7 +72,7 @@ export async function parseDownload(track: Track): Promise<ParsedDownload> {
   }
 
   console.debug(`Downloading Progressive MP3 encoding for track ${track.title}`)
-  const trans = sortTranscodings(track, "progressive")[0] // Progressive 只有一个MP3
+  const trans = sortTranscodings(track, ["progressive"])[0] // Progressive 只有一个MP3
   if (trans) {
     const m3u8meta = await getJson(trans.url, true, true)
     return {
@@ -103,7 +104,7 @@ function getDownloadTitle(task: DownloadTask) {
 }
 
 async function getDownloadPathWithoutExt(task: DownloadTask) {
-  const sanitizer = /[\\/:*?\"<>|]/g
+  const sanitizer = /[\\/:*?"<>|]/g
   const safeFileName = getDownloadTitle(task).replace(sanitizer, "_")
   const playlistDir = await path.join(
     config.value.savePath,
@@ -154,7 +155,7 @@ async function downloadProgressed(resp: Response, onProgress: (progress: number)
   if (contentLength === 0)
     console.warn("Content-Length is 0, but still called progressed download.")
 
-  const reader = resp.body!.getReader()
+  const reader = resp.body?.getReader()
   const bytes = new Uint8Array(contentLength)
   let offset = 0
 
@@ -203,7 +204,7 @@ export async function downloadTrack(
         // TODO: progress display
         const tempFileName = await downloadAac(parsed.finalUrl)
 
-        const finalPath = (await getDownloadPathWithoutExt(task)) + `.${ext}`
+        const finalPath = `${await getDownloadPathWithoutExt(task)}.${ext}`
 
         await move(tempFileName, finalPath)
 
@@ -240,7 +241,7 @@ export async function downloadTrack(
       throw new Error(`Unknown download type ${parsed.downloadType}`)
   }
 
-  const destFile = (await getDownloadPathWithoutExt(task)) + `.${ext}`
+  const destFile = `${await getDownloadPathWithoutExt(task)}.${ext}`
 
   await fs.writeFile(destFile, bytes)
 

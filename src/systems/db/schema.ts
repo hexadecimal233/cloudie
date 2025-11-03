@@ -52,6 +52,21 @@ export const listeningList = sqliteTable("ListeningList", {
   index: integer("index").notNull(),
 })
 
+export const m3u8Cache = sqliteTable("M3U8Cache", {
+  trackId: integer("trackId")
+    .references(() => localTracks.trackId)
+    .primaryKey()
+    .notNull(),
+  m3u8: text("m3u8").notNull(),
+})
+
+export const m3u8Relations = relations(m3u8Cache, ({ one }) => ({
+  localTrack: one(localTracks, {
+    fields: [m3u8Cache.trackId],
+    references: [localTracks.trackId],
+  }),
+}))
+
 export const downloadTasksRelations = relations(downloadTasks, ({ one }) => ({
   localTrack: one(localTracks, {
     fields: [downloadTasks.trackId],

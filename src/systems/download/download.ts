@@ -48,7 +48,8 @@ export class DownloadTask {
 
   resume() {
     if (this.downloadingState) {
-      throw new Error("Download task is running")
+      console.warn("Download task is running")
+      return
     }
 
     this.downloadingState = new DownloadStat()
@@ -57,7 +58,8 @@ export class DownloadTask {
 
   async pause() {
     if (!this.downloadingState) {
-      throw new Error("Download task is paused")
+      console.warn("Download task is paused")
+      return
     }
 
     await new Promise((resolve) => setTimeout(resolve, 100)) // simulated waiting TODO: implement pausing logic
@@ -166,7 +168,7 @@ export async function deleteTasks(tasks: DownloadTask[], deleteFile: boolean) {
   for (const task of tasks) {
     try {
       await task.pause()
-    } catch (_) {} // already paused
+    } catch (_) { } // already paused
 
     taskIds.push(task.task.taskId)
   }
@@ -243,7 +245,7 @@ async function runTask(task: DownloadTask) {
   } catch (err) {
     console.error("Download failed: ", err)
     await task.setStatus("failed")
-    task.failedReason = err as string
+    task.failedReason = err instanceof Error ? err.message : String(err)
     task.downloadingState = undefined
   }
 }
