@@ -127,7 +127,7 @@
   </table>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" name="DownloadsView">
 import { ref, computed } from "vue"
 import { deleteTasks, downloadTasks, DownloadTask } from "@/systems/download/download"
 import { revealItemInDir } from "@tauri-apps/plugin-opener"

@@ -140,6 +140,52 @@ export type Sharing = "public"
 
 export type State = "finished"
 
+export interface SCUser {
+  avatar_url: string
+  city: null | string
+  comments_count: number
+  country_code: null | string
+  created_at: Date
+  creator_subscriptions: CreatorSubscription[]
+  creator_subscription: CreatorSubscription
+  description: null | string
+  followers_count: number
+  followings_count: number
+  first_name: string
+  full_name: string
+  groups_count: number
+  id: number
+  kind: UserKind
+  last_modified: Date
+  last_name: string
+  likes_count: number
+  playlist_likes_count: number
+  permalink: string
+  permalink_url: string
+  playlist_count: number
+  reposts_count: number | null
+  track_count: number
+  uri: string
+  urn: string
+  username: string
+  verified: boolean
+  visuals: Visuals
+  badges: Badges
+  station_urn: string
+  station_permalink: string
+  date_of_birth: null
+}
+
+export interface CreatorSubscription {
+  product: Product
+}
+
+export interface Product {
+  id: ID
+}
+
+export type ID = "creator-pro-unlimited" | "free"
+
 export interface User {
   avatar_url: string
   first_name: string
@@ -290,4 +336,74 @@ export interface CollectionResp<T> {
   collection: T[]
   next_href: string | null
   query_urn: string | null
+}
+
+export const SOCIAL_NETWORKS = {
+  bandpage: "BandPage",
+  bandcamp: "Bandcamp",
+  bandsintown: "Bandsintown",
+  beatport: "Beatport",
+  berklee: "Berklee",
+  ccmixter: "ccMixter",
+  discogs: "Discogs",
+  facebook: "Facebook",
+  flavors: "flavors.me",
+  flickr: "Flickr",
+  foursquare: "Foursquare",
+  freesound: "Freesound",
+  gigatools: "Gigatools",
+  google_plus: "Google+",
+  hypem: "Hype Machine",
+  instagram: "Instagram",
+  itunes_podcast: "iTunes Podcast",
+  lastfm: "Last.fm",
+  linktree: "Linktree",
+  mixcloud: "Mixcloud",
+  myspace: "MySpace",
+  ning: "Ning",
+  pinterest: "Pinterest",
+  purevolume: "PureVolume",
+  residentadvisor: "Resident Advisor",
+  residentadvisorlabel: "Resident Advisor",
+  reverbnation: "ReverbNation",
+  snapchat: "Snapchat",
+  songkick: "Songkick",
+  soundcloud: "SoundCloud",
+  spotify: "Spotify",
+  thedjlist: "The DJ List",
+  tumblr: "Tumblr",
+  twitter: "Twitter",
+  vimeo: "Vimeo",
+  virb: "Virb",
+  vkontakte: "VK",
+  whatpeopleplay: "Whatpeopleplay",
+  wordpress: "Wordpress",
+  youtube: "YouTube",
+  zeroinch: "zero",
+}
+
+export interface WebProfile {
+  url: string
+  network: string
+  title: string
+  username?: string
+}
+
+export interface Comment {
+  kind: CommentKind
+  id: number
+  body: string
+  created_at: Date
+  timestamp: number
+  track_id: number
+  user_id: number
+  self: Self
+  user: User
+  track: Track
+}
+
+export type CommentKind = "comment"
+
+export interface Self {
+  urn: string
 }

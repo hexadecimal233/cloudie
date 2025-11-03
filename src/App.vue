@@ -53,6 +53,12 @@
               {{ $t("cloudie.main.history") }}
             </router-link>
           </li>
+          <li>
+            <router-link to="/following">
+              <i-mdi-account-multiple />
+              {{ $t("cloudie.main.following") }}
+            </router-link>
+          </li>
 
           <div class="divider"></div>
 

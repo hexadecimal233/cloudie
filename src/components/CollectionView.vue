@@ -41,14 +41,14 @@ function getUrl() {
 const collection = useCollection<TrackLike>(getUrl(), 500)
 
 watch(
-    () => collection.data.value,
-    (newData) => {
-      if (newData) {
-        playlist.value.tracks = newData.map((item) => item.track)
-        savePlaylist(playlist.value)
-      }
+  () => collection.data.value,
+  (newData) => {
+    if (newData) {
+      playlist.value.tracks = newData.map((item) => item.track)
+      savePlaylist(playlist.value)
     }
-  )
+  },
+)
 
 onMounted(() => {
   collection.fetchNext()

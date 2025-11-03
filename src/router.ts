@@ -35,6 +35,10 @@ const router = createRouter({
       path: "/downloads",
       component: () => import("./views/DownloadsView.vue"),
     },
+    {
+      path: "/following",
+      component: () => import("./views/FollowingView.vue"),
+    },
     { path: "/:pathMatch(.*)*", redirect: "/feeds" },
   ],
   linkActiveClass: "menu-active",

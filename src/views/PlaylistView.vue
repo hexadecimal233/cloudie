@@ -86,7 +86,7 @@ watch(
         fetchPlaylist(item.playlist.id)
       }
     })
-  }
+  },
 )
 
 onMounted(() => {

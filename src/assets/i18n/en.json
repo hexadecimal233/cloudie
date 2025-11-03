@@ -10,7 +10,36 @@
       "listening": "Listening List",
       "downloads": "Downloads",
       "settings": "Settings",
-      "feeds": "Feeds"
+      "feeds": "Feeds",
+      "following": "Following"
+    },
+    "following": {
+      "title": "Following",
+      "followers": "{count} followers",
+      "tracks": "{count} tracks"
+    },
+    "user": {
+      "followers": "followers",
+      "following": "following",
+      "tracks": "tracks",
+      "tabs": {
+        "tracks": "Tracks",
+        "spotlight": "Spotlight",
+        "webProfiles": "Web Profiles",
+        "relatedArtists": "Related Artists",
+        "comments": "Comments"
+      },
+      "tracksError": "Failed to load tracks",
+      "spotlightError": "Failed to load spotlight",
+      "webProfilesError": "Failed to load web profiles",
+      "relatedArtistsError": "Failed to load related artists",
+      "commentsError": "Failed to load comments",
+      "noTracks": "No tracks found",
+      "noSpotlight": "No spotlight tracks found",
+      "noWebProfiles": "No web profiles found",
+      "noRelatedArtists": "No related artists found",
+      "noComments": "No comments found",
+      "onTrack": "on track"
     },
     "player": {
       "ordered-no-repeat": "Ordered No Repeat",
@@ -62,6 +91,7 @@
       "loading": "Loading...",
       "noMore": "No More",
       "loadMore": "Load More",
+      "loadFail": "Failed to load data...",
       "empty": "Nothing Here (。・ω・。)",
       "emptyDesc": "Please try refreshing or adjusting your query."
     },

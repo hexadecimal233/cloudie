@@ -135,45 +135,44 @@ export async function updateUserInfo(forceUpdate: boolean = false) {
   }
 }
 
-
 import { ref, shallowRef } from "vue"
 
 // Composable function for reactive collection handling
 export function useCollection<T>(url: string, limit: number = 30) {
-  const data = shallowRef<T[]>([]);
-  const loading = shallowRef(false);
-  const error = shallowRef<any | null>(null);
-  const hasNext = shallowRef(false);
+  const data = shallowRef<T[]>([])
+  const loading = shallowRef(false)
+  const error = shallowRef<any | null>(null)
+  const hasNext = shallowRef(false)
 
   let nextHref: string | null = null
 
   const fetchNext = async () => {
-    if (loading.value) return;
+    if (loading.value) return
 
-    loading.value = true;
-    error.value = null;
+    loading.value = true
+    error.value = null
 
     try {
-      const promise = nextHref ? getJson(nextHref) : getV2ApiJson(url, { limit });
-      const res = await promise as CollectionResp<T>;
+      const promise = nextHref ? getJson(nextHref) : getV2ApiJson(url, { limit })
+      const res = (await promise) as CollectionResp<T>
 
-      data.value = [...data.value, ...(res.collection || [])] as T[];
-      hasNext.value = !!res.next_href;
-      nextHref = res.next_href;
+      data.value = [...data.value, ...(res.collection || [])] as T[]
+      hasNext.value = !!res.next_href
+      nextHref = res.next_href
     } catch (err) {
-      console.error("useCollection fetchNext error:", err);
+      console.error("useCollection fetchNext error:", err)
       error.value = err
     } finally {
-      loading.value = false;
+      loading.value = false
     }
-  };
+  }
 
   const reset = () => {
-    data.value = [];
-    nextHref = null;
-    hasNext.value = false;
-    error.value = null;
-  };
+    data.value = []
+    nextHref = null
+    hasNext.value = false
+    error.value = null
+  }
 
   return {
     data,
@@ -181,6 +180,6 @@ export function useCollection<T>(url: string, limit: number = 30) {
     error,
     hasNext,
     fetchNext,
-    reset
+    reset,
   }
 }

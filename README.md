@@ -58,3 +58,4 @@ Pull Requests: [Pull Requests](https://github.com/hexadecimal233/cloudie/pulls)
 - [ ] Table样式优化
 - [ ] More Tooltips!
 - [ ] Refactor: check errors
+- [ ] Wave display

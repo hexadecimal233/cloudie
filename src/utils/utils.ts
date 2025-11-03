@@ -1,5 +1,5 @@
 import { path } from "@tauri-apps/api"
-import { Track } from "./types"
+import { SOCIAL_NETWORKS, Track, WebProfile } from "./types"
 
 export function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1)
@@ -29,6 +29,25 @@ export function formatMillis(millis: number) {
   const formattedSeconds = (seconds % 60).toString().padStart(2, "0")
 
   return `${hours > 0 ? `${hours}:` : ""}${formattedMinutes}:${formattedSeconds}`
+}
+
+// from soundcloud json
+export function getNetworkName(profile: WebProfile) {
+  if (profile.title) return profile.title
+
+  if (profile.network === "personal" || profile.network === "other") {
+    return profile.url.replace(/^https?:\/\//, "")
+  }
+
+  if (profile.network === "email") {
+    return profile.url
+  }
+
+  return SOCIAL_NETWORKS[profile.network as keyof typeof SOCIAL_NETWORKS] || ""
+}
+
+export function getNetworkClassName(profile: WebProfile) {
+  return (profile.network || "").replace(/[^a-z]/g, "")
 }
 
 export function checkFFmpeg() {

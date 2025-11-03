@@ -10,7 +10,36 @@
       "listening": "試聽清單",
       "downloads": "下載",
       "settings": "設定",
-      "feeds": "推薦"
+      "feeds": "推薦",
+      "following": "關注"
+    },
+    "following": {
+      "title": "關注",
+      "followers": "{count} 關注",
+      "tracks": "{count} 首單曲"
+    },
+    "user": {
+      "followers": "關注者",
+      "following": "關注中",
+      "tracks": "單曲",
+      "tabs": {
+        "tracks": "單曲",
+        "spotlight": "精選",
+        "webProfiles": "個人資料",
+        "relatedArtists": "相關藝術家",
+        "comments": "評論"
+      },
+      "tracksError": "載入單曲失敗",
+      "spotlightError": "載入精選失敗",
+      "webProfilesError": "載入個人資料失敗",
+      "relatedArtistsError": "載入相關藝術家失敗",
+      "commentsError": "載入評論失敗",
+      "noTracks": "未找到單曲",
+      "noSpotlight": "未找到精選內容",
+      "noWebProfiles": "未找到個人資料",
+      "noRelatedArtists": "未找到相關藝術家",
+      "noComments": "未找到評論",
+      "onTrack": "在單曲"
     },
     "downloads": {
       "deleteSelected": "刪除選取項目",
@@ -77,6 +106,7 @@
       "loading": "載入中...",
       "noMore": "沒有更多了",
       "loadMore": "載入更多",
+      "loadFail": "載入失敗...",
       "empty": "這裡空空如也 (。・ω・。)",
       "emptyDesc": "請嘗試重新整理或調整搜尋條件"
     },

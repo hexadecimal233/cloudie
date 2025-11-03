@@ -10,7 +10,36 @@
       "listening": "试听列表",
       "downloads": "下载",
       "settings": "设置",
-      "feeds": "推荐"
+      "feeds": "推荐",
+      "following": "关注"
+    },
+    "following": {
+      "title": "关注",
+      "followers": "{count} 关注",
+      "tracks": "{count} 首单曲"
+    },
+    "user": {
+      "followers": "关注者",
+      "following": "关注中",
+      "tracks": "单曲",
+      "tabs": {
+        "tracks": "单曲",
+        "spotlight": "精选",
+        "webProfiles": "个人资料",
+        "relatedArtists": "相关艺术家",
+        "comments": "评论"
+      },
+      "tracksError": "加载单曲失败",
+      "spotlightError": "加载精选失败",
+      "webProfilesError": "加载个人资料失败",
+      "relatedArtistsError": "加载相关艺术家失败",
+      "commentsError": "加载评论失败",
+      "noTracks": "未找到单曲",
+      "noSpotlight": "未找到精选内容",
+      "noWebProfiles": "未找到个人资料",
+      "noRelatedArtists": "未找到相关艺术家",
+      "noComments": "未找到评论",
+      "onTrack": "在单曲"
     },
     "downloads": {
       "deleteSelected": "删除选中",
@@ -77,6 +106,7 @@
       "loading": "加载中...",
       "noMore": "没有更多了",
       "loadMore": "加载更多",
+      "loadFail": "加载失败...",
       "empty": "这里空空如也 (。・ω・。)",
       "emptyDesc": "请尝试刷新或者调整搜索条件"
     },
