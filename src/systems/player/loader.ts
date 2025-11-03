@@ -42,7 +42,7 @@ export class CachedLoader implements Loader<FragmentLoaderContext> {
       return
     }
 
-    ; (async () => {
+    ;(async () => {
       const cache = await M3U8_CACHE_MANAGER.getSegmentCache(context.url)
 
       if (cache) {
@@ -58,7 +58,7 @@ export class CachedLoader implements Loader<FragmentLoaderContext> {
           M3U8_CACHE_MANAGER.setSegmentCache(context.url, response.data)
         }
 
-        // originalOnSuccess 
+        // originalOnSuccess
         originalOnSuccess(response, stats, context, networkDetails)
       }
 

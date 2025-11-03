@@ -64,6 +64,7 @@ import { CachedLoader } from "@/systems/player/loader"
 import { M3U8_CACHE_MANAGER } from "@/systems/player/cache"
 import { i18n } from "@/systems/i18n"
 import { toast } from "vue-sonner"
+import { getCurrentWindow } from "@tauri-apps/api/window"
 
 // --- HLS 相关的状态和 Ref ---
 const mediaRef = ref<HTMLVideoElement | null>(null)
@@ -85,7 +86,7 @@ const playerState = reactive<{
 })
 
 function updateMedia(track: Track) {
-  // Update MediaSession
+  // Update MediaSession & Window Title
   if ("mediaSession" in navigator) {
     const coverUrl = getCoverUrl(track)
     const type = coverUrl.includes("png") ? "image/png" : "image/jpeg"
@@ -99,6 +100,8 @@ function updateMedia(track: Track) {
       ],
     })
   }
+
+  getCurrentWindow().setTitle(track.title + " - " + getArtist(track) + " - Cloudie")
 }
 
 const track = computed(() => {
@@ -138,8 +141,7 @@ onMounted(() => {
 
   // set track update callbacks
 
-  setTrackUpdateCallback((idx) => {
-    updateMedia(getNthTrack(idx)) // FIXME: dont update when single repeat.
+  setTrackUpdateCallback((_idx) => {
     loadSong()
   })
 
@@ -246,25 +248,30 @@ function pause() {
 }
 
 async function loadSong() {
-  if (!mediaRef.value || !track.value || playerState.loading) {
+  if (!mediaRef.value || !track.value) {
     return
+  }
+
+  if (playerState.loading) {
+    console.warn("Song is already loading")
   }
 
   // 加载新源之前，将 duration 设为 undefined，显示加载状态
   playerState.loading = true
   playerState.duration = undefined
 
+  updateMedia(track.value)
+
   try {
     const trackLink = await M3U8_CACHE_MANAGER.getTrackLink(track.value)
-    
+
     if (hlsPlayer.value) {
-      // 2a. 使用 hls.js 播放 M3U8
-      hlsPlayer.value.loadSource(trackLink)
+      // clear previous source
 
       // load text into a blob to create a url
-      const enc = new TextEncoder();
-      const blob = new Blob([enc.encode(trackLink)], { type: "application/vnd.apple.mpegurl" });
-      hlsPlayer.value.loadSource(URL.createObjectURL(blob));
+      const enc = new TextEncoder()
+      const blob = new Blob([enc.encode(trackLink)], { type: "application/vnd.apple.mpegurl" })
+      hlsPlayer.value.loadSource(URL.createObjectURL(blob))
 
       hlsPlayer.value.once(Hls.Events.MANIFEST_PARSED, async () => {
         try {
@@ -281,13 +288,15 @@ async function loadSong() {
   } catch (error) {
     console.error("Failed to get track link:", error)
     playerState.loading = false
-    toast.error(i18n.global.t("cloudie.toasts.loadFailed"), { description: error instanceof Error ? error.message : String(error) })
+    toast.error(i18n.global.t("cloudie.toasts.loadFailed"), {
+      description: error instanceof Error ? error.message : String(error),
+    })
 
     // automatically loads after a few seconds
-    
+
     setTimeout(async () => {
+      // TODO: abortable task
       await nextTrack()
-      loadSong()
     }, 5000)
   }
 }

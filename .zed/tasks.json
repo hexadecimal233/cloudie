@@ -1,0 +1,13 @@
+[
+  {
+    "label": "ui:dev",
+    "command": "pnpm",
+    "args": ["dev"],
+    "allow_concurrent_runs": true
+  },
+  {
+    "label": "ui:build",
+    "command": "pnpm",
+    "args": ["build"]
+  }
+]

@@ -168,7 +168,7 @@ export async function deleteTasks(tasks: DownloadTask[], deleteFile: boolean) {
   for (const task of tasks) {
     try {
       await task.pause()
-    } catch (_) { } // already paused
+    } catch (_) {} // already paused
 
     taskIds.push(task.task.taskId)
   }

@@ -1,5 +1,3 @@
-# Cloudie
-
 <div align="center">
 <img src="public/logo.png" alt="logo" width=500 />
 </div>
@@ -33,6 +31,12 @@ This app does not use the Soundcloud API to perform token update, which reduces 
 3. Run the project: `pnpm tauri dev`
 4. Build the project locally: `pnpm tauri build`
 
+### Debugging Rust
+
+For **VSCode** users, you simply choose `Tauri Development Debug` in the debug tab and run.
+
+For **Zed** users, you have to run the `ui:dev` task then use the `Debugger` to start the debugging session.
+
 ## Contributing
 
 ### Database Schema
@@ -53,4 +57,4 @@ Pull Requests: [Pull Requests](https://github.com/hexadecimal233/cloudie/pulls)
 - [ ] 图标重新设计
 - [ ] Table样式优化
 - [ ] More Tooltips!
-- [ ] Refactor: check throws
+- [ ] Refactor: check errors
