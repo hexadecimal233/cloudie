@@ -11,10 +11,10 @@
           <div class="mx-4 flex items-center gap-2">
             <template v-if="!loading">
               <img
-                :src="user?.avatar_url"
+                :src="userInfo.avatar_url"
                 alt="user"
                 class="skeleton size-12 rounded-full object-contain ring" />
-              <div class="text-lg font-bold">{{ user?.username }}</div>
+              <div class="text-lg font-bold">{{ userInfo.username }}</div>
             </template>
 
             <template v-else>
@@ -112,7 +112,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue"
-import { BasicUserInfo, getUserInfo } from "@/utils/api"
+import { BasicUserInfo, updateUserInfo, userInfo } from "@/utils/api"
 import { Toaster } from "vue-sonner"
 import { ModalsContainer } from "vue-final-modal"
 import "vue-sonner/style.css"
@@ -123,10 +123,8 @@ const user = ref<BasicUserInfo>()
 const loading = ref(true)
 
 onMounted(async () => {
-  const userInfo = await getUserInfo(true)
-  if (userInfo) {
-    user.value = userInfo
-    loading.value = false
-  }
+  await updateUserInfo(true)
+  user.value = userInfo.value
+  loading.value = false
 })
 </script>
