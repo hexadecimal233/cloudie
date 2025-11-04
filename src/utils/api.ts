@@ -2,32 +2,41 @@ import { fetch } from "@tauri-apps/plugin-http"
 import { config } from "@/systems/config"
 import { toast } from "vue-sonner"
 import { i18n } from "@/systems/i18n"
-import { CollectionResp } from "./types"
+import {
+  CollectionResp,
+  Comment,
+  M3U8Info,
+  Me,
+  Playlist,
+  PlaylistLike,
+  QueryCollection,
+  SCUser,
+  StreamItem,
+  SystemPlaylist,
+  Track,
+  TrackLike,
+  Transcoding,
+  WebProfile,
+} from "./types"
 
 let clientIdRefreshing = false
 const v2Url = "https://api-v2.soundcloud.com"
 
 // 发出v2 api json请求
-export async function getV2ApiJson(
-  endpoint: string,
-  params: Record<string, any> = {},
-): Promise<any> {
+// TODO: specify requests that require authorization
+async function getV2ApiJson<T>(endpoint: string, params: Record<string, any> = {}): Promise<T> {
   const finalUrl = `${v2Url}${endpoint}?${new URLSearchParams(params).toString()}`
 
   return (await getRequest(finalUrl, true, true)).json()
 }
 
 // 发出鉴权Json请求
-export async function getJson(url: string, useOAuth: boolean = true, useClientId: boolean = true) {
+async function getJson(url: string, useOAuth: boolean = true, useClientId: boolean = true) {
   return (await getRequest(url, useOAuth, useClientId)).json()
 }
 
 // 发出有鉴权的请求
-export async function getRequest(
-  url: string,
-  useOAuth: boolean = true,
-  useClientId: boolean = true,
-) {
+async function getRequest(url: string, useOAuth: boolean = true, useClientId: boolean = true) {
   // Add client_id to url
   if (useClientId) {
     if (clientIdRefreshing) {
@@ -67,6 +76,10 @@ export async function getRequest(
   return response
 }
 
+/**
+ * Public methods
+ */
+
 // client_id helper from yt-dlp
 export async function refreshClientId() {
   clientIdRefreshing = true // 防止无限循环刷新
@@ -88,7 +101,6 @@ export async function refreshClientId() {
       }
     } catch (error) {
       console.warn(`Failed to fetch script from ${scriptUrl}:`, error)
-      continue
     }
   }
 
@@ -96,6 +108,11 @@ export async function refreshClientId() {
   throw new Error("Unable to extract client id")
 }
 
+/**
+ * API methods
+ */
+
+// TODO: logged off support
 export class BasicUserInfo {
   id: number = -1
   username: string = ""
@@ -118,7 +135,7 @@ export async function updateUserInfo(forceUpdate: boolean = false) {
   }
 
   try {
-    const res = await getV2ApiJson("/me")
+    const res = await getV2ApiJson<Me>("/me")
     userInfo.value = {
       id: res.id,
       username: res.username,
@@ -135,10 +152,213 @@ export async function updateUserInfo(forceUpdate: boolean = false) {
   }
 }
 
+/**
+ * Collection responses
+ */
+
+export async function useStream() {
+  return useCollection<StreamItem>("/stream", 20, { promoted_playlist: true }) // dunno if this is used for advertising :/
+}
+
+export async function useUserStream(id: number) {
+  return useCollection<StreamItem>(`/stream/users/${id}`, 20)
+}
+
+export function useTrackLikes(userId: number) {
+  return useCollection<TrackLike>(`/users/${userId}/track_likes`, 500)
+}
+
+export function useTracks(userId: number) {
+  return useCollection<Track>(`/users/${userId}/tracks`, 50)
+}
+
+export function useLikes(userId: number) {
+  return useCollection<TrackLike>(`/users/${userId}/likes`, 50) // TODO: whats the difference (maybe id?)
+}
+
+export function usePlaylists(userId: number) {
+  return useCollection<TrackLike>(`/users/${userId}/playlists`, 50) // TODO: whats the difference (maybe id?)
+}
+
+export function useHistory() {
+  return useCollection<TrackLike>("/me/play-history/tracks", 500)
+}
+
+export function useComments(id: number) {
+  return useCollection<Comment>(`/tracks/${id}/comments`, 200, { threaded: 0 })
+}
+
+export function useFollowings(userId: number, followedBy?: number, notFollowedBy: boolean = false) {
+  const extraParams = followedBy
+    ? `/${notFollowedBy ? "not_followed_by" : "followed_by"}/${followedBy}`
+    : ""
+  return useCollection<SCUser>(`/users/${userId}/followings${extraParams}`, 24)
+}
+
+export function useLibrary() {
+  return useCollection<PlaylistLike>("/me/library/all", 30)
+}
+
+export function useStations() {
+  return useCollection<PlaylistLike>("/me/library/stations", 30)
+}
+
+export function useFollowers(userId: number, followedBy?: number, notFollowedBy: boolean = false) {
+  const extraParams = followedBy
+    ? `/${notFollowedBy ? "not_followed_by" : "followed_by"}/${followedBy}`
+    : ""
+  return useCollection<SCUser>(`/users/${userId}/followers${extraParams}`, 24)
+}
+
+/**
+ * Get Responses
+ */
+
+export async function getMe() {
+  return await getV2ApiJson<Me>("/me")
+}
+
+export async function getPlaylist(id: number) {
+  return await getV2ApiJson<Playlist>(`/playlists/${id}`, { representation: "full" })
+}
+
+export async function getTracks(ids: number[]) {
+  // 50 requests each time is the maximum supported by the API
+  const promises = []
+  for (let i = 0; i < ids.length; i += 50) {
+    const promise = getV2ApiJson<Track[]>(`/tracks`, { ids: ids.slice(i, i + 50).join(",") })
+    promises.push(promise)
+  }
+  const currentItem = (await Promise.all(promises)).flat() as Track[]
+
+  return currentItem
+}
+
+export async function getDownload(id: number) {
+  return (await getV2ApiJson<any>(`/tracks/${id}/download`)).redirectUri as string
+}
+
+export async function getM3U8Info(transcoding: Transcoding) {
+  return (await getJson(transcoding.url)) as M3U8Info
+}
+
+export async function getRelatedTracks(id: number) {
+  const response = await getV2ApiJson<QueryCollection<Track>>(`/tracks/${id}/related`, {
+    user_id: userInfo.value.id,
+  })
+  return response.collection
+}
+
+export async function getUser(id: number) {
+  return await getV2ApiJson<SCUser>(`/users/${id}`)
+}
+
+export async function getSpolight(id: number) {
+  const response = await getV2ApiJson<CollectionResp<Track>>(`/users/${id}/spotlight`, {
+    limit: 10,
+  })
+  return response.collection
+}
+
+export async function getWebProfiles(id: number) {
+  return await getV2ApiJson<WebProfile[]>(`/users/soundcloud:users:${id}/web-profiles`)
+}
+
+export async function getRelatedArtists(id: number) {
+  const response = await getV2ApiJson<CollectionResp<SCUser>>(`/users/${id}/relatedartists`, {
+    creators_only: false,
+    page_size: 12,
+    limit: 12,
+  })
+  return response.collection
+}
+
+export async function getTrackStation(id: number) {
+  return await resolveUrl<SystemPlaylist>(
+    `https://soundcloud.com/discover/sets/track-stations:${id}`,
+  )
+}
+
+export async function getArtistStation(id: number) {
+  return await resolveUrl<SystemPlaylist>(
+    `https://soundcloud.com/discover/sets/artist-stations:${id}`,
+  )
+}
+
+// TODO: Figure out /users/.../featured-profiles
+
+export function useUserComments(id: number) {
+  return useCollection<Comment>(`/users/${id}/comments`, 20)
+}
+
+/**
+ * Operations
+ */
+
+export async function follow(id: number) {
+  throw new Error("Unimplemented")
+}
+
+export async function unfollow(id: number) {
+  throw new Error("Unimplemented")
+}
+
+export async function likeTrack(id: number) {
+  throw new Error("Unimplemented")
+}
+
+export async function unlikeTrack(id: number) {
+  throw new Error("Unimplemented")
+}
+
+export async function repostTrack(id: number) {
+  throw new Error("Unimplemented")
+}
+
+export async function unrepostTrack(id: number) {
+  throw new Error("Unimplemented")
+}
+
+export async function likePlaylist(id: number) {
+  throw new Error("Unimplemented")
+}
+
+export async function unlikePlaylist(id: number) {
+  throw new Error("Unimplemented")
+}
+
+export async function repostPlaylist(id: number) {
+  throw new Error("Unimplemented")
+}
+
+export async function unrepostPlaylist(id: number) {
+  throw new Error("Unimplemented")
+}
+
+export async function addToHistory(id: number) {
+  throw new Error("Unimplemented")
+}
+
+export async function changePlaylist(id: number, trackIds: number[]) {
+  throw new Error("Unimplemented")
+}
+
+/**
+ * Internal API Utils
+ */
+
 import { ref, shallowRef } from "vue"
 
+async function resolveUrl<T>(url: string) {
+  return await getV2ApiJson<T>(`/resolve`, { url })
+}
+
 // Composable function for reactive collection handling
-export function useCollection<T>(url: string, limit: number = 30) {
+function useCollection<T>(
+  url: string,
+  limit: number = 30,
+  params: Record<string, any> = {}, // Only adds to the first request
+) {
   const data = shallowRef<T[]>([])
   const loading = shallowRef(false)
   const error = shallowRef<any | null>(null)
@@ -153,7 +373,10 @@ export function useCollection<T>(url: string, limit: number = 30) {
     error.value = null
 
     try {
-      const promise = nextHref ? getJson(nextHref) : getV2ApiJson(url, { limit })
+      // Linked Partitioning is default to true ig
+      const promise = nextHref
+        ? (getJson(nextHref) as Promise<CollectionResp<T>>)
+        : getV2ApiJson<T>(url, { ...params, limit })
       const res = (await promise) as CollectionResp<T>
 
       data.value = [...data.value, ...(res.collection || [])] as T[]

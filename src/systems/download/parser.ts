@@ -1,4 +1,4 @@
-import { getJson, getV2ApiJson } from "@/utils/api"
+import { getDownload, getM3U8Info } from "@/utils/api"
 import { config } from "@/systems/config"
 import { Preset, PRESET_ORDER, Protocol, Track, Transcoding } from "@/utils/types"
 import { DownloadTask } from "./download"
@@ -35,7 +35,7 @@ export async function parseHlsLink(track: Track) {
     (t: Transcoding) => t.preset === "abr_sq" || t.preset === "aac_256k" || t.preset === "aac_160k",
   )
   if (trans) {
-    const m3u8meta = await getJson(trans.url, true, true)
+    const m3u8meta = await getM3U8Info(trans)
     return m3u8meta.url
   }
   throw new Error("No available HLS streams")
@@ -43,13 +43,12 @@ export async function parseHlsLink(track: Track) {
 
 // track_authorization only affects get stream from API, transcoding cache is not affected
 export async function parseDownload(track: Track): Promise<ParsedDownload> {
-  // TODO: secret_token参数获取私人下载链接
+  // TODO: secret_token参数获取私人下载链接 / track_authorization 添加
   if (track.downloadable && config.value.preferDirectDownload) {
     // 处理直连下载 TODO: 开设新section
     try {
-      const downloadObj = await getV2ApiJson(`/tracks/${track.id}/download`)
       return {
-        finalUrl: downloadObj.redirectUri,
+        finalUrl: await getDownload(track.id),
         downloadType: "direct",
         preset: "none",
       }
@@ -63,7 +62,7 @@ export async function parseDownload(track: Track): Promise<ParsedDownload> {
 
   for (const trans of sortTranscodings(track, ["hls"])) {
     console.debug(`Downloading ${trans.preset} encoding for track ${track.title}`)
-    const m3u8meta = await getJson(trans.url, true, true)
+    const m3u8meta = await getM3U8Info(trans)
     return {
       finalUrl: m3u8meta.url,
       downloadType: trans.format.protocol,
@@ -74,7 +73,7 @@ export async function parseDownload(track: Track): Promise<ParsedDownload> {
   console.debug(`Downloading Progressive MP3 encoding for track ${track.title}`)
   const trans = sortTranscodings(track, ["progressive"])[0] // Progressive 只有一个MP3
   if (trans) {
-    const m3u8meta = await getJson(trans.url, true, true)
+    const m3u8meta = await getM3U8Info(trans)
     return {
       finalUrl: m3u8meta.url,
       downloadType: trans.format.protocol,

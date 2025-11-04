@@ -43,14 +43,14 @@
 
 <script setup lang="ts" name="PlaylistView">
 import { ref, onMounted, computed, watch } from "vue"
-import { getV2ApiJson, useCollection } from "@/utils/api"
+import { getPlaylist, useLibrary } from "@/utils/api"
 import PlaylistList from "@/components/PlaylistList.vue"
 import { PlaylistLike } from "@/utils/types"
 
 const coverCache = ref<Record<number, any>>({}) // 有些专获取不到artwork，因为到时候还要用所以就共用一下缓存
 const activeTab = ref<"system" | "playlist" | "album">("playlist")
 
-const collection = useCollection<PlaylistLike>("/me/library/all", 30)
+const collection = useLibrary()
 
 const filteredItems = computed(() => {
   switch (activeTab.value) {
@@ -72,7 +72,7 @@ async function fetchPlaylist(id: number) {
     return coverCache.value[id]
   }
 
-  const res = await getV2ApiJson(`/playlists/${id}`)
+  const res = await getPlaylist(id)
   coverCache.value[id] = res
   return res
 }

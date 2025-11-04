@@ -73,6 +73,7 @@ export class M3U8CacheManager {
     const data = encoder.encode(str)
 
     // Use crypto API to create a hash
+    // TODO: Use track IDs for cache
     const hashBuffer = await crypto.subtle.digest("SHA-256", data)
 
     // Convert hash to hex string

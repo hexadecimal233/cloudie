@@ -146,8 +146,8 @@ export interface SCUser {
   comments_count: number
   country_code: null | string
   created_at: Date
-  creator_subscriptions: CreatorSubscription[]
-  creator_subscription: CreatorSubscription
+  creator_subscriptions: Subscription[]
+  creator_subscription: Subscription
   description: null | string
   followers_count: number
   followings_count: number
@@ -176,7 +176,7 @@ export interface SCUser {
   date_of_birth: null
 }
 
-export interface CreatorSubscription {
+export interface Subscription {
   product: Product
 }
 
@@ -406,4 +406,119 @@ export type CommentKind = "comment"
 
 export interface Self {
   urn: string
+}
+
+export interface StreamItem {
+  created_at: Date
+  type: StreamType
+  user: User
+  uuid: string
+  caption: null
+  reposted?: Reposted
+  track?: Track
+  playlist?: Playlist
+}
+
+// activityTypes: TrackPost,TrackRepost,PlaylistPost
+export type StreamType = "track" | "track-repost" | "playlist" | "playlist-repost"
+
+export interface Reposted {
+  target_urn: string
+  user_urn: string
+  caption: null
+}
+
+export interface QueryCollection<T> {
+  collection: T[]
+  query_urn: string
+  variant: string
+}
+
+export interface Me {
+  avatar_url: string
+  blocked_tracks_count: number
+  city: string
+  comments_count: number
+  consumer_subscriptions: Subscription[] | null
+  consumer_subscription: Subscription
+  country_code: string
+  cpp: null
+  created_at: Date
+  creator_subscriptions: Subscription[]
+  creator_subscription: Subscription
+  date_of_birth: DateOfBirth
+  default_license: string
+  default_tracks_feedable: boolean
+  description: string
+  downloads_disabled: boolean
+  downloads_disabled_reason: string
+  first_name: string
+  followers_count: number
+  followings_count: number
+  full_name: string
+  gender: string
+  groups_count: number
+  hidden_tracks_count: number
+  id: number
+  kind: string
+  last_modified: Date
+  last_name: string
+  likes_count: number
+  playlist_likes_count: number
+  locale: string
+  permalink: string
+  permalink_url: string
+  playlist_count: number
+  primary_email: string
+  primary_email_confirmed: boolean
+  primary_email_sha256: string
+  private_playlists_count: number
+  private_tracks_count: number
+  quota: Quota
+  reposts_count: number
+  track_count: number
+  urn: string
+  uri: string
+  username: string
+  verified: boolean
+  visuals: Visuals
+  confirmed: boolean
+  badges: Badges
+  analytics_id: null
+  consent_management_jwt: ConsentManagementJwt
+  station_urn: string
+  station_permalink: string
+  marketing_ids: MarketingIDS
+  ppid: string
+  spotlight_limit: number
+}
+
+export interface ConsentManagementJwt {
+  userId: string
+  jwt: string
+}
+
+export interface DateOfBirth {
+  month: number
+  year: number
+  day: number
+}
+
+export interface MarketingIDS {
+  gtm: string
+}
+
+export interface Quota {
+  unlimited_upload_quota: boolean
+  upload_seconds_limit: number
+  upload_seconds_used: number
+  upload_seconds_left: number
+  upload_tracks_used: number
+  unlimited_upload_duration_quota: boolean
+  unlimited_upload_track_quota: boolean
+}
+
+export interface M3U8Info {
+  url: string
+  licenseUrls: any // an object containing playready/fairplay urls
 }

@@ -1,6 +1,6 @@
 <template>
     <div class="alert alert-warning">TODO: This is still a demo, translations and content experience might be bad</div>
-    <div v-if="collection.loading.value" class="flex justify-center items-center py-8">
+    <div v-if="loading" class="flex justify-center items-center py-8">
       <div class="loading loading-spinner loading-lg"></div>
       <span class="ml-2">{{ $t("cloudie.common.loading") }}</span>
     </div>
@@ -53,29 +53,21 @@
       </div>
     </div>
 
-    <div v-if="hasNext && !collection.loading.value" class="flex justify-center mt-6">
-      <button class="btn btn-primary" @click="loadMore">
+    <div v-if="hasNext && !loading" class="flex justify-center mt-6">
+      <button class="btn btn-primary" @click="fetchNext">
         {{ $t("cloudie.common.loadMore") }}
       </button>
     </div>
 </template>
 
 <script setup lang="ts" name="FollowingView">
-import { ref, onMounted, watch } from "vue"
-import { useCollection, userInfo } from "@/utils/api"
+import { onMounted } from "vue"
+import { useFollowings, userInfo } from "@/utils/api"
 import { SCUser } from "@/utils/types"
 import UserModal from "@/components/modals/UserModal.vue"
 import { useModal } from "vue-final-modal"
 
-const followings = ref<SCUser[]>([])
-const error = ref<string | null>(null)
-const hasNext = ref(false)
-
-const collection = useCollection<SCUser>(`/users/${userInfo.value.id}/followings`, 24)
-
-const loadMore = async () => {
-  await collection.fetchNext()
-}
+const { data: followings, loading, error, hasNext, fetchNext } = useFollowings(userInfo.value.id)
 
 const openUserModal = (user: SCUser) => {
   const { open, close } = useModal({
@@ -92,27 +84,6 @@ const openUserModal = (user: SCUser) => {
 }
 
 onMounted(async () => {
-  await collection.fetchNext()
+  await fetchNext()
 })
-
-watch(
-  () => collection.data.value,
-  (newData) => {
-    followings.value = newData
-  },
-)
-
-watch(
-  () => collection.error.value,
-  (newError) => {
-    error.value = newError ? String(newError) : null
-  },
-)
-
-watch(
-  () => collection.hasNext.value,
-  (newHasNext) => {
-    hasNext.value = newHasNext
-  },
-)
 </script>

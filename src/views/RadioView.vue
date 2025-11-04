@@ -20,11 +20,10 @@
 
 <script setup lang="ts" name="RadioView">
 import { onMounted } from "vue"
-import { useCollection } from "@/utils/api"
+import { useStations } from "@/utils/api"
 import PlaylistList from "@/components/PlaylistList.vue"
-import { PlaylistLike } from "@/utils/types"
 
-const collection = useCollection<PlaylistLike>("/me/library/stations", 10)
+const collection = useStations()
 
 onMounted(() => {
   collection.fetchNext()

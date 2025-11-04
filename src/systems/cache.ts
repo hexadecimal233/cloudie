@@ -10,7 +10,7 @@ import {
 import * as schema from "@/systems/db/schema"
 import { eq, inArray, sql } from "drizzle-orm"
 import { db } from "./db/db"
-import { getV2ApiJson } from "@/utils/api"
+import * as API from "@/utils/api"
 
 export async function getPlaylist(playlistId: string | number): Promise<ExactPlaylist | null> {
   const rawPlaylist = await db
@@ -110,9 +110,7 @@ export async function fetchPlaylistUpdates(likeResp: PlaylistLike, _existTrackId
 
   let partialTracks: PartialTrack[]
   if (likeResp.playlist) {
-    const resp = (await getV2ApiJson(`/playlists/${likeResp.playlist.id}`, {
-      representation: "full",
-    })) as Playlist
+    const resp = await API.getPlaylist(likeResp.playlist.id)
     partialTracks = resp.tracks!
   } else {
     partialTracks = likeResp.system_playlist.tracks
@@ -128,19 +126,7 @@ export async function fetchPlaylistUpdates(likeResp: PlaylistLike, _existTrackId
     return currentPlaylist as unknown as ExactPlaylist
   }
 
-  // 50 requests each time is the maximum supported by the API
-  const promises = []
-  for (let i = 0; i < partialTracks.length; i += 50) {
-    promises.push(
-      getV2ApiJson("/tracks", {
-        ids: partialTracks
-          .slice(i, i + 50)
-          .map((item) => item.id)
-          .join(","),
-      }),
-    )
-  }
-  const currentItem = (await Promise.all(promises)).flat()
+  const currentItem = await API.getTracks(partialTracks.map((item) => item.id))
 
   const finalPlaylist: ExactPlaylist = likeResp.playlist
     ? {

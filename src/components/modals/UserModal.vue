@@ -265,8 +265,14 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue"
 import { VueFinalModal } from "vue-final-modal"
-import { getV2ApiJson } from "@/utils/api"
-import { SCUser, Track, WebProfile, Comment } from "@/utils/types"
+import {
+  getRelatedArtists,
+  getSpolight,
+  getWebProfiles,
+  useTracks,
+  useUserComments,
+} from "@/utils/api"
+import { SCUser, Track, WebProfile } from "@/utils/types"
 import { toast } from "vue-sonner"
 
 const props = defineProps<{
@@ -288,9 +294,12 @@ const tabs = [
 const activeTab = ref(0)
 
 // Data for each tab
-const tracks = ref<Track[]>([])
-const tracksLoading = ref(false)
-const tracksError = ref<string | null>(null)
+const {
+  data: tracks,
+  error: tracksError,
+  loading: tracksLoading,
+  fetchNext: fetchTracks,
+} = useTracks(props.user.id)
 
 const spotlight = ref<Track[]>([])
 const spotlightLoading = ref(false)
@@ -304,29 +313,18 @@ const relatedArtists = ref<SCUser[]>([])
 const relatedArtistsLoading = ref(false)
 const relatedArtistsError = ref<string | null>(null)
 
-const comments = ref<Comment[]>([])
-const commentsLoading = ref(false)
-const commentsError = ref<string | null>(null)
+const {
+  data: comments,
+  error: commentsError,
+  loading: commentsLoading,
+  fetchNext: fetchComments,
+} = useUserComments(props.user.id)
 
 // Load data for each tab
 const loadTracks = async () => {
   if (tracks.value.length > 0) return // Already loaded
 
-  tracksLoading.value = true
-  tracksError.value = null
-
-  try {
-    const response = await getV2ApiJson(`/users/${props.user.id}/tracks`, {
-      representation: "",
-      limit: 20,
-    })
-    tracks.value = response.collection || []
-  } catch (err: any) {
-    console.error("Error loading user tracks:", err)
-    tracksError.value = err.message || "Failed to load tracks"
-  } finally {
-    tracksLoading.value = false
-  }
+  await fetchTracks()
 }
 
 const loadSpotlight = async () => {
@@ -336,8 +334,7 @@ const loadSpotlight = async () => {
   spotlightError.value = null
 
   try {
-    const response = await getV2ApiJson(`/users/${props.user.id}/spotlight`, { limit: 10 })
-    spotlight.value = response.collection || []
+    spotlight.value = await getSpolight(props.user.id)
   } catch (err: any) {
     console.error("Error loading user spotlight:", err)
     spotlightError.value = err.message || "Failed to load spotlight"
@@ -353,8 +350,7 @@ const loadWebProfiles = async () => {
   webProfilesError.value = null
 
   try {
-    const response = await getV2ApiJson(`/users/soundcloud:users:${props.user.id}/web-profiles`)
-    webProfiles.value = response || []
+    webProfiles.value = await getWebProfiles(props.user.id)
   } catch (err: any) {
     console.error("Error loading user web profiles:", err)
     webProfilesError.value = err.message || "Failed to load web profiles"
@@ -370,12 +366,7 @@ const loadRelatedArtists = async () => {
   relatedArtistsError.value = null
 
   try {
-    const response = await getV2ApiJson(`/users/${props.user.id}/relatedartists`, {
-      creators_only: false,
-      page_size: 12,
-      limit: 12,
-    })
-    relatedArtists.value = response.collection || []
+    relatedArtists.value = await getRelatedArtists(props.user.id)
   } catch (err: any) {
     console.error("Error loading related artists:", err)
     relatedArtistsError.value = err.message || "Failed to load related artists"
@@ -387,18 +378,7 @@ const loadRelatedArtists = async () => {
 const loadComments = async () => {
   if (comments.value.length > 0) return // Already loaded
 
-  commentsLoading.value = true
-  commentsError.value = null
-
-  try {
-    const response = await getV2ApiJson(`/users/${props.user.id}/comments`, { limit: 20 })
-    comments.value = response.collection || []
-  } catch (err: any) {
-    console.error("Error loading user comments:", err)
-    commentsError.value = err.message || "Failed to load comments"
-  } finally {
-    commentsLoading.value = false
-  }
+  await fetchComments()
 }
 
 // Load data when tab changes

@@ -19,9 +19,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue"
-import { useCollection, userInfo } from "../utils/api"
+import { useHistory, userInfo, useTrackLikes } from "../utils/api"
 import TrackList from "./TrackList.vue"
-import { LocalPlaylist, TrackLike } from "@/utils/types"
+import { LocalPlaylist } from "@/utils/types"
 import { savePlaylist } from "@/systems/cache"
 
 const props = defineProps<{
@@ -30,15 +30,15 @@ const props = defineProps<{
 
 const playlist = ref(new LocalPlaylist(props.type))
 
-function getUrl() {
+function getCollection() {
   if (props.type === "track_likes") {
-    return `/users/${userInfo.value.id}/track_likes`
+    return useTrackLikes(userInfo.value.id)
   } else {
-    return "/me/play-history/tracks"
+    return useHistory()
   }
 }
 
-const collection = useCollection<TrackLike>(getUrl(), 500)
+const collection = getCollection()
 
 watch(
   () => collection.data.value,
