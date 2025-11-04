@@ -8,7 +8,7 @@ import { getArtist, getCoverUrl, replaceImageUrl } from "@/utils/utils"
 import { db } from "@/systems/db/db"
 import * as schema from "@/systems/db/schema"
 import { desc, DrizzleQueryError, eq, inArray } from "drizzle-orm"
-import { downloadTrack, parseDownload } from "./parser"
+import { convertToMp3, downloadTrack, parseDownload } from "./parser"
 import { toast } from "vue-sonner"
 import { BasePlaylist, Track } from "@/utils/types"
 import { i18n } from "@/systems/i18n"
@@ -213,10 +213,12 @@ async function runTask(task: DownloadTask) {
   console.debug(task.downloadingState.name, task)
 
   try {
+    // step 1. parse download info
     const parsed = await parseDownload(task.details.track)
     task.downloadingState.name = "downloading"
     console.debug(task.downloadingState.name, task)
 
+    // step 2. download track
     const response = await downloadTrack(parsed, task, (progress) => {
       task.downloadingState!.progress = progress
     })
@@ -224,12 +226,19 @@ async function runTask(task: DownloadTask) {
     await task.setPath(response.path)
     await task.setOrigFileName(response.origFileName)
 
+    // step 3. convert to mp3 if necessary
+    if (config.value.mp3ConvertExts.includes(response.ext)) {
+      const mp3Path = await convertToMp3(response)
+      await task.setPath(mp3Path)
+    }
+
+    // step 4. add tags
     try {
       task.downloadingState.name = "tag"
       await invoke("add_tags", {
         filePath: task.task.path,
         title: task.details.title,
-        album: task.details.playlistName,
+        album: task.details.playlistName || "",
         artist: task.details.artist,
         coverUrl: config.value.addCover
           ? replaceImageUrl(task.details.coverUrl, "1080x1080")

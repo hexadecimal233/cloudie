@@ -1,16 +1,20 @@
 import { fetch } from "@tauri-apps/plugin-http"
-import { config } from "@/systems/config"
+import { ref, shallowRef } from "vue"
 import { toast } from "vue-sonner"
+import { config } from "@/systems/config"
 import { i18n } from "@/systems/i18n"
-import {
+import type {
   CollectionResp,
   Comment,
+  FacetItem,
   M3U8Info,
   Me,
   Playlist,
   PlaylistLike,
   QueryCollection,
   SCUser,
+  SearchCollection,
+  SearchSuggestion,
   StreamItem,
   SystemPlaylist,
   Track,
@@ -210,6 +214,29 @@ export function useFollowers(userId: number, followedBy?: number, notFollowedBy:
   return useCollection<SCUser>(`/users/${userId}/followers${extraParams}`, 24)
 }
 
+export function useUserComments(id: number) {
+  return useCollection<Comment>(`/users/${id}/comments`, 20)
+}
+
+interface FacetQuery {
+  name: string
+  value: string
+}
+
+// TODO: facet
+
+export function useSearchTracks(query: string) {
+  return useSearchCollection<Track>(`/search/tracks`, query, 20)
+}
+
+export function useSearchUsers(query: string) {
+  return useSearchCollection<SCUser>(`/search/users`, query, 20)
+}
+
+export function useSearchPlaylists(query: string) {
+  return useSearchCollection<Playlist>(`/search/playlists`, query, 20)
+}
+
 /**
  * Get Responses
  */
@@ -242,9 +269,11 @@ export async function getM3U8Info(transcoding: Transcoding) {
   return (await getJson(transcoding.url)) as M3U8Info
 }
 
+// used when pushing new tracks to the listening list
 export async function getRelatedTracks(id: number) {
   const response = await getV2ApiJson<QueryCollection<Track>>(`/tracks/${id}/related`, {
     user_id: userInfo.value.id,
+    limit: 30,
   })
   return response.collection
 }
@@ -285,11 +314,13 @@ export async function getArtistStation(id: number) {
   )
 }
 
-// TODO: Figure out /users/.../featured-profiles
-
-export function useUserComments(id: number) {
-  return useCollection<Comment>(`/users/${id}/comments`, 20)
+export async function getSearchSuggestions(query: string) {
+  return (
+    await getV2ApiJson<CollectionResp<SearchSuggestion>>(`/search/queries`, { q: query, limit: 10 })
+  ).collection
 }
+
+// TODO: Figure out /users/.../featured-profiles
 
 /**
  * Operations
@@ -347,8 +378,6 @@ export async function changePlaylist(id: number, trackIds: number[]) {
  * Internal API Utils
  */
 
-import { ref, shallowRef } from "vue"
-
 async function resolveUrl<T>(url: string) {
   return await getV2ApiJson<T>(`/resolve`, { url })
 }
@@ -384,6 +413,62 @@ function useCollection<T>(
       nextHref = res.next_href
     } catch (err) {
       console.error("useCollection fetchNext error:", err)
+      error.value = err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const reset = () => {
+    data.value = []
+    nextHref = null
+    hasNext.value = false
+    error.value = null
+  }
+
+  return {
+    data,
+    loading,
+    error,
+    hasNext,
+    fetchNext,
+    reset,
+  }
+}
+
+// SEARCH useCollection
+function useSearchCollection<T extends Track | Playlist | SCUser>(
+  url: string,
+  query: string,
+  limit: number = 20,
+) {
+  const data = shallowRef<T[]>([])
+  const facets = shallowRef<FacetItem[]>([])
+  const loading = shallowRef(false)
+  const error = shallowRef<any | null>(null)
+  const hasNext = shallowRef(false)
+
+  let nextHref: string | null = null
+
+  const fetchNext = async () => {
+    if (loading.value) return
+
+    loading.value = true
+    error.value = null
+
+    try {
+      // Linked Partitioning is default to true ig
+      const promise = nextHref
+        ? (getJson(nextHref) as Promise<SearchCollection<T>>)
+        : getV2ApiJson<T>(url, { limit, q: query })
+      const res = (await promise) as SearchCollection<T>
+
+      data.value = [...data.value, ...(res.collection || [])] as T[]
+      facets.value = res.facets
+      hasNext.value = !!res.next_href
+      nextHref = res.next_href
+    } catch (err) {
+      console.error("useSearchCollection fetchNext error:", err)
       error.value = err
     } finally {
       loading.value = false

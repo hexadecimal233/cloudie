@@ -86,9 +86,11 @@ export async function parseDownload(track: Track): Promise<ParsedDownload> {
 
 interface DownloadResponse {
   path: string
+  ext: string
   origFileName: string | null
 }
 
+// get download title according to fileNaming
 function getDownloadTitle(task: DownloadTask) {
   switch (config.value.fileNaming) {
     case FileNaming.Title:
@@ -119,6 +121,7 @@ async function getDownloadPathWithoutExt(task: DownloadTask) {
   return await path.join(finalDir, safeFileName)
 }
 
+// use ffmpeg to download aac stream
 async function downloadAac(m3u8Url: string): Promise<string> {
   const fileId = Math.random().toString(16).substring(2, 16)
   const savePath = await path.join(await path.tempDir(), `cloudie_temp_${fileId}.m4a`)
@@ -203,12 +206,14 @@ export async function downloadTrack(
         // TODO: progress display
         const tempFileName = await downloadAac(parsed.finalUrl)
 
+        ext = "m4a"
         const finalPath = `${await getDownloadPathWithoutExt(task)}.${ext}`
 
         await move(tempFileName, finalPath)
 
         return {
           path: finalPath,
+          ext: ext,
           origFileName: origFileName,
         } as DownloadResponse
       } else if (parsed.preset === "opus_0_0" || parsed.preset.includes("mp3")) {
@@ -246,6 +251,34 @@ export async function downloadTrack(
 
   return {
     path: destFile,
+    ext: ext,
     origFileName: origFileName,
   } as DownloadResponse
+}
+
+// convert to mp3 and delete old file
+export async function convertToMp3(response: DownloadResponse): Promise<string> {
+  const mp3Path = response.path.replace(/\.[^/.]+$/, ".mp3")
+  const cmd = Command.create("ffmpeg", [
+    "-y",
+    "-loglevel",
+    "warning",
+    "-i",
+    response.path,
+    "-c:a",
+    "libmp3lame",
+    "-q:a",
+    "2",
+    mp3Path,
+  ])
+
+  const proc = await cmd.execute()
+  if (proc.code !== 0) {
+    console.error(proc.stderr)
+    throw new Error(`ffmpeg failed with code ${proc.code}`)
+  }
+
+  await fs.remove(response.path)
+
+  return mp3Path
 }

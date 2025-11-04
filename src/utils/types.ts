@@ -380,7 +380,7 @@ export const SOCIAL_NETWORKS = {
   wordpress: "Wordpress",
   youtube: "YouTube",
   zeroinch: "zero",
-}
+} as const
 
 export interface WebProfile {
   url: string
@@ -521,4 +521,31 @@ export interface Quota {
 export interface M3U8Info {
   url: string
   licenseUrls: any // an object containing playready/fairplay urls
+}
+
+export interface SearchSuggestion {
+  output: string
+  query: string
+}
+
+export interface FacetItem {
+  name: "place" | "model" | "genre"
+  facets: FacetDetail[]
+}
+
+/**
+ * value (in lowercase):
+ * - place: places
+ * - genre: music genre
+ * - model: can be set / sound / person
+ */
+export interface FacetDetail {
+  value: string
+  count: number
+  filter: string // the request params (filter.<name> = <value>)
+}
+
+export interface SearchCollection<T extends Track | Playlist | SCUser> extends CollectionResp<T> {
+  total_results: number
+  facets: FacetItem[]
 }

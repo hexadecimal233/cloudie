@@ -124,6 +124,7 @@
 
           <td>
             <div class="flex justify-center">
+              <!-- FIXME: the spinner doesnt show up -->
               <div
                 v-if="getDownloadTask(item).value?.downloadingState"
                 class="loading loading-spinner loading-lg"></div>

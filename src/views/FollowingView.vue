@@ -40,9 +40,9 @@
                 {{ user.full_name || user.username }}
               </p>
               <div class="flex space-x-2 mt-1 text-xs text-gray-400">
-                <span>{{ user.followers_count }} {{ $t("cloudie.following.followers") }}</span>
+                <span>{{ $t("cloudie.following.followers", {count: user.followers_count}) }}</span>
                 <span>•</span>
-                <span>{{ user.track_count }} {{ $t("cloudie.following.tracks") }}</span>
+                <span>{{ $t("cloudie.following.tracks", {count: user.track_count }) }}</span>
               </div>
             </div>
           </div>
