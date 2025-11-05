@@ -12,6 +12,9 @@ export enum PlayOrder {
   Shuffle = "shuffle",
 }
 
+// FIXME: after delete current index should also be changed
+// FIXME: shffle list not persistient after restarting app
+
 export const listeningList = ref<Track[]>([])
 const shuffledIndexMapping = new Map<number, number>() // <shuffled index, original index>
 

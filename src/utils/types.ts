@@ -184,7 +184,7 @@ export interface Product {
   id: ID
 }
 
-export type ID = "creator-pro-unlimited" | "free"
+export type ID = "creator-pro-unlimited" | "free" | "creator-creator-mid-tier" | "creator-mid-tier"
 
 export interface User {
   avatar_url: string
@@ -549,3 +549,11 @@ export interface SearchCollection<T extends Track | Playlist | SCUser> extends C
   total_results: number
   facets: FacetItem[]
 }
+
+export interface WhoToFollowResp {
+  token: string
+  source: Source
+  user: User
+}
+
+export type Source = "algorithm"

@@ -114,7 +114,7 @@
           :placeholder="$t('cloudie.settings.config.clientId')"
           v-model="config.clientId" />
         <button class="btn join-item" @click="refreshClientId()">
-          <!-- TODO: 可视化-->
+          <!-- TODO: 可视化 刷新 -->
           <i-mdi-refresh />
         </button>
       </div>

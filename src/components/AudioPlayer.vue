@@ -1,20 +1,12 @@
 <template>
-  <video
-    @timeupdate="onTimeUpdate"
-    @ended="onEnded"
-    @loadedmetadata="onLoadedMetadata"
-    ref="mediaRef"
-    autoplay
+  <video @timeupdate="onTimeUpdate" @ended="onEnded" @loadedmetadata="onLoadedMetadata" ref="mediaRef" autoplay
     hidden></video>
 
   <div v-if="track" class="bg-base-200 relative h-24">
     <!-- FIXME: ERROR on delete track -->
     <!-- Progress Bar and Needle-->
-    <progress
-      class="progress absolute top-0 h-1.5 w-full rounded-none transition-all hover:-top-1.5 hover:h-3"
-      :value="playerState.currentTime"
-      :max="playerState.duration"
-      @click="onProgressClick"></progress>
+    <progress class="progress absolute top-0 h-1.5 w-full rounded-none transition-all hover:-top-1.5 hover:h-3"
+      :value="playerState.currentTime" :max="playerState.duration" @click="onProgressClick"></progress>
 
     <div class="flex h-full w-full px-4 py-3">
       <div class="flex flex-1/3 gap-2">
@@ -44,8 +36,10 @@
       </div>
       <div class="flex-1/3">
         <div>
-              <i-mdi-playlist-play />
-            </div>
+          <button class="btn btn-ghost btn-circle" @click="openListeningWidget">
+            <i-mdi-playlist-play />
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -54,6 +48,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, onMounted, onUnmounted } from "vue"
 import PlayOrderSwitch from "./PlayOrderSwitch.vue"
+import ListeningWidget from "./ListeningWidget.vue"
 import {
   getNextTrackIndex as getNextTrackIdx,
   getCurrentTrack,
@@ -69,6 +64,7 @@ import { M3U8_CACHE_MANAGER } from "@/systems/player/cache"
 import { i18n } from "@/systems/i18n"
 import { toast } from "vue-sonner"
 import { getCurrentWindow } from "@tauri-apps/api/window"
+import { useModal } from "vue-final-modal"
 
 // --- HLS 相关的状态和 Ref ---
 const mediaRef = ref<HTMLVideoElement | null>(null)
@@ -218,6 +214,19 @@ function onLoadedMetadata() {
 }
 
 // --- 播放器控制方法 ---
+
+function openListeningWidget() {
+  const { open, close } = useModal({
+    component: ListeningWidget,
+    attrs: {
+      onClose() {
+        close()
+      },
+    },
+  })
+
+  open()
+}
 
 function seek(time: number) {
   if (!mediaRef.value || !isFinite(time)) {

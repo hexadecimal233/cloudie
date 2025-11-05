@@ -1,6 +1,7 @@
 import path from "node:path"
 import tailwindcss from "@tailwindcss/vite"
 import vue from "@vitejs/plugin-vue"
+import vueJsx from "@vitejs/plugin-vue-jsx"
 import IconsResolver from "unplugin-icons/resolver"
 import Icons from "unplugin-icons/vite"
 import Components from "unplugin-vue-components/vite"
@@ -12,6 +13,7 @@ const host = process.env.TAURI_DEV_HOST
 export default defineConfig(async () => ({
   plugins: [
     vue(),
+    vueJsx(),
     tailwindcss(),
     Icons({
       autoInstall: true,

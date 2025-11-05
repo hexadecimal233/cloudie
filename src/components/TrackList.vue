@@ -122,8 +122,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed, h, watch, resolveComponent } from "vue"
+<script setup lang="tsx">
+import { ref, computed, watch } from "vue"
 import { formatMillis, getArtist, getCoverUrl } from "@/utils/utils"
 import { addDownloadTask, downloadTasks } from "@/systems/download/download"
 import { ExactPlaylist, Track } from "@/utils/types"
@@ -169,26 +169,29 @@ const tagsFilter: FilterFn<Track> = (row, columnId, filterValue) => {
   )
 }
 
+// FIXME: table size does not work
 const columnHelper = createColumnHelper<Track>()
 const columns = [
   columnHelper.display({
     id: "select",
-    header: ({ table }) =>
-      // select all / none
-      h("input", {
-        type: "checkbox",
-        checked: table.getIsAllRowsSelected(),
-        onChange: table.getToggleAllRowsSelectedHandler(),
-        class: "checkbox",
-      }),
-    cell: ({ row }) =>
-      h("input", {
-        type: "checkbox",
-        checked: row.getIsSelected(),
-        disabled: !row.getCanSelect(),
-        onChange: row.getToggleSelectedHandler(),
-        class: "checkbox",
-      }),
+    header: ({ table }) => (
+      // select / deselect all
+      <input
+        type="checkbox"
+        checked={table.getIsAllRowsSelected()}
+        onChange={table.getToggleAllRowsSelectedHandler()}
+        class="checkbox"
+      />
+    ),
+    cell: ({ row }) => (
+      <input
+        type="checkbox"
+        checked={row.getIsSelected()}
+        disabled={!row.getCanSelect()}
+        onChange={row.getToggleSelectedHandler()}
+        class="checkbox"
+      />
+    ),
     size: 50,
   }),
   columnHelper.accessor((_row, i) => i, {
@@ -200,19 +203,19 @@ const columns = [
   }),
   columnHelper.accessor("title", {
     header: i18n.global.t("cloudie.trackList.song"),
-    cell: (info) => {
-      return h("div", { class: "flex items-center gap-2" }, [
-        h("img", {
-          src: getCoverUrl(info.row.original),
-          alt: "cover",
-          class: "size-16 rounded-md object-contain",
-        }),
-        h("div", { class: "flex flex-col" }, [
-          h("div", { class: "truncate font-bold" }, [info.row.original.title]),
-          h("div", { class: "truncate text-base-content/70" }, [getArtist(info.row.original)]),
-        ]),
-      ])
-    },
+    cell: (info) => (
+      <div class="flex items-center gap-2">
+        <img
+          src={getCoverUrl(info.row.original)}
+          alt="cover"
+          class="size-16 rounded-md object-contain"
+        />
+        <div class="flex flex-col">
+          <div class="truncate font-bold">{info.row.original.title}</div>
+          <div class="truncate text-base-content/70">{getArtist(info.row.original)}</div>
+        </div>
+      </div>
+    ),
     enableSorting: true,
   }),
   columnHelper.accessor("genre", {
@@ -257,36 +260,37 @@ const columns = [
     id: "operations",
     header: "-",
     cell: (info) => {
-      const downloadButton = getDownloadTask(info.row.original).value?.downloadingState
-        ? h("div", { class: "loading loading-spinner loading-lg" }, [])
-        : h(
-            "button",
-            { class: "btn btn-ghost btn-sm", onClick: () => download(info.row.original) },
-            [h(resolveComponent("i-mdi-download"))],
-          )
+      const downloadButton = getDownloadTask(info.row.original).value?.downloadingState ? (
+        <div class="loading loading-spinner loading-lg" />
+      ) : (
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          onClick={() => download(info.row.original)}>
+          <i-mdi-download />
+        </button>
+      )
 
-      return h("div", { class: "flex items-center gap-2" }, [
-        downloadButton,
-        h(
-          "button",
-          { class: "btn btn-ghost btn-sm", onClick: () => addToListeningList(info.row.original) },
-          [h(resolveComponent("i-mdi-plus"))],
-        ),
-        h(
-          "button",
-          { class: "btn btn-ghost btn-sm", onClick: () => addAndPlay(info.row.original, props.playlist.tracks) }, // TODO: fix flicker when updating by pre-setting id to -1
-          [h(resolveComponent("i-mdi-play"))],
-        ),
-        h(
-          "a",
-          {
-            class: "btn btn-ghost btn-sm",
-            href: info.row.original.permalink_url,
-            target: "_blank",
-          },
-          [h(resolveComponent("i-mdi-open-in-new"))],
-        ),
-      ])
+      return (
+        <div class="flex items-center gap-2">
+          {downloadButton}
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm"
+            onClick={() => addToListeningList(info.row.original)}>
+            <i-mdi-plus />
+          </button>
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm"
+            onClick={() => addAndPlay(info.row.original, props.playlist.tracks)}>
+            <i-mdi-play />
+          </button>
+          <a class="btn btn-ghost btn-sm" href={info.row.original.permalink_url} target="_blank">
+            <i-mdi-open-in-new />
+          </a>
+        </div>
+      )
     },
     size: 100,
   }),

@@ -59,7 +59,7 @@ class Config {
   parallelDownloads: number = 3
   playlistSeparateDir: boolean = true
   preferDirectDownload: boolean = false
-  mp3ConvertExts: string[] = [] // TODO: (显示警告: 有损压缩) + details
+  mp3ConvertExts: string[] = []
   fileNaming: FileNaming = FileNaming.TitleArtist
   addCover: boolean = false
   // 杂项
