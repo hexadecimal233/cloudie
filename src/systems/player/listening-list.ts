@@ -1,9 +1,9 @@
 import { Track } from "@/utils/types"
 import { ref } from "vue"
-import { db } from "../db/db"
+import { db } from "@/systems/db/db"
 import * as schema from "@/systems/db/schema"
 import { asc, inArray } from "drizzle-orm"
-import { config } from "../config"
+import { config } from "@/systems/config"
 
 export enum PlayOrder {
   OrderedNoRepeat = "ordered-no-repeat",
@@ -11,8 +11,6 @@ export enum PlayOrder {
   SingleRepeat = "single-repeat",
   Shuffle = "shuffle",
 }
-
-export class CurrentTrackDeletionError extends Error {}
 
 export const listeningList = ref<Track[]>([])
 const shuffledIndexMapping = new Map<number, number>() // <shuffled index, original index>
@@ -76,7 +74,23 @@ async function refreshTrackIds() {
   shuffle()
 }
 
-export async function addToPlaylist(track: Track) {
+export async function addMultipleToListeningList(tracks: Track[]) {
+  if (!tracks.length) return
+
+  // Filter exists
+  const existingIds = new Set(listeningList.value.map((t) => t.id))
+  const uniqueTracks = tracks.filter((track) => !existingIds.has(track.id))
+
+  if (!uniqueTracks.length) return
+
+  // add right after current track
+  const insertPosition = config.value.listenIndex + 1
+  listeningList.value.splice(insertPosition, 0, ...uniqueTracks)
+
+  await refreshTrackIds()
+}
+
+export async function addToListeningList(track: Track) {
   // check if that track exists and delete it
   const existingIndex = listeningList.value.findIndex((t) => t.id === track.id)
   if (existingIndex !== -1) {
@@ -95,28 +109,32 @@ export function setTrackUpdateCallback(callback: (idx: number) => void) {
   trackUpdateCallback = callback
 }
 
-export async function addAndPlay(track: Track) {
-  await addToPlaylist(track)
+export async function addAndPlay(track: Track, replacedTracklist?: Track[]) {
+  if (replacedTracklist) {
+    listeningList.value = [...replacedTracklist]
+  }
+
+  await addToListeningList(track) // this called when replace to ensure we are playing the upcoming track
   config.value.listenIndex = await getNextTrackIndex(1, true)
   trackUpdateCallback(config.value.listenIndex)
 }
 
-async function removeSong(idx: number) {
+export async function removeSong(idx: number) {
   // delete from listening list
   listeningList.value.splice(idx, 1)
   await refreshTrackIds()
 }
 
 export async function removeMultipleSongs(indexes: number[]) {
-  if (indexes.includes(config.value.listenIndex)) {
-    throw CurrentTrackDeletionError // Cannot delete current track
-  }
+  if (!indexes.length) return
 
-  const sortedIndexes = [...indexes].sort((a, b) => b - a) // prevent index error
+  const sortedIndexes = [...indexes].sort((a, b) => b - a)
 
   for (const idx of sortedIndexes) {
-    await removeSong(idx)
+    listeningList.value.splice(idx, 1)
   }
+
+  await refreshTrackIds()
 }
 
 export function getNthTrack(idx: number) {

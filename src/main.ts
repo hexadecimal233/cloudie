@@ -7,7 +7,7 @@ import { loadConfig as initConfig } from "./systems/config"
 import { initDb } from "./systems/db/db"
 import { initDownload } from "./systems/download/download"
 import { i18n, initI18n } from "./systems/i18n"
-import { initMedia } from "./systems/player/playlist"
+import { initMedia } from "./systems/player/listening-list"
 
 async function initApp() {
   // load systems

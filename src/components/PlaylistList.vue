@@ -51,7 +51,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue"
-import { replaceImageUrl } from "../utils/utils"
+import { replaceImageUrl } from "@/utils/utils"
 import { PlaylistLike } from "@/utils/types"
 import TracklistModal from "./modals/TracklistModal.vue"
 import { useModal } from "vue-final-modal"

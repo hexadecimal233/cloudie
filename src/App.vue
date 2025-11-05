@@ -61,13 +61,6 @@
           </li>
 
           <div class="divider"></div>
-
-          <li>
-            <router-link to="/listening">
-              <i-mdi-playlist-play />
-              {{ $t("cloudie.main.listening") }}
-            </router-link>
-          </li>
           <li>
             <router-link to="/downloads">
               <i-mdi-download />

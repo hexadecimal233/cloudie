@@ -2,7 +2,7 @@ import { load, Store } from "@tauri-apps/plugin-store"
 import { ref, watch } from "vue"
 import { refreshClientId } from "@/utils/api"
 import { i18n, LANGUAGE_OPTIONS } from "./i18n"
-import { PlayOrder } from "./player/playlist"
+import { PlayOrder } from "./player/listening-list"
 import { FileNaming } from "./download/parser"
 
 export const THEMES = [
@@ -50,6 +50,7 @@ class Config {
   // Player
   listenIndex: number = -1 // Visible via AudioPlayer
   playOrder: PlayOrder = PlayOrder.Ordered // Visible via AudioPlayer
+  noHistory: boolean = false // TODO: no history
   // 外观
   language: (typeof LANGUAGE_OPTIONS)[number] = "en"
   theme: Theme = "cloudie"

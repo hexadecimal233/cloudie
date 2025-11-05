@@ -7,7 +7,7 @@ import type {
   FragmentLoaderContext,
 } from "hls.js"
 import { M3U8_CACHE_MANAGER } from "./cache"
-import { getCurrentTrack } from "./playlist"
+import { getCurrentTrack } from "./listening-list"
 
 export class CachedLoader implements Loader<FragmentLoaderContext> {
   private loader: Loader<FragmentLoaderContext>

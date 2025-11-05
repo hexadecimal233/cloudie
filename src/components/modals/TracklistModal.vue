@@ -29,14 +29,14 @@
 
 <script setup lang="ts">
 import { VueFinalModal } from "vue-final-modal"
-import TrackList from "../TrackList.vue"
+import TrackList from "@/components/TrackList.vue"
 import { ExactPlaylist, Playlist, PlaylistLike, SystemPlaylist } from "@/utils/types"
 import { computed, onMounted, ref } from "vue"
-import { fetchPlaylistUpdates } from "@/systems/cache"
-import { getPlaylist } from "@/systems/cache"
+import { fetchPlaylistUpdates } from "@/systems/playlist-cache"
+import { tryGetPlaylist } from "@/systems/playlist-cache"
 import { toast } from "vue-sonner"
 import { i18n } from "@/systems/i18n"
-import { savePlaylist } from "@/systems/cache"
+import { savePlaylist } from "@/systems/playlist-cache"
 
 const props = defineProps<{
   currentResp: PlaylistLike
@@ -68,7 +68,7 @@ onMounted(async () => {
 
   try {
     // FIXME: the orders are messed up after querying from database
-    let currentPlaylist = await getPlaylist(playlistId)
+    let currentPlaylist = await tryGetPlaylist(playlistId)
     const newCreatedPlaylist = !currentPlaylist
     if (!currentPlaylist) {
       // typescript is dumb and cannot infer currentPlaylist is no longer null

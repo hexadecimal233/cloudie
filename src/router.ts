@@ -8,10 +8,6 @@ const router = createRouter({
       component: () => import("./views/FeedsView.vue"),
     },
     {
-      path: "/listening",
-      component: () => import("./views/ListeningView.vue"),
-    },
-    {
       path: "/settings",
       component: () => import("./views/SettingsView.vue"),
     },

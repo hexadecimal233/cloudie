@@ -17,6 +17,15 @@
         </option>
       </select>
     </fieldset>
+    
+    <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">
+      <legend class="fieldset-legend">{{ $t("cloudie.settings.sections.player") }}</legend>
+
+      <label class="label cursor-pointer">
+        <input type="checkbox" class="toggle" v-model="config.noHistory" />
+        <span>{{ $t("cloudie.settings.config.noHistory") }}</span>
+      </label>
+    </fieldset>
 
     <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">
       <legend class="fieldset-legend">{{ $t("cloudie.settings.sections.download") }}</legend>

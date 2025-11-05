@@ -9,10 +9,10 @@ import {
 } from "@/utils/types"
 import * as schema from "@/systems/db/schema"
 import { eq, inArray, sql } from "drizzle-orm"
-import { db } from "./db/db"
+import { db } from "@/systems/db/db"
 import * as API from "@/utils/api"
 
-export async function getPlaylist(playlistId: string | number): Promise<ExactPlaylist | null> {
+export async function tryGetPlaylist(playlistId: string | number): Promise<ExactPlaylist | null> {
   const rawPlaylist = await db
     .select()
     .from(schema.playlists)
@@ -106,7 +106,7 @@ export async function savePlaylist(playlist: ExactPlaylist) {
 }
 
 export async function fetchPlaylistUpdates(likeResp: PlaylistLike, _existTrackIds?: number[]) {
-  let currentPlaylist: SystemPlaylist | Playlist = likeResp.playlist ?? likeResp.system_playlist
+  const currentPlaylist: SystemPlaylist | Playlist = likeResp.playlist ?? likeResp.system_playlist
 
   let partialTracks: PartialTrack[]
   if (likeResp.playlist) {

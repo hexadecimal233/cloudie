@@ -42,7 +42,11 @@
         </button>
         <PlayOrderSwitch></PlayOrderSwitch>
       </div>
-      <div class="flex-1/3">XXX</div>
+      <div class="flex-1/3">
+        <div>
+              <i-mdi-playlist-play />
+            </div>
+      </div>
     </div>
   </div>
 </template>
@@ -55,7 +59,7 @@ import {
   getCurrentTrack,
   setCurrentTrack,
   setTrackUpdateCallback,
-} from "@/systems/player/playlist"
+} from "@/systems/player/listening-list"
 import { getArtist, getCoverUrl, replaceImageUrl } from "@/utils/utils"
 import Hls from "hls.js"
 import type { ErrorData } from "hls.js"
@@ -269,6 +273,9 @@ async function loadSong(forceRefreshM3U8: boolean = false) {
 
   try {
     if (hlsPlayer.value) {
+      // disable HLS load to prevent multiple segments loading
+      hlsPlayer.value.stopLoad()
+
       updateMedia(track.value)
 
       const trackLink = await M3U8_CACHE_MANAGER.getTrackLink(track.value, forceRefreshM3U8)
@@ -281,6 +288,8 @@ async function loadSong(forceRefreshM3U8: boolean = false) {
 
       hlsPlayer.value.once(Hls.Events.MANIFEST_PARSED, async () => {
         try {
+          // restore load
+          hlsPlayer.value!.startLoad(mediaRef.value!.currentTime)
           // 等待 HLS 解析完成后再播放
           await mediaRef.value!.play()
           playerState.paused = false
@@ -340,11 +349,11 @@ async function togglePlay() {
 }
 
 async function nextTrack(offset: number = 1) {
+  pause()
   const trackIndex = await getNextTrackIdx(offset)
 
   if (trackIndex === -1) {
     seek(0)
-    pause()
     return
   }
 
@@ -353,6 +362,5 @@ async function nextTrack(offset: number = 1) {
 
   // track will be loaded and resumed by watcher
   seek(0)
-  pause()
 }
 </script>

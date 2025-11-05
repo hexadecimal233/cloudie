@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import { config } from "@/systems/config"
-import { PlayOrder } from "@/systems/player/playlist"
+import { PlayOrder } from "@/systems/player/listening-list"
 
 const cycle: PlayOrder[] = [
   PlayOrder.OrderedNoRepeat,

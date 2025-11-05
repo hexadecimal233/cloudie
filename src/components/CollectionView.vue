@@ -19,10 +19,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue"
-import { useHistory, userInfo, useTrackLikes } from "../utils/api"
+import { useHistory, userInfo, useTrackLikes } from "@/utils/api"
 import TrackList from "./TrackList.vue"
 import { LocalPlaylist } from "@/utils/types"
-import { savePlaylist } from "@/systems/cache"
+import { savePlaylist } from "@/systems/playlist-cache"
 
 const props = defineProps<{
   type: string

@@ -82,16 +82,10 @@
 </template>
 
 <script setup lang="ts" name="ListeningView">
-import {
-  removeMultipleSongs,
-  listeningList,
-  CurrentTrackDeletionError,
-} from "@/systems/player/playlist"
+import { removeMultipleSongs, listeningList } from "@/systems/player/listening-list"
 
 import { ref } from "vue"
 import { formatMillis, getArtist, getCoverUrl } from "@/utils/utils"
-import { i18n } from "@/systems/i18n"
-import { toast } from "vue-sonner"
 
 const selectedIdxs = ref<number[]>([])
 
@@ -107,12 +101,8 @@ async function removeSongs(idxs: number[]) {
   try {
     await removeMultipleSongs(idxs)
     selectedIdxs.value = []
-  } catch (error: unknown) {
-    if (error instanceof CurrentTrackDeletionError) {
-      toast.error(i18n.global.t("cloudie.toasts.deleteCurrentTrack"))
-    } else {
-      console.error(error)
-    }
+  } catch (error) {
+    console.error(error)
   }
 }
 

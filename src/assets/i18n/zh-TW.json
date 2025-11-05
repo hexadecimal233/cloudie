@@ -7,7 +7,6 @@
       "playlists": "歌單與專輯",
       "radio": "電台",
       "history": "播放歷史",
-      "listening": "試聽清單",
       "downloads": "下載",
       "settings": "設定",
       "feeds": "推薦",
@@ -59,7 +58,7 @@
       "tag": "添加元數據"
     },
     "trackList": {
-      "downloadSelected": "下載選取項目",
+      "download": "下載",
       "search": "搜尋",
       "selected": "已選取: {count}",
       "searchResult": "{count} 項結果",
@@ -72,7 +71,11 @@
       "premium": "會員專屬",
       "source": "{count} 軌",
       "noGenre": "無流派",
-      "freeDL": "免費下載"
+      "freeDL": "免費下載",
+      "addToListening": "添加到收聽列表",
+      "addToPlaylist": "添加到歌單",
+      "deleteFromPlaylist": "從歌單中刪除",
+      "tags": "標籤"
     },
     "player": {
       "ordered-no-repeat": "有序播放 (不循環)",
@@ -99,7 +102,6 @@
       "cancel": "取消",
       "close": "關閉",
       "userInfoErr": "更新用戶信息失敗",
-      "deleteCurrentTrack": "無法刪除當前播放的曲目。",
       "loadFailed": "載入曲目失敗, 將在5秒後播放下一单曲"
     },
     "common": {
@@ -124,7 +126,8 @@
         "clientId": "Soundcloud 客戶端 ID",
         "oauthToken": "Soundcloud OAuth 權杖",
         "theme": "主題",
-        "language": "語言"
+        "language": "語言",
+        "noHistory": "禁用播放歷史記錄"
       },
       "fileNamingTypes": {
         "title": "標題",
@@ -136,7 +139,8 @@
         "download": "下載",
         "misc": "雜項",
         "login": "登入",
-        "about": "關於"
+        "about": "關於",
+        "player": "玩家"
       },
       "about": {
         "desc": "一個可愛的 Soundcloud 客戶端",

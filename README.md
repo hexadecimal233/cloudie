@@ -1,21 +1,29 @@
 <div align="center">
-<img src="public/logo.png" alt="logo" width=500 />
+<img src="public/logo.png" alt="logo" width=400 />
 </div>
 
+<h1 align="center">
+Cloudie 
+</h1>
 <p align="center">
-Cloudie -- Yet another Open Source Kawaii Soundcloud Client.
+Yet another Open Source Kawaii Soundcloud Client.
 </p>
+
+<!--
+TODO: Add a Telegram / QQ / Discord group
+-->
 
 ## Features
 
 > [!WARNING]
 > This project is still under heavy development, and many features are not yet implemented or may not work as expected.
 
-- [x] Browse & Play Soundcloud tracks
-- [x] Download tracks or playlists from Soundcloud and embed covers
-- [x] Multilingual support
-- [ ] Auto add playlists to DJ software (TODO: dynamic playlist support)
-- [ ] Scrobbling support (eg. last.fm)
+- Web-like experience - Fully functional desktop client
+- Blazing Fast - Directly interact with the API, no web scraping involved
+- Downloader - Download tracks or playlists and embed covers
+- Customizable - Multilingual support and theme options
+- DJ Support - Use Soundcloud functionality without a Paid DJ software Plan (WIP)
+- Scrobbling support - Log track playtime to last.fm or similar services (WIP)
 
 ## Logging in
 
@@ -52,10 +60,18 @@ Pull Requests: [Pull Requests](https://github.com/hexadecimal233/cloudie/pulls)
 
 <!-- 也许加一个捐助功能 -->
 
+<!--
+
 ## TODO List
 
 - [ ] 图标重新设计
 - [ ] Table样式优化
 - [ ] More Tooltips!
-- [ ] Refactor: check errors
 - [ ] Wave display
+- [ ] No geoblocking
+- [ ] Proxy support
+- [ ] Scrobbling support
+- [ ] DJ Support
+- [ ] OEmbed Support 
+
+-->

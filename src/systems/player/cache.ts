@@ -1,9 +1,9 @@
 import { eq } from "drizzle-orm"
-import { db } from "../db/db"
-import { m3u8Cache } from "../db/schema"
+import { db } from "@/systems/db/db"
+import { m3u8Cache } from "@/systems/db/schema"
 import { Track } from "@/utils/types"
 
-import { parseHlsLink } from "../download/parser"
+import { parseHlsLink } from "@/systems/download/parser"
 import * as fs from "@tauri-apps/plugin-fs"
 import * as path from "@tauri-apps/api/path"
 

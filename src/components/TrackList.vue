@@ -1,160 +1,120 @@
 <template>
   <div class="mb-2 flex items-center gap-2">
-    <button class="btn btn-primary" @click="downloadSelected">
-      {{ $t("cloudie.trackList.downloadSelected") }}
-    </button>
     <div class="flex-1"></div>
     <label class="label">{{ $t("cloudie.trackList.freeDL") }}</label>
     <input type="checkbox" class="checkbox" v-model="freeFilter" />
     <div class="join">
-      <input
-        type="text"
-        :placeholder="$t('cloudie.trackList.search')"
-        class="join-item input"
-        v-model="searchQuery" />
+      <input type="text" :placeholder="$t('cloudie.trackList.search')" class="join-item input" :value="searchQuery"
+        @input="e => searchQuery = (e.target as HTMLInputElement).value" />
 
-      <div class="btn join-item">
-        <!-- TODO: TAG support -->
-        <i-mdi-tag />
+      <!-- Tags Filter -->
+      <div class="dropdown dropdown-end join-item">
+        <div tabindex="0" role="button" class="btn join-item">
+          <i-mdi-tag />
+        </div>
+        <div tabindex="0" class="dropdown-content bg-base-100 rounded-box z-1 w-80 p-4 border">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">TODO: Tags (space separated)</span>
+            </label>
+            <input type="text" placeholder="Enter tags..." class="input input-bordered" v-model="tagsInput" />
+          </div>
+        </div>
       </div>
 
+      <!-- Genre Filter -->
       <div class="dropdown dropdown-end join-item">
         <div tabindex="0" role="button" class="btn join-item">
           <i-mdi-music-note />
         </div>
-        <form
-          tabindex="0"
+        <form tabindex="0"
           class="dropdown-content bg-base-100 rounded-box z-1 max-h-64 w-[calc(100vw/2)] space-y-2 space-x-2 overflow-y-auto border p-2"
           @change="handleGenreFilter">
           <input class="btn btn-primary" type="reset" value="×" @click="resetFilters" />
-          <input
-            class="btn max-w-32 truncate"
-            type="checkbox"
-            v-for="genre in allGenres"
-            :key="genre ?? ''"
-            :value="genre"
-            name="genres"
-            :aria-label="genre ?? $t('cloudie.trackList.noGenre')" />
+          <input class="btn max-w-32 truncate" type="checkbox" v-for="genre in allGenres" :key="genre ?? ''"
+            :value="genre" name="genres" :aria-label="genre ?? $t('cloudie.trackList.noGenre')" />
         </form>
       </div>
     </div>
 
-    <span>{{ $t("cloudie.trackList.selected", { count: selectedIds.length }) }}</span>
+    <div class="dropdown dropdown-end">
+      <div tabindex="0" role="button" class="btn">
+        <i-mdi-ellipsis-horizontal />
+      </div>
+      <ul tabindex="-1" class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+        <li>
+          <a @click="downloadSelected">
+            {{ $t("cloudie.trackList.download") }}
+          </a>
+        </li>
+        <li>
+          <a @click="addToPlaylist">
+            {{ $t("cloudie.trackList.addToPlaylist") }}
+          </a>
+        </li>
+        <li>
+          <a @click="listenSelected">
+            {{ $t("cloudie.trackList.addToListening") }}
+          </a>
+        </li>
+        <li>
+          <a @click="deleteFromPlaylist">
+            {{ $t("cloudie.trackList.deleteFromPlaylist") }}
+          </a>
+        </li>
+      </ul>
+    </div>
   </div>
 
   <!-- 加载状态 -->
 
   <div class="flex flex-col">
-    <span v-if="searchQuery">
-      {{ $t("cloudie.trackList.searchResult", { count: filteredItems.length }) }}
+    <span v-if="searchQuery || genreFilters.length > 0 || tagsFilters.length > 0">
+      {{
+        $t("cloudie.trackList.searchResult", { count: table.getFilteredRowModel().rows.length })
+      }}
+    </span>
+    <span v-else>
+      {{ $t("cloudie.trackList.selected", { count: table.getFilteredSelectedRowModel().rows.length }) }}
     </span>
 
     <table class="table w-full table-fixed">
       <thead>
-        <tr>
-          <th>
-            <input
-              type="checkbox"
-              class="checkbox"
-              @change="selectAll"
-              :checked="selectedIds.length === filteredItems.length && filteredItems.length > 0" />
+        <!-- TODO: STYLE -->
+        <tr v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
+          <th v-for="header in headerGroup.headers" :key="header.id" :class="[
+            'uppercase tracking-wider text-lg',
+            header.column.getCanSort()
+              ? 'cursor-pointer select-none hover:bg-gray-50'
+              : '',
+          ]" @click="header.column.getToggleSortingHandler()?.($event)">
+            <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
+              :props="header.getContext()" />
+            <span v-if="header.column.getCanSort()" class="inline-block">
+              <i-mdi-arrow-up v-if="header.column.getIsSorted() as string == 'asc'" class="h-[1em]" />
+              <i-mdi-arrow-down v-if="header.column.getIsSorted() as string == 'desc'" class="h-[1em]" />
+            </span>
           </th>
-          <th>#</th>
-          <th>{{ $t("cloudie.trackList.song") }}</th>
-          <th>{{ $t("cloudie.trackList.genre") }}</th>
-          <th>{{ $t("cloudie.trackList.duration") }}</th>
-          <th>{{ $t("cloudie.trackList.downloadability") }}</th>
-          <th></th>
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="(item, index) in filteredItems"
-          :key="item.id"
-          class="transition-opacity hover:opacity-70">
-          <td>
-            <input type="checkbox" class="checkbox" v-model="selectedIds" :value="item.id" />
+        <tr v-for="row in table.getRowModel().rows" :key="row.id">
+          <td v-for="cell in row.getVisibleCells()" :key="cell.id">
+            <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
           </td>
-
-          <td>{{ index + 1 }}</td>
-
-          <td>
-            <div class="flex gap-2">
-              <!-- TODO: add loading skeleton -->
-              <img :src="getCoverUrl(item)" alt="cover" class="size-16 rounded-md object-contain" />
-
-              <div class="flex w-full flex-col justify-center">
-                <div class="truncate font-bold">
-                  {{ item.title }}
-                </div>
-
-                <div class="text-base-content/70 truncate text-sm">
-                  {{ getArtist(item) }}
-                </div>
-              </div>
+        </tr>
+        <tr v-if="table.getRowModel().rows.length === 0">
+          <td :colspan="table.getAllColumns().length" class="text-center py-8">
+            <div class="mb-2 text-lg">
+              {{ $t("cloudie.common.empty") }}
             </div>
-          </td>
-
-          <td class="truncate">{{ item.genre }}</td>
-
-          <td>
-            {{ formatMillis(item.full_duration) }}
-          </td>
-
-          <td>
-            <div class="flex gap-2">
-              <div v-if="item.downloadable" class="badge badge-success">
-                {{ $t("cloudie.trackList.direct") }}
-              </div>
-              <div v-else-if="item.policy === 'BLOCK'" class="badge badge-warning">
-                {{ $t("cloudie.trackList.geoRestrict") }}
-              </div>
-              <div v-else-if="item.policy === 'SNIP'" class="badge badge-warning">
-                {{ $t("cloudie.trackList.premium") }}
-              </div>
-              <div v-else class="badge">
-                {{
-                  $t("cloudie.trackList.source", {
-                    count: item.media.transcodings.length,
-                  })
-                }}
-              </div>
-            </div>
-          </td>
-
-          <td>
-            <div class="flex justify-center">
-              <!-- FIXME: the spinner doesnt show up -->
-              <div
-                v-if="getDownloadTask(item).value?.downloadingState"
-                class="loading loading-spinner loading-lg"></div>
-              <button v-else class="btn btn-ghost btn-sm" @click="download(item)">
-                <i-mdi-download />
-              </button>
-              <button class="btn btn-ghost btn-sm" @click="addToPlaylist(item)">
-                <i-mdi-plus />
-              </button>
-              <button class="btn btn-ghost btn-sm" @click="addAndPlay(item)">
-                <i-mdi-play />
-              </button>
-              <a class="btn btn-ghost btn-sm" :href="item.permalink_url" target="_blank">
-                <i-mdi-open-in-new />
-              </a>
+            <div class="text-base-content/70 text-sm">
+              {{ $t("cloudie.common.emptyDesc") }}
             </div>
           </td>
         </tr>
       </tbody>
     </table>
-
-    <!-- 空状态 -->
-    <div v-if="filteredItems.length === 0" class="py-8 text-center">
-      <div class="mb-2 text-lg">
-        {{ $t("cloudie.common.empty") }}
-      </div>
-      <div class="text-base-content/70 text-sm">
-        {{ $t("cloudie.common.emptyDesc") }}
-      </div>
-    </div>
 
     <div class="flex items-center justify-center pt-4">
       <slot name="bottom"></slot>
@@ -163,95 +123,293 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue"
+import { ref, computed, h, watch, resolveComponent } from "vue"
 import { formatMillis, getArtist, getCoverUrl } from "@/utils/utils"
 import { addDownloadTask, downloadTasks } from "@/systems/download/download"
 import { ExactPlaylist, Track } from "@/utils/types"
-import { addAndPlay, addToPlaylist } from "@/systems/player/playlist"
+import {
+  addAndPlay,
+  addMultipleToListeningList,
+  addToListeningList,
+} from "@/systems/player/listening-list"
 
-// TODO: Implement useInfiniteScroll
-
-const selectedIds = ref<number[]>([])
-const freeFilter = ref(false)
-const searchQuery = ref("")
-const selectedGenres = ref<(string | null)[]>([]) // TODO: 获取tag_list
+import {
+  FlexRender,
+  getCoreRowModel,
+  useVueTable,
+  createColumnHelper,
+  getSortedRowModel,
+  getFilteredRowModel,
+  ColumnFiltersState,
+  FilterFn,
+  SortingState,
+  RowSelectionState,
+} from "@tanstack/vue-table"
+import { i18n } from "@/systems/i18n"
 
 const props = defineProps<{
   playlist: ExactPlaylist
 }>()
 
-// TODO: enhance download task display
+// Custom filter function for tags
+const tagsFilter: FilterFn<Track> = (row, columnId, filterValue) => {
+  if (!filterValue || filterValue.length === 0) return true
+
+  const trackTags = row.getValue(columnId) as string
+  if (!trackTags) return false
+
+  const trackTagsArray = trackTags
+    .toLowerCase()
+    .split(" ")
+    .filter((tag) => tag.trim() !== "")
+
+  // Check if all filter tags are included in track tags
+  return filterValue.every((filterTag: string) =>
+    trackTagsArray.some((trackTag) => trackTag.includes(filterTag.toLowerCase())),
+  )
+}
+
+const columnHelper = createColumnHelper<Track>()
+const columns = [
+  columnHelper.display({
+    id: "select",
+    header: ({ table }) =>
+      // select all / none
+      h("input", {
+        type: "checkbox",
+        checked: table.getIsAllRowsSelected(),
+        onChange: table.getToggleAllRowsSelectedHandler(),
+        class: "checkbox",
+      }),
+    cell: ({ row }) =>
+      h("input", {
+        type: "checkbox",
+        checked: row.getIsSelected(),
+        disabled: !row.getCanSelect(),
+        onChange: row.getToggleSelectedHandler(),
+        class: "checkbox",
+      }),
+    size: 50,
+  }),
+  columnHelper.accessor((_row, i) => i, {
+    id: "index",
+    header: "#",
+    cell: (info) => info.getValue() + 1,
+    enableSorting: true,
+    size: 50,
+  }),
+  columnHelper.accessor("title", {
+    header: i18n.global.t("cloudie.trackList.song"),
+    cell: (info) => {
+      return h("div", { class: "flex items-center gap-2" }, [
+        h("img", {
+          src: getCoverUrl(info.row.original),
+          alt: "cover",
+          class: "size-16 rounded-md object-contain",
+        }),
+        h("div", { class: "flex flex-col" }, [
+          h("div", { class: "truncate font-bold" }, [info.row.original.title]),
+          h("div", { class: "truncate text-base-content/70" }, [getArtist(info.row.original)]),
+        ]),
+      ])
+    },
+    enableSorting: true,
+  }),
+  columnHelper.accessor("genre", {
+    header: i18n.global.t("cloudie.trackList.genre"),
+    cell: (info) => info.getValue(),
+    enableSorting: true,
+    filterFn: "includesString",
+    size: 100,
+  }),
+  columnHelper.accessor("tag_list", {
+    header: i18n.global.t("cloudie.trackList.tags"),
+    cell: (info) => info.getValue(),
+    filterFn: tagsFilter,
+    size: 100,
+  }),
+  columnHelper.accessor("full_duration", {
+    header: i18n.global.t("cloudie.trackList.duration"),
+    cell: (info) => formatMillis(info.getValue()),
+    enableSorting: true,
+    size: 50,
+  }),
+  columnHelper.display({
+    id: "downloadability",
+    header: i18n.global.t("cloudie.trackList.downloadability"),
+    cell: (info) => {
+      // TODO: warning styles & free download display
+      if (info.row.original.downloadable) {
+        return i18n.global.t("cloudie.trackList.direct")
+      } else if (info.row.original.policy === "BLOCK") {
+        return i18n.global.t("cloudie.trackList.geoRestrict")
+      } else if (info.row.original.policy === "SNIP") {
+        return i18n.global.t("cloudie.trackList.premium")
+      } else {
+        return i18n.global.t("cloudie.trackList.source", {
+          count: info.row.original.media.transcodings.length,
+        })
+      }
+    },
+    size: 50,
+  }),
+  columnHelper.display({
+    id: "operations",
+    header: "-",
+    cell: (info) => {
+      const downloadButton = getDownloadTask(info.row.original).value?.downloadingState
+        ? h("div", { class: "loading loading-spinner loading-lg" }, [])
+        : h(
+            "button",
+            { class: "btn btn-ghost btn-sm", onClick: () => download(info.row.original) },
+            [h(resolveComponent("i-mdi-download"))],
+          )
+
+      return h("div", { class: "flex items-center gap-2" }, [
+        downloadButton,
+        h(
+          "button",
+          { class: "btn btn-ghost btn-sm", onClick: () => addToListeningList(info.row.original) },
+          [h(resolveComponent("i-mdi-plus"))],
+        ),
+        h(
+          "button",
+          { class: "btn btn-ghost btn-sm", onClick: () => addAndPlay(info.row.original, props.playlist.tracks) }, // TODO: fix flicker when updating by pre-setting id to -1
+          [h(resolveComponent("i-mdi-play"))],
+        ),
+        h(
+          "a",
+          {
+            class: "btn btn-ghost btn-sm",
+            href: info.row.original.permalink_url,
+            target: "_blank",
+          },
+          [h(resolveComponent("i-mdi-open-in-new"))],
+        ),
+      ])
+    },
+    size: 100,
+  }),
+]
+
+const sorting = ref<SortingState>([])
+const searchQuery = ref("")
+const rowSelection = ref<RowSelectionState>({})
+const freeFilter = ref(false)
+const genreFilters = ref<string[]>([])
+const tagsInput = ref("")
+const tagsFilters = computed(() => {
+  return tagsInput.value
+    .split(" ")
+    .map((tag) => tag.trim())
+    .filter((tag) => tag !== "")
+})
+
+const columnFilters = ref<ColumnFiltersState>([])
+
+// Watch for changes in filters and update columnFilters
+watch(
+  [genreFilters, tagsFilters],
+  () => {
+    columnFilters.value = [
+      {
+        id: "tag_list",
+        value: tagsFilters.value,
+      },
+      {
+        id: "genre",
+        value: genreFilters.value,
+      },
+    ].filter((f) => {
+      return f.value && f.value.length > 0 // filter out empties
+    })
+  },
+  { deep: true },
+)
+
+const table = useVueTable({
+  get data() {
+    let tracks = props.playlist.tracks
+
+    // Apply free download filter if enabled
+    if (freeFilter.value) {
+      tracks = tracks.filter((track) => isPossibleFreeDownload(track))
+    }
+
+    return tracks
+  },
+  columns,
+  state: {
+    get sorting() {
+      return sorting.value
+    },
+    get globalFilter() {
+      return searchQuery.value
+    },
+    get columnFilters() {
+      return columnFilters.value
+    },
+    get rowSelection() {
+      return rowSelection.value
+    },
+  },
+  onSortingChange: (updaterOrValue) => {
+    sorting.value =
+      typeof updaterOrValue === "function" ? updaterOrValue(sorting.value) : updaterOrValue
+  },
+  onRowSelectionChange: (updaterOrValue) => {
+    rowSelection.value =
+      typeof updaterOrValue === "function" ? updaterOrValue(rowSelection.value) : updaterOrValue
+  },
+  onColumnFiltersChange: (updaterOrValue) => {
+    columnFilters.value =
+      typeof updaterOrValue === "function" ? updaterOrValue(columnFilters.value) : updaterOrValue
+  },
+  // 启用功能
+  getCoreRowModel: getCoreRowModel(),
+  getSortedRowModel: getSortedRowModel(),
+  getFilteredRowModel: getFilteredRowModel(),
+})
+
+// TODO: Implement useInfiniteScroll
+
 function getDownloadTask(item: Track) {
   return computed(() => {
     return downloadTasks.value.find((t) => t.task.trackId === item.id)
   })
 }
 
-const filteredItems = computed(() => {
-  let items = props.playlist.tracks
-
-  // 搜索过滤
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    items = items.filter(
-      (item: any) =>
-        item.title.toLowerCase().includes(query) ||
-        (item.publisher_metadata?.artist &&
-          item.publisher_metadata.artist.toLowerCase().includes(query)) ||
-        (item.user?.username && item.user.username.toLowerCase().includes(query)),
-    )
-  }
-
-  // 类型过滤
-  if (selectedGenres.value.length > 0) {
-    items = items.filter((item) => selectedGenres.value.includes(item.genre ?? null))
-  }
-
-  if (freeFilter.value) {
-    items = items.filter((item) => isPossibleFreeDownload(item))
-  }
-
-  return items
-})
-
 const allGenres = computed(() => {
   const tags = props.playlist.tracks.map((item) => item.genre).filter(Boolean)
   return [...new Set(tags)]
 })
 
-function selectAll() {
-  const allFilteredIds = filteredItems.value.map((item) => item.id)
-
-  if (selectedIds.value.length === allFilteredIds.length && allFilteredIds.length > 0) {
-    selectedIds.value = []
-  } else {
-    selectedIds.value = allFilteredIds
-  }
-}
-
 function handleGenreFilter(event: Event) {
   const target = event.target as HTMLInputElement
   if (target.type === "checkbox" && target.name === "genres") {
     if (target.checked) {
-      selectedGenres.value.push(target.value)
+      genreFilters.value.push(target.value)
     } else {
-      selectedGenres.value = selectedGenres.value.filter((genre) => genre !== target.value)
+      genreFilters.value = genreFilters.value.filter((genre) => genre !== target.value)
     }
   }
 }
 
 function resetFilters() {
-  selectedGenres.value = []
+  genreFilters.value = []
+  tagsInput.value = ""
+  freeFilter.value = false
 }
 
 // 下载选中
 async function downloadSelected() {
-  for (const id of selectedIds.value) {
-    const track = props.playlist.tracks.find((item) => item.id === id)
-    if (track) {
-      await download(track)
-    }
+  for (const row of table.getFilteredSelectedRowModel().rows) {
+    await download(row.original)
   }
+}
+
+async function listenSelected() {
+  addMultipleToListeningList(table.getFilteredSelectedRowModel().rows.map((row) => row.original))
 }
 
 async function download(track: Track) {
@@ -291,40 +449,3 @@ function isPossibleFreeDownload(track: Track) {
   return isFreeDownload
 }
 </script>
-
-<style scoped>
-th:nth-child(1),
-td:nth-child(1) {
-  width: 4rem;
-} /* 复选框列 */
-
-th:nth-child(2),
-td:nth-child(2) {
-  width: 3rem;
-} /* 序号列 */
-
-th:nth-child(3),
-td:nth-child(3) {
-  width: 70%;
-} /* 标题列  */
-
-th:nth-child(4),
-td:nth-child(4) {
-  width: 30%;
-} /* 风格列 */
-
-th:nth-child(5),
-td:nth-child(5) {
-  width: 6rem;
-} /* 时长列 */
-
-th:nth-child(6),
-td:nth-child(6) {
-  width: 8rem;
-} /* 可下载性列 */
-
-th:nth-child(7),
-td:nth-child(7) {
-  width: 8rem;
-} /* 操作列 */
-</style>

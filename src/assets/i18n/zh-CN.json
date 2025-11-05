@@ -7,7 +7,6 @@
       "playlists": "歌单与专辑",
       "radio": "电台",
       "history": "播放历史",
-      "listening": "试听列表",
       "downloads": "下载",
       "settings": "设置",
       "feeds": "推荐",
@@ -59,7 +58,7 @@
       "tag": "添加音频元数据"
     },
     "trackList": {
-      "downloadSelected": "下载选中",
+      "download": "下载",
       "search": "搜索",
       "selected": "选中: {count}",
       "searchResult": "{count} 项结果",
@@ -72,7 +71,11 @@
       "premium": "会员专属",
       "source": "{count} 轨",
       "noGenre": "无流派",
-      "freeDL": "免费下载"
+      "freeDL": "免费下载",
+      "addToListening": "添加到试听列表",
+      "addToPlaylist": "添加到歌单",
+      "deleteFromPlaylist": "从歌单中删除",
+      "tags": "标签"
     },
     "player": {
       "ordered-no-repeat": "有序播放 (不循环)",
@@ -99,7 +102,6 @@
       "cancel": "取消",
       "close": "关闭",
       "userInfoErr": "更新用户信息失败",
-      "deleteCurrentTrack": "无法删除当前播放的曲目。",
       "loadFailed": "加载曲目失败, 将在5秒后播放下一单曲"
     },
     "common": {
@@ -124,7 +126,8 @@
         "clientId": "Soundcloud 客户端 ID",
         "oauthToken": "Soundcloud OAuth 令牌",
         "theme": "主题",
-        "language": "语言"
+        "language": "语言",
+        "noHistory": "禁用播放历史记录"
       },
       "fileNamingTypes": {
         "title": "标题",
@@ -136,7 +139,8 @@
         "download": "下载",
         "misc": "杂项",
         "login": "登录",
-        "about": "关于"
+        "about": "关于",
+        "player": "播放器"
       },
       "about": {
         "desc": "一个可爱的 Soundcloud 客户端",

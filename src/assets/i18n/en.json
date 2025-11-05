@@ -7,7 +7,6 @@
       "playlists": "Playlists & Albums",
       "radio": "Radio",
       "history": "Play History",
-      "listening": "Listening List",
       "downloads": "Downloads",
       "settings": "Settings",
       "feeds": "Feeds",
@@ -66,7 +65,7 @@
       "tag": "Applying Metadata"
     },
     "trackList": {
-      "downloadSelected": "Download Selected",
+      "download": "Download",
       "search": "Search",
       "selected": "Selected: {count}",
       "searchResult": "1 item found | {count} items found",
@@ -79,7 +78,11 @@
       "premium": "Premium",
       "source": "1 Source | {count} Sources",
       "noGenre": "No Genre",
-      "freeDL": "Free DLs"
+      "freeDL": "Free DLs",
+      "addToPlaylist": "Add To Playlist",
+      "addToListening": "Add To Listening List",
+      "deleteFromPlaylist": "Delete from Playlist",
+      "tags": "Tags"
     },
     "playlists": {
       "playlist": "Playlist",
@@ -107,7 +110,6 @@
       "cancel": "Cancel",
       "close": "Close",
       "userInfoErr": "Failed to Update User Info.",
-      "deleteCurrentTrack": "Cannot delete the current playing track.",
       "loadFailed": "Failed to load track. Will try next track in 5 seconds."
     },
     "settings": {
@@ -124,7 +126,8 @@
         "clientId": "Soundcloud Client ID",
         "oauthToken": "Soundcloud OAuth Token",
         "theme": "Theme",
-        "language": "Language"
+        "language": "Language",
+        "noHistory": "Disable Play History Logging"
       },
       "fileNamingTypes": {
         "title": "Title",
@@ -136,7 +139,8 @@
         "download": "Download",
         "misc": "Miscellaneous",
         "login": "Login",
-        "about": "About"
+        "about": "About",
+        "player": "Player"
       },
       "about": {
         "desc": "Yet another Open Source Kawaii Soundcloud Client.",
