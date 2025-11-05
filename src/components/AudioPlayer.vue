@@ -2,23 +2,22 @@
   <video @timeupdate="onTimeUpdate" @ended="onEnded" @loadedmetadata="onLoadedMetadata" ref="mediaRef" autoplay
     hidden></video>
 
-  <div v-if="track" class="bg-base-200 relative h-24">
-    <!-- FIXME: ERROR on delete track -->
+  <div v-if="track" class="bg-base-200 relative h-24 w-full">
     <!-- Progress Bar and Needle-->
-    <progress class="progress absolute top-0 h-1.5 w-full rounded-none transition-all hover:-top-1.5 hover:h-3"
-      :value="playerState.currentTime" :max="playerState.duration" @click="onProgressClick"></progress>
+    <progress class="progress absolute top-0 h-1.5 w-full rounded-none transition-all hover:-top-1.5 hover:h-3" 
+      :value="playerState.currentTime" :max="playerState.duration || 100" @click="onProgressClick"></progress>
 
     <div class="flex h-full w-full px-4 py-3">
-      <div class="flex flex-1/3 gap-2">
-        <img :src="getCoverUrl(track)" alt="cover" class="skeleton object-cover" />
-        <div class="flex flex-col">
-          <p class="font-bold">{{ track.title }}</p>
-          <p class="text-base-content/70">{{ getArtist(track) }}</p>
+      <div class="flex items-center gap-3 flex-1/3">
+        <img :src="getCoverUrl(track)" alt="cover" class="object-cover skeleton size-18" />
+        <div class="flex flex-col overflow-hidden">
+          <p class="font-bold truncate" :title="track.title">{{ track.title }}</p>
+          <p class="text-base-content/70 truncate" :title="getArtist(track)">{{ getArtist(track) }}</p>
         </div>
       </div>
 
-      <div class="flex flex-1/3 items-center justify-center gap-4">
-        <button class="btn btn-ghost btn-circle">
+      <div class="flex items-center justify-center gap-4 flex-1/3">
+        <button class="btn btn-ghost btn-circle" @click="openListeningWidget">
           <i-mdi-playlist-play />
         </button>
         <button class="btn btn-ghost btn-circle" @click="nextTrack(-1)">
@@ -34,11 +33,11 @@
         </button>
         <PlayOrderSwitch></PlayOrderSwitch>
       </div>
-      <div class="flex-1/3">
-        <div>
-          <button class="btn btn-ghost btn-circle" @click="openListeningWidget">
-            <i-mdi-playlist-play />
-          </button>
+      <div class="flex items-center justify-end flex-1/3">
+        <div class="flex items-center gap-2">
+          <span class="text-sm">{{ formatSecs(playerState.currentTime) }}</span>
+          <span class="text-sm">/</span>
+          <span class="text-sm">{{ formatMillis(track.duration) }}</span>
         </div>
       </div>
     </div>
@@ -55,7 +54,7 @@ import {
   setCurrentTrack,
   setTrackUpdateCallback,
 } from "@/systems/player/listening-list"
-import { getArtist, getCoverUrl, replaceImageUrl } from "@/utils/utils"
+import { formatMillis, formatSecs, getArtist, getCoverUrl, replaceImageUrl } from "@/utils/utils"
 import Hls from "hls.js"
 import type { ErrorData } from "hls.js"
 import { Track } from "@/utils/types"
@@ -120,10 +119,10 @@ onMounted(() => {
       seek(details.seekTime!)
     })
     navigator.mediaSession.setActionHandler("seekforward", (details) => {
-      seek(details.seekOffset ?? 10)
+      seek(playerState.currentTime + (details.seekOffset ?? 10))
     })
     navigator.mediaSession.setActionHandler("seekbackward", (details) => {
-      seek(details.seekOffset ?? -10)
+      seek(playerState.currentTime - (details.seekOffset ?? 10))
     })
     navigator.mediaSession.setActionHandler("stop", () => {
       pause()
@@ -138,9 +137,10 @@ onMounted(() => {
   }
 
   // set track update callbacks
-
-  setTrackUpdateCallback((_idx) => {
-    loadSong()
+  setTrackUpdateCallback((idx) => {
+    if (idx >= 0) {
+      loadSong()
+    }
   })
 
   // Initialize HLS player if supported
@@ -232,7 +232,8 @@ function seek(time: number) {
   if (!mediaRef.value || !isFinite(time)) {
     return
   }
-  mediaRef.value.currentTime = time
+  const safeTime = Math.max(0, Math.min(time, playerState.duration || time))
+  mediaRef.value.currentTime = safeTime
 }
 
 // 处理进度条点击事件以实现 Seek
@@ -269,6 +270,7 @@ function pause() {
 
 async function loadSong(forceRefreshM3U8: boolean = false) {
   if (!mediaRef.value || !track.value) {
+    playerState.loading = false
     return
   }
 
@@ -297,11 +299,13 @@ async function loadSong(forceRefreshM3U8: boolean = false) {
 
       hlsPlayer.value.once(Hls.Events.MANIFEST_PARSED, async () => {
         try {
-          // restore load
-          hlsPlayer.value!.startLoad(mediaRef.value!.currentTime)
-          // 等待 HLS 解析完成后再播放
-          await mediaRef.value!.play()
-          playerState.paused = false
+          if (mediaRef.value && track.value) {
+            // restore load
+            hlsPlayer.value!.startLoad(mediaRef.value!.currentTime)
+            // 等待 HLS 解析完成后再播放
+            await mediaRef.value!.play()
+            playerState.paused = false
+          }
         } catch (error) {
           console.error("HLS Play Failed:", error)
           playerState.paused = true
@@ -316,7 +320,6 @@ async function loadSong(forceRefreshM3U8: boolean = false) {
     })
 
     // automatically loads after a few seconds
-
     setTimeout(async () => {
       // TODO: abortable task
       await nextTrack()

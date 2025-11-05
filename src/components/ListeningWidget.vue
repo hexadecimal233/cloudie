@@ -1,11 +1,12 @@
 <template>
-  <div> TODO: This UI still very poor and wip</div>
   <VueFinalModal
     class="flex items-center justify-center"
     overlay-transition="vfm-fade"
     content-transition="vfm-fade"
     content-class="max-w-4xl modal-box opacity-100 max-h-[80vh] overflow-y-auto"
   >
+  
+  <div> TODO: This UI still very poor and wip</div>
     <div class="mb-2 flex items-center gap-2">
       <button class="btn btn-primary" @click="removeSelected">
         {{ $t("cloudie.player.removeSelected") }}

@@ -1,7 +1,7 @@
 import { path } from "@tauri-apps/api"
-import { SOCIAL_NETWORKS, Track, WebProfile } from "./types"
+import { SOCIAL_NETWORKS, type Track, type WebProfile } from "./types"
 
-export function capitalizeFirstLetter(str: string) {
+export function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
@@ -16,11 +16,11 @@ export function replaceImageUrl(
     | "1080x1080" // Cover / Avatar sizes
     | "1240x260"
     | "2480x520" = "500x500", // Visual sizes
-) {
+): string {
   return url.replace("-large", `-t${size}`)
 }
 
-export function formatMillis(millis: number) {
+export function formatMillis(millis: number): string {
   const seconds = Math.floor(millis / 1000)
   const minutes = Math.floor(seconds / 60)
   const hours = Math.floor(minutes / 60)
@@ -31,8 +31,14 @@ export function formatMillis(millis: number) {
   return `${hours > 0 ? `${hours}:` : ""}${formattedMinutes}:${formattedSeconds}`
 }
 
+export function formatSecs(seconds: number): string {
+  const mins = Math.floor(seconds / 60)
+  const secs = Math.floor(seconds % 60)
+  return `${mins}:${secs.toString().padStart(2, "0")}`
+}
+
 // from soundcloud json
-export function getNetworkName(profile: WebProfile) {
+export function getNetworkName(profile: WebProfile): string {
   if (profile.title) return profile.title
 
   if (profile.network === "personal" || profile.network === "other") {
@@ -46,7 +52,7 @@ export function getNetworkName(profile: WebProfile) {
   return SOCIAL_NETWORKS[profile.network as keyof typeof SOCIAL_NETWORKS] || ""
 }
 
-export function getNetworkClassName(profile: WebProfile) {
+export function getNetworkClassName(profile: WebProfile): string {
   return (profile.network || "").replace(/[^a-z]/g, "")
 }
 
@@ -64,14 +70,10 @@ export function getCoverUrl(track: Track): string {
 
 import * as fs from "@tauri-apps/plugin-fs"
 
-export async function copyDir(
-  srcDir: string,
-  destDir: string,
-  copyOptions?: fs.CopyFileOptions,
-): Promise<void> {
+export async function copyDir(srcDir: string, destDir: string, copyOptions?: fs.CopyFileOptions) {
   try {
     await fs.mkdir(destDir)
-  } catch (e) {} // ignore if exists
+  } catch (_) {} // ignore if exists
 
   const entries = await fs.readDir(srcDir)
 
