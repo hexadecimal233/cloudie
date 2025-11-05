@@ -1,14 +1,15 @@
+import { BasePlaylist, Track } from "@/utils/types"
 import { relations } from "drizzle-orm"
 import { sqliteTable, integer, text, unique } from "drizzle-orm/sqlite-core"
 
 export const localTracks = sqliteTable("LocalTracks", {
-  trackId: integer("trackId").primaryKey().notNull(),
-  meta: text("meta").notNull(),
+  trackId: integer().primaryKey().notNull(),
+  meta: text({ mode: "json" }).$type<Track>().notNull(),
 })
 
 export const playlists = sqliteTable("Playlists", {
-  playlistId: text("playlistId").primaryKey().notNull(),
-  meta: text("meta").notNull(),
+  playlistId: text().primaryKey().notNull(),
+  meta: text({ mode: "json" }).$type<BasePlaylist>().notNull(),
 })
 
 /**
@@ -27,17 +28,17 @@ export const playlists = sqliteTable("Playlists", {
 export const downloadTasks = sqliteTable(
   "DownloadTasks",
   {
-    taskId: integer("taskId").primaryKey({ autoIncrement: true }).notNull(),
-    trackId: integer("trackId")
+    taskId: integer().primaryKey({ autoIncrement: true }).notNull(),
+    trackId: integer()
       .references(() => localTracks.trackId)
       .notNull(),
-    playlistId: text("playlistId")
+    playlistId: text()
       .references(() => playlists.playlistId)
       .notNull(),
-    timestamp: integer("timestamp").notNull(),
-    origFileName: text("origFileName"),
-    path: text("path").notNull(),
-    status: text("status", {
+    timestamp: integer().notNull(),
+    origFileName: text(),
+    path: text().notNull(),
+    status: text({
       enum: ["paused", "completed", "failed"],
     }).notNull(),
   },
@@ -45,19 +46,19 @@ export const downloadTasks = sqliteTable(
 )
 
 export const listeningList = sqliteTable("ListeningList", {
-  trackId: integer("trackId")
+  trackId: integer()
     .references(() => localTracks.trackId)
     .primaryKey()
     .notNull(),
-  index: integer("index").notNull(),
+  index: integer().notNull(),
 })
 
 export const m3u8Cache = sqliteTable("M3U8Cache", {
-  trackId: integer("trackId")
+  trackId: integer()
     .references(() => localTracks.trackId)
     .primaryKey()
     .notNull(),
-  m3u8: text("m3u8").notNull(),
+  m3u8: text().notNull(),
 })
 
 export const m3u8Relations = relations(m3u8Cache, ({ one }) => ({

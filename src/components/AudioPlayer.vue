@@ -55,10 +55,10 @@ import {
   getCurrentTrack,
   setCurrentTrack,
   setTrackUpdateCallback,
-  getNthTrack,
 } from "@/systems/player/playlist"
 import { getArtist, getCoverUrl, replaceImageUrl } from "@/utils/utils"
 import Hls from "hls.js"
+import type { ErrorData } from "hls.js"
 import { Track } from "@/utils/types"
 import { CachedLoader } from "@/systems/player/loader"
 import { M3U8_CACHE_MANAGER } from "@/systems/player/cache"
@@ -69,8 +69,6 @@ import { getCurrentWindow } from "@tauri-apps/api/window"
 // --- HLS 相关的状态和 Ref ---
 const mediaRef = ref<HTMLVideoElement | null>(null)
 const hlsPlayer = ref<Hls | null>(null)
-// 记录当前加载的 URL，用于避免重复加载
-const currentMediaUrl = ref<string>()
 
 // --- 播放器状态 ---
 const playerState = reactive<{
@@ -153,11 +151,20 @@ onMounted(() => {
     hlsPlayer.value = hls
     hls.attachMedia(mediaRef.value)
 
-    hls.on(Hls.Events.ERROR, (_event, data) => {
-      console.error("HLS Error:", data.type, data.details, data.fatal ? "FATAL" : "NON-FATAL")
-      if (data.fatal) {
-        hls.destroy()
-        // ...
+    hls.on(Hls.Events.ERROR, (_event, data: ErrorData) => {
+      if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+        if (data.response && data.response.code === 403) {
+          console.log("403 error detected, reloading M3U8...")
+          // Pause playback
+          pause()
+
+          // Re-load the current song with fresh M3U8
+          loadSong(true) // Force refresh M3U8
+        } else {
+          console.error("HLS network error:", data)
+        }
+      } else {
+        console.error("HLS Error:", data.type, data.details, data.fatal ? "FATAL" : "NON-FATAL")
       }
     })
   } else if (mediaRef.value?.canPlayType("application/vnd.apple.mpegurl")) {
@@ -247,7 +254,7 @@ function pause() {
   playerState.paused = true
 }
 
-async function loadSong() {
+async function loadSong(forceRefreshM3U8: boolean = false) {
   if (!mediaRef.value || !track.value) {
     return
   }
@@ -260,12 +267,11 @@ async function loadSong() {
   playerState.loading = true
   playerState.duration = undefined
 
-  updateMedia(track.value)
-
   try {
-    const trackLink = await M3U8_CACHE_MANAGER.getTrackLink(track.value)
-
     if (hlsPlayer.value) {
+      updateMedia(track.value)
+
+      const trackLink = await M3U8_CACHE_MANAGER.getTrackLink(track.value, forceRefreshM3U8)
       // clear previous source
 
       // load text into a blob to create a url
@@ -278,7 +284,6 @@ async function loadSong() {
           // 等待 HLS 解析完成后再播放
           await mediaRef.value!.play()
           playerState.paused = false
-          currentMediaUrl.value = trackLink
         } catch (error) {
           console.error("HLS Play Failed:", error)
           playerState.paused = true

@@ -7,6 +7,7 @@ import type {
   FragmentLoaderContext,
 } from "hls.js"
 import { M3U8_CACHE_MANAGER } from "./cache"
+import { getCurrentTrack } from "./playlist"
 
 export class CachedLoader implements Loader<FragmentLoaderContext> {
   private loader: Loader<FragmentLoaderContext>
@@ -43,7 +44,9 @@ export class CachedLoader implements Loader<FragmentLoaderContext> {
     }
 
     ;(async () => {
-      const cache = await M3U8_CACHE_MANAGER.getSegmentCache(context.url)
+      const trackId = getCurrentTrack().id
+
+      const cache = await M3U8_CACHE_MANAGER.getSegmentCache(trackId, context.url)
 
       if (cache) {
         setTimeout(() => {
@@ -55,7 +58,7 @@ export class CachedLoader implements Loader<FragmentLoaderContext> {
       const originalOnSuccess = callbacks.onSuccess
       callbacks.onSuccess = (response, stats, context, networkDetails) => {
         if (response.data instanceof ArrayBuffer) {
-          M3U8_CACHE_MANAGER.setSegmentCache(context.url, response.data)
+          M3U8_CACHE_MANAGER.setSegmentCache(trackId, context.url, response.data)
         }
 
         // originalOnSuccess

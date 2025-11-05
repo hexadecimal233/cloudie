@@ -111,9 +111,9 @@ export async function initDownload() {
   })
 
   const results: DownloadTask[] = rawResults.map((row) => {
-    const track = JSON.parse(row.localTrack.meta)
+    const track = row.localTrack.meta
 
-    let playlist = JSON.parse(row.playlist.meta)
+    const playlist = row.playlist.meta
 
     return new DownloadTask(row, new DownloadDetail(playlist, track))
   })

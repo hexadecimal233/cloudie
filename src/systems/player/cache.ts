@@ -8,15 +8,19 @@ import * as fs from "@tauri-apps/plugin-fs"
 import * as path from "@tauri-apps/api/path"
 
 export class M3U8CacheManager {
-  // FIXME: M3U8 link may expire and create 403s if not fully loaded
-  async getTrackLink(track: Track) {
-    // Try to get the M3U8 from the database
-    const result = await db.select().from(m3u8Cache).where(eq(m3u8Cache.trackId, track.id)).limit(1)
-
-    if (result.length > 0) {
-      return result[0].m3u8
+  async getTrackLink(track: Track, forceRefresh: boolean = false) {
+    if (!forceRefresh) {
+      // Try to get the M3U8 from the database
+      const result = await db
+        .select()
+        .from(m3u8Cache)
+        .where(eq(m3u8Cache.trackId, track.id))
+        .limit(1)
+      if (result.length > 0) {
+        return result[0].m3u8
+      }
     } else {
-      // If not in cache or error, fetch and cache it
+      // If not in cache or force refresh, fetch and cache it
       const m3u8Url = await parseHlsLink(track)
       const response = await fetch(m3u8Url)
       const m3u8Text = await response.text()
@@ -39,48 +43,43 @@ export class M3U8CacheManager {
     }
   }
 
-  async getFilePath(segmentUrl: string) {
+  async getFilePath(trackId: number, segmentUrl: string) {
     const cacheDir = await path.appCacheDir()
-    // Create a safe filename by hashing the URL
-    const urlHash = await this.hashString(segmentUrl)
+
+    const regex = /(data\d+\.m4s)/
+    const match = segmentUrl.match(regex)
+
+    let segmentName: string
+    if (match) {
+      segmentName = match[1]
+    } else if (segmentUrl.includes("init.mp4")) {
+      segmentName = "init"
+    } else {
+      segmentName = segmentUrl.replaceAll(/[/?]/g, "_")
+      console.error("Warning: cannot match the segment name in segment url")
+    }
+
     const segmentDir = await path.join(cacheDir, "segments")
     try {
       await fs.mkdir(segmentDir)
     } catch (_) {
       // Directory already exists or creation failed
     }
-    const cachePath = await path.join(segmentDir, urlHash)
+    const cachePath = await path.join(segmentDir, `${trackId}_${segmentName}`)
     return cachePath
   }
 
-  async getSegmentCache(segmentUrl: string) {
+  async getSegmentCache(trackId: number, segmentUrl: string) {
     try {
-      const data = await fs.readFile(await this.getFilePath(segmentUrl))
+      const data = await fs.readFile(await this.getFilePath(trackId, segmentUrl))
       return data
     } catch (_) {
       return null
     }
   }
 
-  async setSegmentCache(segmentUrl: string, data: ArrayBuffer) {
-    await fs.writeFile(await this.getFilePath(segmentUrl), new Uint8Array(data))
-  }
-
-  // Helper method to create a hash from a string
-  private async hashString(str: string): Promise<string> {
-    // Convert string to bytes
-    const encoder = new TextEncoder()
-    const data = encoder.encode(str)
-
-    // Use crypto API to create a hash
-    // TODO: Use track IDs for cache
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data)
-
-    // Convert hash to hex string
-    const hashArray = Array.from(new Uint8Array(hashBuffer))
-    const hashHex = btoa(String.fromCharCode(...hashArray)).replaceAll("/", "_")
-
-    return hashHex
+  async setSegmentCache(trackId: number, segmentUrl: string, data: ArrayBuffer) {
+    await fs.writeFile(await this.getFilePath(trackId, segmentUrl), new Uint8Array(data))
   }
 }
 

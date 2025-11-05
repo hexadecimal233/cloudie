@@ -25,7 +25,7 @@ export async function initMedia() {
     orderBy: [asc(schema.listeningList.index)],
   })
 
-  listeningList.value = results.map(({ localTrack }) => JSON.parse(localTrack.meta))
+  listeningList.value = results.map(({ localTrack }) => localTrack.meta)
 
   shuffle()
 }

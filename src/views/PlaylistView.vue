@@ -72,7 +72,7 @@ async function fetchPlaylist(id: number) {
     return coverCache.value[id]
   }
 
-  const res = await getPlaylist(id)
+  const res = await getPlaylist(id, "mini")
   coverCache.value[id] = res
   return res
 }

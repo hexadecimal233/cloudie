@@ -29,8 +29,8 @@ export async function getPlaylist(playlistId: string | number): Promise<ExactPla
   //   return null
   // }
 
-  const playlist = JSON.parse(rawPlaylist.meta)
-  const trackIds = playlist.tracks.map((t: { id: number }) => t.id)
+  const playlist = rawPlaylist.meta
+  const trackIds = playlist.tracks!.map((t: { id: number }) => t.id)
 
   const rawResult = await db
     .select()
@@ -38,7 +38,7 @@ export async function getPlaylist(playlistId: string | number): Promise<ExactPla
     .where(inArray(schema.localTracks.trackId, trackIds))
 
   const tracks = rawResult.map((row) => {
-    const track = JSON.parse(row.meta)
+    const track = row.meta
 
     return track
   })
@@ -65,7 +65,7 @@ export async function savePlaylist(playlist: ExactPlaylist) {
 
       return {
         trackId: t.id,
-        meta: JSON.stringify(t),
+        meta: t,
       }
     })
 
@@ -94,12 +94,12 @@ export async function savePlaylist(playlist: ExactPlaylist) {
     .insert(schema.playlists)
     .values({
       playlistId: omittedPlaylist.id.toString(),
-      meta: JSON.stringify(omittedPlaylist),
+      meta: omittedPlaylist,
     })
     .onConflictDoUpdate({
       target: schema.playlists.playlistId,
       set: {
-        meta: JSON.stringify(omittedPlaylist),
+        meta: omittedPlaylist,
       },
     })
     .returning()
