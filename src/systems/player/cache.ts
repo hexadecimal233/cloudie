@@ -9,16 +9,10 @@ import * as path from "@tauri-apps/api/path"
 
 export class M3U8CacheManager {
   async getTrackLink(track: Track, forceRefresh: boolean = false) {
-    if (!forceRefresh) {
-      // Try to get the M3U8 from the database
-      const result = await db
-        .select()
-        .from(m3u8Cache)
-        .where(eq(m3u8Cache.trackId, track.id))
-        .limit(1)
-      if (result.length > 0) {
-        return result[0].m3u8
-      }
+    // Try to get the M3U8 from the database
+    const result = await db.select().from(m3u8Cache).where(eq(m3u8Cache.trackId, track.id)).limit(1)
+    if (result.length > 0 && !forceRefresh) {
+      return result[0].m3u8
     } else {
       // If not in cache or force refresh, fetch and cache it
       const m3u8Url = await parseHlsLink(track)
@@ -53,19 +47,23 @@ export class M3U8CacheManager {
     if (match) {
       segmentName = match[1]
     } else if (segmentUrl.includes("init.mp4")) {
-      segmentName = "init"
+      segmentName = "init.mp4"
     } else {
-      segmentName = segmentUrl.replaceAll(/[/?]/g, "_")
-      console.error("Warning: cannot match the segment name in segment url")
+      const sanitizer = /[\\/:*?"<>|]/g
+      segmentName = segmentUrl.replaceAll(sanitizer, "_")
+      console.error(
+        "Warning: cannot match the segment name in segment url, falling back to raw text",
+      )
     }
 
     const segmentDir = await path.join(cacheDir, "segments")
+    const trackDir = await path.join(segmentDir, trackId.toString())
     try {
-      await fs.mkdir(segmentDir)
+      await fs.mkdir(trackDir, { recursive: true })
     } catch (_) {
       // Directory already exists or creation failed
     }
-    const cachePath = await path.join(segmentDir, `${trackId}_${segmentName}`)
+    const cachePath = await path.join(trackDir, `${trackId}_${segmentName}`)
     return cachePath
   }
 
