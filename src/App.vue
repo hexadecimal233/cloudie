@@ -10,10 +10,7 @@
 
           <div class="mx-4 flex items-center gap-2">
             <template v-if="!loading">
-              <img
-                :src="userInfo.avatar_url"
-                alt="user"
-                class="skeleton size-12 rounded-full object-contain ring" />
+              <img :src="userInfo.avatar_url" alt="user" class="skeleton size-12 rounded-full object-contain ring" />
               <div class="text-lg font-bold">{{ userInfo.username }}</div>
             </template>
 
@@ -83,15 +80,13 @@
             <button class="btn join-item" @click="$router.back()">
               <i-mdi-chevron-left />
             </button>
-            <input
-              type="text"
-              :placeholder="$t('cloudie.main.searchBar')"
+            <input type="text" :placeholder="$t('cloudie.main.searchBar')"
               class="input input-bordered join-item w-1/4" />
           </div>
           <div class="flex flex-col py-8">
             <span class="mb-4 text-3xl font-bold">
               <template v-if="$route.path !== '/'">
-                {{ $t(`cloudie.main.${$route.path.slice(1)}`) }}
+                {{ getPageTitle() }}
               </template>
             </span>
             <router-view v-slot="{ Component }">
@@ -111,6 +106,8 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue"
+import { useRoute } from "vue-router"
+import { useI18n } from "vue-i18n"
 import { BasicUserInfo, updateUserInfo, userInfo } from "@/utils/api"
 import { Toaster } from "vue-sonner"
 import { ModalsContainer } from "vue-final-modal"
@@ -118,6 +115,8 @@ import "vue-sonner/style.css"
 import "vue-final-modal/style.css"
 import AudioPlayer from "./components/AudioPlayer.vue"
 
+const route = useRoute()
+const i18n = useI18n()
 const user = ref<BasicUserInfo>()
 const loading = ref(true)
 
@@ -126,4 +125,13 @@ onMounted(async () => {
   user.value = userInfo.value
   loading.value = false
 })
+
+function getPageTitle() {
+  const path = route.path
+  const pathSegments = path.split("/").filter(Boolean)
+
+  // Handle dynamic routes by using only the first segment (e.g., /playlist/:id)
+  const firstSegment = pathSegments[0]
+  return i18n.t(`cloudie.main.${firstSegment}`)
+}
 </script>

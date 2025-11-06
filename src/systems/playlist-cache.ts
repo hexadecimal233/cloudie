@@ -2,7 +2,7 @@ import {
   BasePlaylist,
   ExactPlaylist,
   PartialTrack,
-  Playlist,
+  UserPlaylist,
   PlaylistLike,
   SystemPlaylist,
   Track,
@@ -19,15 +19,14 @@ export async function tryGetPlaylist(playlistId: string | number): Promise<Exact
     .where(eq(schema.playlists.playlistId, playlistId.toString()))
     .limit(1)
     .get()
+    .catch(() => {
+      return null
+    })
 
   // type definition bug workaround TODO: report a issue
   if (!rawPlaylist?.playlistId) {
     return null
   }
-
-  // if (!rawPlaylist) {
-  //   return null
-  // }
 
   const playlist = rawPlaylist.meta
   const trackIds = playlist.tracks!.map((t: { id: number }) => t.id)
@@ -106,7 +105,8 @@ export async function savePlaylist(playlist: ExactPlaylist) {
 }
 
 export async function fetchPlaylistUpdates(likeResp: PlaylistLike, _existTrackIds?: number[]) {
-  const currentPlaylist: SystemPlaylist | Playlist = likeResp.playlist ?? likeResp.system_playlist
+  const currentPlaylist: SystemPlaylist | UserPlaylist =
+    likeResp.playlist ?? likeResp.system_playlist
 
   let partialTracks: PartialTrack[]
   if (likeResp.playlist) {

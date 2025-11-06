@@ -10,18 +10,11 @@
 
     <!-- 歌单网格 -->
     <div class="grid grid-cols-3 gap-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-      <div
-        v-for="item in items"
-        :key="item.playlist?.id ?? item.system_playlist!.id"
-        @click="open(item)"
+      <div v-for="item in items" :key="item.playlist?.id ?? item.system_playlist!.id" @click="openPlaylist(item)"
         :title="item.playlist?.title ?? item.system_playlist!.title"
         class="bg-base-200 rounded-box flex flex-col gap-1 overflow-hidden shadow-xs transition-all hover:-translate-y-1 hover:cursor-pointer hover:opacity-70">
         <div class="bg-base-300 relative aspect-square w-full">
-          <img
-            v-if="getImageUrl(item).value"
-            :src="getImageUrl(item).value"
-            alt="cover"
-            class="h-full w-full object-cover" />
+          <img v-if="getImageUrl(item).value" :src="getImageUrl(item).value" alt="cover" class="h-full w-full object-cover" />
           <div v-else class="skeleton absolute inset-0 h-full w-full rounded-none"></div>
         </div>
         <div class="flex flex-col p-3">
@@ -33,8 +26,8 @@
               item.playlist?.user.username ||
               (item.system_playlist!.made_for
                 ? $t("cloudie.playlists.madeFor", {
-                    name: item.system_playlist!.made_for?.username,
-                  })
+                  name: item.system_playlist!.made_for?.username,
+                })
                 : item.system_playlist!.description)
             }}
           </div>
@@ -50,36 +43,36 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue"
 import { replaceImageUrl } from "@/utils/utils"
 import { PlaylistLike } from "@/utils/types"
-import TracklistModal from "./modals/TracklistModal.vue"
-import { useModal } from "vue-final-modal"
+import { useRouter } from "vue-router"
+import { usePlaylistsStore } from "@/systems/stores/playlists"
+import { computed } from "vue"
 
 const props = defineProps<{
   items: PlaylistLike[]
-  cache: Record<number, any>
 }>()
 
-function open(likeResp: PlaylistLike) {
-  const { open, close } = useModal({
-    component: TracklistModal,
-    attrs: {
-      currentResp: likeResp,
-      onClose() {
-        close()
-      },
-    },
-  })
+const router = useRouter()
+const playlistsStore = usePlaylistsStore()
 
-  open()
+function openPlaylist(likeResp: PlaylistLike) {
+  const playlistId = likeResp.playlist?.id ?? likeResp.system_playlist!.id
+  playlistsStore.currentResp = likeResp
+
+  router.push(`/playlist/${playlistId}`)
 }
 
+// get & fetch missing artwork
 function getImageUrl(item: PlaylistLike) {
   return computed(() => {
     let artworkUrl = ""
     if (item.playlist) {
-      artworkUrl = item.playlist.artwork_url || props.cache[item.playlist.id]?.tracks[0].artwork_url
+      if (item.playlist.artwork_url) {
+        artworkUrl = item.playlist.artwork_url
+      } else {
+        artworkUrl = playlistsStore.getCoverCache(item.playlist.id).value
+      }
     } else {
       artworkUrl = item.system_playlist.artwork_url
     }

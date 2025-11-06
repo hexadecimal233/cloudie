@@ -9,7 +9,7 @@ import type {
   FacetItem,
   M3U8Info,
   Me,
-  Playlist,
+  UserPlaylist,
   PlaylistLike,
   QueryCollection,
   SCUser,
@@ -193,11 +193,11 @@ export function useTrackComments(id: number) {
 }
 
 export async function useTrackAlbums(id: number) {
-  return useCollection<Playlist>(`/tracks/${id}/albums`, 10, { representation: "mini" })
+  return useCollection<UserPlaylist>(`/tracks/${id}/albums`, 10, { representation: "mini" })
 }
 
 export async function useTrackPlaylists(id: number) {
-  return useCollection<Playlist>(`/tracks/${id}/playlists`, 10, { representation: "mini" })
+  return useCollection<UserPlaylist>(`/tracks/${id}/playlists`, 10, { representation: "mini" })
 }
 
 export async function useTrackLikers(id: number) {
@@ -250,7 +250,7 @@ export function useSearchUsers(query: string, facet: FacetQuery) {
 }
 
 export function useSearchPlaylists(query: string, facet: FacetQuery) {
-  return useSearchCollection<Playlist>(`/search/playlists`, query, facet, 20)
+  return useSearchCollection<UserPlaylist>(`/search/playlists`, query, facet, 20)
 }
 
 /**
@@ -262,7 +262,7 @@ export async function getMe() {
 }
 
 export async function getPlaylist(id: number, representation: "mini" | "full" = "full") {
-  return await getV2ApiJson<Playlist>(`/playlists/${id}`, { representation })
+  return await getV2ApiJson<UserPlaylist>(`/playlists/${id}`, { representation })
 }
 
 export async function getTracks(ids: number[]) {
@@ -453,7 +453,7 @@ function useCollection<T>(
 }
 
 // SEARCH useCollection, make sure to reinit when facet changes
-function useSearchCollection<T extends Track | Playlist | SCUser>(
+function useSearchCollection<T extends Track | UserPlaylist | SCUser>(
   url: string,
   query: string,
   facet: FacetQuery,

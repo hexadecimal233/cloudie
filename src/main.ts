@@ -8,6 +8,7 @@ import { initDb } from "./systems/db/db"
 import { initDownload } from "./systems/download/download"
 import { i18n, initI18n } from "./systems/i18n"
 import { initMedia } from "./systems/player/listening-list"
+import { createPinia } from "pinia"
 
 async function initApp() {
   // load systems
@@ -18,11 +19,13 @@ async function initApp() {
   await initMedia()
 
   const vfm = createVfm()
+  const pinia = createPinia()
 
   const app = createApp(App)
   app.use(i18n)
   app.use(vfm)
   app.use(router)
+  app.use(pinia)
 
   app.mount("#app")
 }

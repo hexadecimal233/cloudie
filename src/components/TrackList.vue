@@ -127,11 +127,7 @@ import { ref, computed, watch } from "vue"
 import { formatMillis, getArtist, getCoverUrl } from "@/utils/utils"
 import { addDownloadTask, downloadTasks } from "@/systems/download/download"
 import { ExactPlaylist, Track } from "@/utils/types"
-import {
-  addAndPlay,
-  addMultipleToListeningList,
-  addToListeningList,
-} from "@/systems/player/listening-list"
+import { addMultipleToListeningList, addToListeningList } from "@/systems/player/listening-list"
 
 import {
   FlexRender,
@@ -146,6 +142,7 @@ import {
   RowSelectionState,
 } from "@tanstack/vue-table"
 import { i18n } from "@/systems/i18n"
+import { usePlayerStore } from "@/systems/stores/player"
 
 const props = defineProps<{
   playlist: ExactPlaylist
@@ -283,7 +280,7 @@ const columns = [
           <button
             type="button"
             class="btn btn-ghost btn-sm"
-            onClick={() => addAndPlay(info.row.original, props.playlist.tracks)}>
+            onClick={() => usePlayerStore().playSong(info.row.original, props.playlist.tracks)}>
             <i-mdi-play />
           </button>
           <a class="btn btn-ghost btn-sm" href={info.row.original.permalink_url} target="_blank">

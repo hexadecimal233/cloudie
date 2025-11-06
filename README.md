@@ -73,5 +73,5 @@ Pull Requests: [Pull Requests](https://github.com/hexadecimal233/cloudie/pulls)
 - [ ] Scrobbling support
 - [ ] DJ Support
 - [ ] OEmbed Support 
-
+- [ ] Lyrics service
 -->

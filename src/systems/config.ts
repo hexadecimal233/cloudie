@@ -4,6 +4,7 @@ import { refreshClientId } from "@/utils/api"
 import { i18n, LANGUAGE_OPTIONS } from "./i18n"
 import { PlayOrder } from "./player/listening-list"
 import { FileNaming } from "./download/parser"
+import { useThrottleFn } from "@vueuse/core"
 
 export const THEMES = [
   "cloudie",
@@ -111,18 +112,20 @@ export async function loadConfig() {
   }
 }
 
-// 保存所有配置
+// Save all config with a throttle
 async function saveConfig() {
-  // Refresh display language
-  i18n.global.locale.value = config.value.language
-  // Update theme class
-  document.documentElement.setAttribute("data-theme", config.value.theme)
+  await useThrottleFn(async () => {
+    // Refresh display language
+    i18n.global.locale.value = config.value.language
+    // Update theme class
+    document.documentElement.setAttribute("data-theme", config.value.theme)
 
-  const currentConfig = config.value
+    const currentConfig = config.value
 
-  for (const key of Object.keys(currentConfig) as (keyof Config)[]) {
-    await store.set(key, currentConfig[key])
-  }
+    for (const key of Object.keys(currentConfig) as (keyof Config)[]) {
+      await store.set(key, currentConfig[key])
+    }
 
-  await store.save()
+    await store.save()
+  }, 3000)()
 }

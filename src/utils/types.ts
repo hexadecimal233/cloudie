@@ -236,13 +236,13 @@ interface PlaylistLikeBase {
   user: User
   uuid: string
   caption: null
-  playlist?: Playlist
+  playlist?: UserPlaylist
   system_playlist?: SystemPlaylist
 }
 
 export type PlaylistLike = PlaylistLikeBase &
   (
-    | { playlist: Playlist; system_playlist?: never }
+    | { playlist: UserPlaylist; system_playlist?: never }
     | { system_playlist: SystemPlaylist; playlist?: never }
   )
 
@@ -267,7 +267,7 @@ export class LocalPlaylist {
   }
 }
 
-export interface Playlist extends BasePlaylist {
+export interface UserPlaylist extends BasePlaylist {
   artwork_url: null | string
   created_at: Date
   duration: number
@@ -416,7 +416,7 @@ export interface StreamItem {
   caption: null
   reposted?: Reposted
   track?: Track
-  playlist?: Playlist
+  playlist?: UserPlaylist
 }
 
 // activityTypes: TrackPost,TrackRepost,PlaylistPost
@@ -545,7 +545,8 @@ export interface FacetDetail {
   filter: string // the request params (filter.<name> = <value>)
 }
 
-export interface SearchCollection<T extends Track | Playlist | SCUser> extends CollectionResp<T> {
+export interface SearchCollection<T extends Track | UserPlaylist | SCUser>
+  extends CollectionResp<T> {
   total_results: number
   facets: FacetItem[]
 }
@@ -557,3 +558,9 @@ export interface WhoToFollowResp {
 }
 
 export type Source = "algorithm"
+
+export interface Waveform {
+  width: number
+  height: number
+  samples: number[] // the length of samples should match width, and maximum value must match height.
+}

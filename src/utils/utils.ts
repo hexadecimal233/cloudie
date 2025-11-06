@@ -37,6 +37,26 @@ export function formatSecs(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, "0")}`
 }
 
+// https://stackoverflow.com/questions/26941168/javascript-interpolate-an-array-of-numbers
+export function interpolateInto(data: number[], fitCount: number): number[] {
+  var linearInterpolate = function (before: number, after: number, atPoint: number) {
+    return before + (after - before) * atPoint
+  }
+
+  var newData = new Array<number>()
+  var springFactor = (data.length - 1) / (fitCount - 1)
+  newData[0] = data[0] // for new allocation
+  for (var i = 1; i < fitCount - 1; i++) {
+    var tmp = i * springFactor
+    var before = Math.floor(tmp)
+    var after = Math.ceil(tmp)
+    var atPoint = tmp - before
+    newData[i] = linearInterpolate(data[before], data[after], atPoint)
+  }
+  newData[fitCount - 1] = data[data.length - 1] // for new allocation
+  return newData
+}
+
 // from soundcloud json
 export function getNetworkName(profile: WebProfile): string {
   if (profile.title) return profile.title

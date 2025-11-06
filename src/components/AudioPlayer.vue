@@ -2,17 +2,18 @@
   <video @timeupdate="onTimeUpdate" @ended="onEnded" @loadedmetadata="onLoadedMetadata" ref="mediaRef" autoplay
     hidden></video>
 
-  <div v-if="track" class="bg-base-200 relative h-24 w-full">
+  <div v-if="!!playerState.track" class="bg-base-200 relative h-24 w-full">
     <!-- Progress Bar and Needle-->
-    <progress class="progress absolute top-0 h-1.5 w-full rounded-none transition-all hover:-top-1.5 hover:h-3" 
+    <progress class="progress absolute top-0 h-1.5 w-full rounded-none transition-all hover:-top-1.5 hover:h-3"
       :value="playerState.currentTime" :max="playerState.duration || 100" @click="onProgressClick"></progress>
 
     <div class="flex h-full w-full px-4 py-3">
       <div class="flex items-center gap-3 flex-1/3">
-        <img :src="getCoverUrl(track)" alt="cover" class="object-cover skeleton size-18" />
+        <img :src="getCoverUrl(playerState.track)" alt="cover" class="object-cover skeleton size-18" />
         <div class="flex flex-col overflow-hidden">
-          <p class="font-bold truncate" :title="track.title">{{ track.title }}</p>
-          <p class="text-base-content/70 truncate" :title="getArtist(track)">{{ getArtist(track) }}</p>
+          <p class="font-bold truncate" :title="playerState.track?.title">{{ playerState.track.title }}</p>
+          <p class="text-base-content/70 truncate" :title="getArtist(playerState.track)">{{
+            getArtist(playerState.track) }}</p>
         </div>
       </div>
 
@@ -24,7 +25,7 @@
           <i-mdi-rewind />
         </button>
         <button class="btn btn-primary btn-circle" @click="togglePlay">
-          <div v-if="playerState.loading" class="loading loading-spinner loading-lg"></div>
+          <div v-if="loading" class="loading loading-spinner loading-lg"></div>
           <i-mdi-play v-else-if="playerState.paused" />
           <i-mdi-pause v-else />
         </button>
@@ -37,7 +38,7 @@
         <div class="flex items-center gap-2">
           <span class="text-sm">{{ formatSecs(playerState.currentTime) }}</span>
           <span class="text-sm">/</span>
-          <span class="text-sm">{{ formatMillis(track.duration) }}</span>
+          <span class="text-sm">{{ formatMillis(playerState.duration || 0) }}</span>
         </div>
       </div>
     </div>
@@ -45,14 +46,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, onMounted, onUnmounted } from "vue"
+// FIXME: Clicking too fast cause audio stream mismatch
+import { ref, onMounted, onUnmounted } from "vue"
 import PlayOrderSwitch from "./PlayOrderSwitch.vue"
 import ListeningWidget from "./ListeningWidget.vue"
 import {
-  getNextTrackIndex as getNextTrackIdx,
-  getCurrentTrack,
+  getNextTrackIndex,
   setCurrentTrack,
   setTrackUpdateCallback,
+  addAndPlay,
 } from "@/systems/player/listening-list"
 import { formatMillis, formatSecs, getArtist, getCoverUrl, replaceImageUrl } from "@/utils/utils"
 import Hls from "hls.js"
@@ -64,23 +66,14 @@ import { i18n } from "@/systems/i18n"
 import { toast } from "vue-sonner"
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { useModal } from "vue-final-modal"
+import { usePlayerStore } from "@/systems/stores/player"
 
 // --- HLS 相关的状态和 Ref ---
 const mediaRef = ref<HTMLVideoElement | null>(null)
 const hlsPlayer = ref<Hls | null>(null)
 
-// --- 播放器状态 ---
-const playerState = reactive<{
-  currentTime: number
-  duration: number | undefined // 允许 undefined 以表示加载中
-  loading: boolean
-  paused: boolean
-}>({
-  currentTime: 0,
-  duration: undefined, // 初始设置为 undefined
-  loading: false,
-  paused: true,
-})
+const loading = ref(false)
+const playerState = usePlayerStore()
 
 function updateMedia(track: Track) {
   // Update MediaSession & Window Title
@@ -100,10 +93,6 @@ function updateMedia(track: Track) {
 
   getCurrentWindow().setTitle(track.title + " - " + getArtist(track) + " - Cloudie")
 }
-
-const track = computed(() => {
-  return getCurrentTrack()
-})
 
 onMounted(() => {
   // init MediaSession Handlers
@@ -141,6 +130,14 @@ onMounted(() => {
     if (idx >= 0) {
       loadSong()
     }
+  })
+
+  // TODO: Refactor this to use playerState
+  playerState.init({
+    onResume: resume,
+    onPause: pause,
+    onSeek: seek,
+    onPlay: addAndPlay,
   })
 
   // Initialize HLS player if supported
@@ -204,10 +201,10 @@ function onLoadedMetadata() {
     const duration = mediaRef.value.duration
     if (isFinite(duration) && duration > 0) {
       playerState.duration = duration
-      playerState.loading = false
+      loading.value = false
     } else {
       playerState.duration = undefined // 确保非正常值时进入加载状态
-      playerState.loading = true
+      loading.value = true
     }
     playerState.paused = mediaRef.value.paused
   }
@@ -269,17 +266,17 @@ function pause() {
 }
 
 async function loadSong(forceRefreshM3U8: boolean = false) {
-  if (!mediaRef.value || !track.value) {
-    playerState.loading = false
+  if (!mediaRef.value || !playerState.track) {
+    loading.value = false
     return
   }
 
-  if (playerState.loading) {
+  if (loading.value) {
     console.warn("Song is already loading")
   }
 
   // 加载新源之前，将 duration 设为 undefined，显示加载状态
-  playerState.loading = true
+  loading.value = true
   playerState.duration = undefined
 
   try {
@@ -287,9 +284,9 @@ async function loadSong(forceRefreshM3U8: boolean = false) {
       // disable HLS load to prevent multiple segments loading
       hlsPlayer.value.stopLoad()
 
-      updateMedia(track.value)
+      updateMedia(playerState.track)
 
-      const trackLink = await M3U8_CACHE_MANAGER.getTrackLink(track.value, forceRefreshM3U8)
+      const trackLink = await M3U8_CACHE_MANAGER.getTrackLink(playerState.track, forceRefreshM3U8)
       // clear previous source
 
       // load text into a blob to create a url
@@ -299,7 +296,7 @@ async function loadSong(forceRefreshM3U8: boolean = false) {
 
       hlsPlayer.value.once(Hls.Events.MANIFEST_PARSED, async () => {
         try {
-          if (mediaRef.value && track.value) {
+          if (mediaRef.value && playerState.track) {
             // restore load
             hlsPlayer.value!.startLoad(mediaRef.value!.currentTime)
             // 等待 HLS 解析完成后再播放
@@ -314,7 +311,7 @@ async function loadSong(forceRefreshM3U8: boolean = false) {
     }
   } catch (error) {
     console.error("Failed to get track link:", error)
-    playerState.loading = false
+    loading.value = false
     toast.error(i18n.global.t("cloudie.toasts.loadFailed"), {
       description: error instanceof Error ? error.message : String(error),
     })
@@ -328,7 +325,7 @@ async function loadSong(forceRefreshM3U8: boolean = false) {
 }
 
 async function resume() {
-  if (!mediaRef.value || !track.value) {
+  if (!mediaRef.value || !playerState.track) {
     return
   }
 
@@ -362,7 +359,7 @@ async function togglePlay() {
 
 async function nextTrack(offset: number = 1) {
   pause()
-  const trackIndex = await getNextTrackIdx(offset)
+  const trackIndex = await getNextTrackIndex(offset)
 
   if (trackIndex === -1) {
     seek(0)

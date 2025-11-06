@@ -22,13 +22,14 @@ import { ref, onMounted, watch } from "vue"
 import { useHistory, userInfo, useTrackLikes } from "@/utils/api"
 import TrackList from "./TrackList.vue"
 import { LocalPlaylist } from "@/utils/types"
-import { savePlaylist } from "@/systems/playlist-cache"
+import { usePlaylistsStore } from "@/systems/stores/playlists"
 
 const props = defineProps<{
   type: string
 }>()
 
 const playlist = ref(new LocalPlaylist(props.type))
+const playlistsStore = usePlaylistsStore()
 
 function getCollection() {
   if (props.type === "track_likes") {
@@ -45,7 +46,8 @@ watch(
   (newData) => {
     if (newData) {
       playlist.value.tracks = newData.map((item) => item.track)
-      savePlaylist(playlist.value)
+      // 使用Pinia store保存播放列表
+      playlistsStore.savePlaylistToStore(playlist.value)
     }
   },
 )

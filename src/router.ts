@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from "vue-router"
 const router = createRouter({
   history: createWebHistory(),
   routes: [
+    // Main Pages
     {
       path: "/feeds",
       component: () => import("./views/FeedsView.vue"),
@@ -21,7 +22,7 @@ const router = createRouter({
     },
     {
       path: "/playlists",
-      component: () => import("./views/PlaylistView.vue"),
+      component: () => import("./views/PlaylistsView.vue"),
     },
     {
       path: "/radio",
@@ -36,6 +37,11 @@ const router = createRouter({
       component: () => import("./views/FollowingView.vue"),
     },
     { path: "/:pathMatch(.*)*", redirect: "/feeds" },
+    // Dynamic Pages
+    {
+      path: "/playlist/:id", // the string or number id.
+      component: () => import("./views/dynamic/PlaylistView.vue"),
+    },
   ],
   linkActiveClass: "menu-active",
   linkExactActiveClass: "menu-active",
