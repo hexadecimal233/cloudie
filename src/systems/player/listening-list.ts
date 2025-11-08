@@ -93,6 +93,7 @@ export async function addMultipleToListeningList(tracks: Track[]) {
   await refreshTrackIds()
 }
 
+// FIXME: Things messed up visually when adding
 export async function addToListeningList(track: Track) {
   // check if that track exists and delete it
   const existingIndex = listeningList.value.findIndex((t) => t.id === track.id)
@@ -112,9 +113,21 @@ export function setTrackUpdateCallback(callback: (idx: number) => void) {
   trackUpdateCallback = callback
 }
 
+export async function playIndex(index: number) {
+  config.value.listenIndex = index
+  trackUpdateCallback(index)
+}
+
 export async function addAndPlay(track: Track, replacedTracklist?: Track[]) {
   if (replacedTracklist) {
-    listeningList.value = [...replacedTracklist]
+    listeningList.value = replacedTracklist
+    // If the track is in the replaced tracklist, move it to the current index
+    const trackIndex = replacedTracklist.findIndex((t) => t.id === track.id)
+    if (trackIndex !== -1) {
+      playIndex(trackIndex)
+      await refreshTrackIds()
+      return
+    }
   }
 
   await addToListeningList(track) // this called when replace to ensure we are playing the upcoming track

@@ -81,7 +81,7 @@
               <i-mdi-chevron-left />
             </button>
             <input type="text" :placeholder="$t('cloudie.main.searchBar')"
-              class="input input-bordered join-item w-1/4" />
+              class="input input-bordered join-item w-1/4" v-model="searchQuery" @keyup.enter="handleSearch" />
           </div>
           <div class="flex flex-col py-8">
             <span class="mb-4 text-3xl font-bold">
@@ -106,7 +106,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue"
-import { useRoute } from "vue-router"
+import { useRoute, useRouter } from "vue-router"
 import { useI18n } from "vue-i18n"
 import { BasicUserInfo, updateUserInfo, userInfo } from "@/utils/api"
 import { Toaster } from "vue-sonner"
@@ -116,6 +116,7 @@ import "vue-final-modal/style.css"
 import AudioPlayer from "./components/AudioPlayer.vue"
 
 const route = useRoute()
+const router = useRouter()
 const i18n = useI18n()
 const user = ref<BasicUserInfo>()
 const loading = ref(true)
@@ -133,5 +134,13 @@ function getPageTitle() {
   // Handle dynamic routes by using only the first segment (e.g., /playlist/:id)
   const firstSegment = pathSegments[0]
   return i18n.t(`cloudie.main.${firstSegment}`)
+}
+
+const searchQuery = ref("")
+
+function handleSearch() {
+  if (searchQuery.value.trim()) {
+    router.push(`/search/${searchQuery.value}`)
+  }
 }
 </script>

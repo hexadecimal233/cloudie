@@ -5,13 +5,41 @@
       "searchBar": "Search (unimplemented yet)",
       "likes": "Likes",
       "playlists": "Playlists & Albums",
-      "playlist": "Playlist",
       "radio": "Radio",
       "history": "Play History",
       "downloads": "Downloads",
       "settings": "Settings",
       "feeds": "Feeds",
-      "following": "Following"
+      "following": "Following",
+      "track": "Track",
+      "search": "Search",
+      "user": "User",
+      "playlist": "Playlist"
+    },
+    "search": {
+      "result": "Found {playlists} playlists, {tracks} tracks, {users} people",
+      "filters": {
+        "created_at": "Created At",
+        "last_hour": "Past hour",
+        "last_day": "Past day",
+        "last_week": "Past week",
+        "last_month": "Past month",
+        "last_year": "Past year",
+        "any_time": "Any time",
+        "length": "Length",
+        "short": "Short",
+        "medium": "Medium",
+        "long": "Long",
+        "epic": "Epic",
+        "any_length": "Any length",
+        "license": "License",
+        "to_modify_commercially": "To Modify Commercially",
+        "to_use_commercially": "To Use Commercially",
+        "to_share": "To Share",
+        "any_license": "Any License",
+        "location": "Location",
+        "genre": "Genre"
+      } 
     },
     "following": {
       "title": "Following",
@@ -97,7 +125,8 @@
       "loadMore": "Load More",
       "loadFail": "Failed to load data...",
       "empty": "Nothing Here (。・ω・。)",
-      "emptyDesc": "Please try refreshing or adjusting your query."
+      "emptyDesc": "Please try refreshing or adjusting your query.",
+      "play": "Play"
     },
     "toasts": {
       "playlistOpenFailed": "Failed to open playlist",
@@ -111,7 +140,18 @@
       "cancel": "Cancel",
       "close": "Close",
       "userInfoErr": "Failed to Update User Info.",
-      "loadFailed": "Failed to load track. Will try next track in 5 seconds."
+      "loadFailed": "Failed to load track. Will try next track in 5 seconds.",
+      "clearCacheSuccess": "Cache cleared successfully",
+      "clearCacheFailed": "Failed to clear cache"
+    },
+    "trackView": {
+      "description": "Description",
+      "playCount": "Play Count",
+      "likes": "Likes",
+      "reposts": "Reposts",
+      "comments": "Comments",
+      "relatedTracks": "Related Tracks",
+      "noComments": "No comments found"
     },
     "settings": {
       "config": {
@@ -122,7 +162,6 @@
         "mp3ConvertExts": "Convert following extensions to MP3 (WARNING: Lossy)",
         "fileNaming": "File Naming",
         "addCover": "Embed Cover",
-        "analyzeBpmAndKey": "Analyze BPM and Key Locally",
         "virtualDjSupport": "VirtualDJ Support",
         "clientId": "Soundcloud Client ID",
         "oauthToken": "Soundcloud OAuth Token",
@@ -152,7 +191,8 @@
         "issue": "Report Issue"
       },
       "etc": {
-        "loginSoundcloud": "Login to Soundcloud"
+        "loginSoundcloud": "Login to Soundcloud",
+        "clearCache": "Clear Cache"
       }
     }
   }

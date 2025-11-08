@@ -189,11 +189,17 @@ export function useHistory() {
 }
 
 export function useTrackComments(id: number) {
-  return useCollection<Comment>(`/tracks/${id}/comments`, 10)
+  return useCollection<Comment>(`/tracks/${id}/comments`, 10, { threaded: 0 })
 }
 
 export async function useTrackAlbums(id: number) {
   return useCollection<UserPlaylist>(`/tracks/${id}/albums`, 10, { representation: "mini" })
+}
+
+export async function useTrackPlaylistsWithoutAlbum(id: number) {
+  return useCollection<UserPlaylist>(`/tracks/${id}/playlists_without_albums`, 10, {
+    representation: "mini",
+  })
 }
 
 export async function useTrackPlaylists(id: number) {
@@ -241,16 +247,25 @@ interface FacetQuery {
 
 // TODO: facet
 
-export function useSearchTracks(query: string, facet: FacetQuery) {
-  return useSearchCollection<Track>(`/search/tracks`, query, facet, 20)
+
+export function useSearch(query: string, filters: FacetQuery[]) {
+  return useSearchCollection<Track>(`/search/tracks`, query, filters, "model", 20)
 }
 
-export function useSearchUsers(query: string, facet: FacetQuery) {
-  return useSearchCollection<SCUser>(`/search/users`, query, facet, 20)
+export function useSearchTracks(query: string, filters: FacetQuery[]) {
+  return useSearchCollection<Track>(`/search/tracks`, query, filters, "genre", 20)
 }
 
-export function useSearchPlaylists(query: string, facet: FacetQuery) {
-  return useSearchCollection<UserPlaylist>(`/search/playlists`, query, facet, 20)
+export function useSearchUsers(query: string, filters: FacetQuery[]) {
+  return useSearchCollection<SCUser>(`/search/users`, query, filters, "location", 20)
+}
+
+export function useSearchPlaylists(query: string, filters: FacetQuery[]) {
+  return useSearchCollection<UserPlaylist>(`/search/playlists`, query, filters, "genre", 20)
+}
+
+export function useSearchAlbums(query: string, filters: FacetQuery[]) {
+  return useSearchCollection<UserPlaylist>(`/search/albums`, query, filters, "genre", 20)
 }
 
 /**
@@ -336,7 +351,11 @@ export async function getSearchSuggestions(query: string) {
   ).collection
 }
 
-// TODO: Figure out /users/.../featured-profiles
+export async function getFeaturedProfiles(id: number) {
+  return (await getV2ApiJson<CollectionResp<SCUser>>(`/users/${id}/featured-profiles`, {
+    limit: 10,
+  })).collection
+}
 
 /**
  * Operations
@@ -456,7 +475,8 @@ function useCollection<T>(
 function useSearchCollection<T extends Track | UserPlaylist | SCUser>(
   url: string,
   query: string,
-  facet: FacetQuery,
+  filters: FacetQuery[],
+  requestFacet: "model" | "genre" | "location",
   limit: number = 20,
 ) {
   const data = shallowRef<T[]>([])
@@ -475,9 +495,11 @@ function useSearchCollection<T extends Track | UserPlaylist | SCUser>(
 
     try {
       // Linked Partitioning is default to true ig
+      const facetObj = filters.reduce((acc, cur) => ({ ...acc, [cur.name]: cur.value }), {})
+
       const promise = nextHref
         ? (getJson(nextHref) as Promise<SearchCollection<T>>)
-        : getV2ApiJson<T>(url, { limit, q: query, [facet.name]: facet.value })
+        : getV2ApiJson<T>(url, { limit, q: query, ...facetObj, facet: requestFacet })
       const res = (await promise) as SearchCollection<T>
 
       data.value = [...data.value, ...(res.collection || [])] as T[]

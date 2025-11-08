@@ -104,13 +104,25 @@
       "userInfoErr": "更新用户信息失败",
       "loadFailed": "加载曲目失败, 将在5秒后播放下一单曲"
     },
+    "trackView": {
+      "description": "描述",
+      "playCount": "播放次数",
+      "likes": "喜欢",
+      "reposts": "转发",
+      "comments": "评论",
+      "relatedTracks": "相关曲目",
+      "relatedAlbums": "相关专辑",
+      "relatedPlaylists": "相关播单",
+      "noComments": "暂无评论"
+    },
     "common": {
       "loading": "加载中...",
       "noMore": "没有更多了",
       "loadMore": "加载更多",
       "loadFail": "加载失败...",
       "empty": "这里空空如也 (。・ω・。)",
-      "emptyDesc": "请尝试刷新或者调整搜索条件"
+      "emptyDesc": "请尝试刷新或者调整搜索条件",
+      "play": "播放"
     },
     "settings": {
       "config": {
@@ -121,7 +133,6 @@
         "mp3ConvertExts": "转换以下扩展名到 MP3 (警告: 有损压缩)",
         "fileNaming": "文件命名方式",
         "addCover": "嵌入封面",
-        "analyzeBpmAndKey": "将 BPM 和调性保存到本地",
         "virtualDjSupport": "VirtualDJ 助手",
         "clientId": "Soundcloud 客户端 ID",
         "oauthToken": "Soundcloud OAuth 令牌",

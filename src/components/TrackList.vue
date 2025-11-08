@@ -98,7 +98,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in table.getRowModel().rows" :key="row.id">
+        <tr v-for="row in table.getRowModel().rows" :key="row.id"
+          @click="$router.push(`/track/${row.original.id}`)"
+          class="hover:opacity-80 transition-opacity">
           <td v-for="cell in row.getVisibleCells()" :key="cell.id">
             <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
           </td>
@@ -224,7 +226,9 @@ const columns = [
   }),
   columnHelper.accessor("tag_list", {
     header: i18n.global.t("cloudie.trackList.tags"),
-    cell: (info) => info.getValue(),
+    cell: (info) => {
+      return <div class="line-clamp-2"> {info.getValue()} </div>
+    },
     filterFn: tagsFilter,
     size: 100,
   }),
@@ -280,7 +284,9 @@ const columns = [
           <button
             type="button"
             class="btn btn-ghost btn-sm"
-            onClick={() => usePlayerStore().playSong(info.row.original, props.playlist.tracks)}>
+            onClick={() => {
+              return usePlayerStore().play(info.row.original, props.playlist.tracks)
+            }}>
             <i-mdi-play />
           </button>
           <a class="btn btn-ghost btn-sm" href={info.row.original.permalink_url} target="_blank">

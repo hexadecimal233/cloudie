@@ -25,6 +25,8 @@
         <input type="checkbox" class="toggle" v-model="config.noHistory" />
         <span>{{ $t("cloudie.settings.config.noHistory") }}</span>
       </label>
+
+      <button class="btn" @click="clearCache">{{ $t("cloudie.settings.etc.clearCache") }}</button>
     </fieldset>
 
     <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">
@@ -91,11 +93,6 @@
 
     <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">
       <legend class="fieldset-legend">{{ $t("cloudie.settings.sections.misc") }}</legend>
-
-      <label class="label cursor-pointer">
-        <span>{{ $t("cloudie.settings.config.analyzeBpmAndKey") }}</span>
-        <input type="checkbox" class="toggle" v-model="config.analyzeBpmAndKey" />
-      </label>
 
       <label class="label cursor-pointer">
         <span>{{ $t("cloudie.settings.config.virtualDjSupport") }}</span>
@@ -186,6 +183,7 @@ import { i18n, LANGUAGE_OPTIONS } from "@/systems/i18n"
 import * as fs from "@tauri-apps/plugin-fs"
 import { FileNaming } from "@/systems/download/parser"
 import { capitalizeFirstLetter } from "@/utils/utils"
+import { M3U8_CACHE_MANAGER } from "@/systems/player/cache"
 
 const isPathValid = ref(false)
 const versionInfo = ref({
@@ -213,6 +211,18 @@ onMounted(async () => {
     console.error("Failed to get latest version: ", error)
   }
 })
+
+async function clearCache() {
+  try {
+    await M3U8_CACHE_MANAGER.clearCache()
+    toast.success(i18n.global.t("cloudie.toasts.clearCacheSuccess"))
+  } catch (error) {
+    console.error("Failed to clear cache: ", error)
+    toast.error(i18n.global.t("cloudie.toasts.clearCacheFailed"), {
+      description: error as string,
+    })
+  }
+}
 
 async function openSavePathDialog() {
   const file = await open({

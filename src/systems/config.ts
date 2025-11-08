@@ -64,7 +64,6 @@ class Config {
   fileNaming: FileNaming = FileNaming.TitleArtist
   addCover: boolean = false
   // 杂项
-  analyzeBpmAndKey: boolean = false // TODO: unimplemented
   virtualDjSupport: boolean = false // TODO: unimplemented
   // 登录
   clientId: string = ""

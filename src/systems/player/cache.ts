@@ -70,6 +70,9 @@ export class M3U8CacheManager {
   async getSegmentCache(trackId: number, segmentUrl: string) {
     try {
       const data = await fs.readFile(await this.getFilePath(trackId, segmentUrl))
+      if (data.length === 0) {
+        return null
+      }
       return data
     } catch (_) {
       return null
@@ -78,6 +81,15 @@ export class M3U8CacheManager {
 
   async setSegmentCache(trackId: number, segmentUrl: string, data: ArrayBuffer) {
     await fs.writeFile(await this.getFilePath(trackId, segmentUrl), new Uint8Array(data))
+  }
+
+  async clearCache() {
+    const segmentDir = await path.join(await path.appCacheDir(), "segments")
+    try {
+      await fs.remove(segmentDir, { recursive: true })
+    } catch (_) {
+      // Directory does not exist or removal failed
+    }
   }
 }
 

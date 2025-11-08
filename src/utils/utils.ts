@@ -88,6 +88,16 @@ export function getCoverUrl(track: Track): string {
   return track.artwork_url ?? track.user.avatar_url ?? ""
 }
 
+export function formatDate(date: Date | string): string {
+  const d = new Date(date)
+  return d.toLocaleDateString()
+}
+
+export function formatNumber(num: number | null | undefined): string {
+  if (num === null || num === undefined) return "0"
+  return new Intl.NumberFormat().format(num)
+}
+
 import * as fs from "@tauri-apps/plugin-fs"
 
 export async function copyDir(srcDir: string, destDir: string, copyOptions?: fs.CopyFileOptions) {

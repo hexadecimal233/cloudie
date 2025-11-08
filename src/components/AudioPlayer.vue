@@ -2,13 +2,19 @@
   <video @timeupdate="onTimeUpdate" @ended="onEnded" @loadedmetadata="onLoadedMetadata" ref="mediaRef" autoplay
     hidden></video>
 
-  <div v-if="!!playerState.track" class="bg-base-200 relative h-24 w-full">
+  <div v-if="!!playerState.track" class="bg-base-200 relative w-full">
     <!-- Progress Bar and Needle-->
+     <!--
     <progress class="progress absolute top-0 h-1.5 w-full rounded-none transition-all hover:-top-1.5 hover:h-3"
       :value="playerState.currentTime" :max="playerState.duration || 100" @click="onProgressClick"></progress>
+     -->
 
-    <div class="flex h-full w-full px-4 py-3">
-      <div class="flex items-center gap-3 flex-1/3">
+    <div class="h-10 bg-primary/10 w-full overflow-hidden">
+        <Waveform :waveform-url="playerState.track.waveform_url" :play-progress="playerState.currentTime / (playerState.duration || 1)" @click="onProgressClick"></Waveform>
+    </div>
+
+    <div class="flex h-24 w-full px-4 py-3">
+      <div class="flex items-center gap-3 w-1/3">
         <img :src="getCoverUrl(playerState.track)" alt="cover" class="object-cover skeleton size-18" />
         <div class="flex flex-col overflow-hidden">
           <p class="font-bold truncate" :title="playerState.track?.title">{{ playerState.track.title }}</p>
@@ -17,7 +23,7 @@
         </div>
       </div>
 
-      <div class="flex items-center justify-center gap-4 flex-1/3">
+      <div class="flex items-center justify-center gap-4 w-1/3">
         <button class="btn btn-ghost btn-circle" @click="openListeningWidget">
           <i-mdi-playlist-play />
         </button>
@@ -25,7 +31,7 @@
           <i-mdi-rewind />
         </button>
         <button class="btn btn-primary btn-circle" @click="togglePlay">
-          <div v-if="loading" class="loading loading-spinner loading-lg"></div>
+          <div v-if="loading" class="loading loa ding-spinner loading-lg"></div>
           <i-mdi-play v-else-if="playerState.paused" />
           <i-mdi-pause v-else />
         </button>
@@ -34,11 +40,11 @@
         </button>
         <PlayOrderSwitch></PlayOrderSwitch>
       </div>
-      <div class="flex items-center justify-end flex-1/3">
+      <div class="flex items-center justify-end w-1/3">
         <div class="flex items-center gap-2">
           <span class="text-sm">{{ formatSecs(playerState.currentTime) }}</span>
           <span class="text-sm">/</span>
-          <span class="text-sm">{{ formatMillis(playerState.duration || 0) }}</span>
+          <span class="text-sm">{{ formatSecs(playerState.duration || 0) }}</span>
         </div>
       </div>
     </div>
@@ -55,8 +61,9 @@ import {
   setCurrentTrack,
   setTrackUpdateCallback,
   addAndPlay,
+  playIndex,
 } from "@/systems/player/listening-list"
-import { formatMillis, formatSecs, getArtist, getCoverUrl, replaceImageUrl } from "@/utils/utils"
+import { formatSecs, getArtist, getCoverUrl, replaceImageUrl } from "@/utils/utils"
 import Hls from "hls.js"
 import type { ErrorData } from "hls.js"
 import { Track } from "@/utils/types"
@@ -67,6 +74,7 @@ import { toast } from "vue-sonner"
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { useModal } from "vue-final-modal"
 import { usePlayerStore } from "@/systems/stores/player"
+import Waveform from "./Waveform.vue"
 
 // --- HLS 相关的状态和 Ref ---
 const mediaRef = ref<HTMLVideoElement | null>(null)
@@ -138,6 +146,7 @@ onMounted(() => {
     onPause: pause,
     onSeek: seek,
     onPlay: addAndPlay,
+    onPlayIndex: playIndex,
   })
 
   // Initialize HLS player if supported
@@ -234,19 +243,13 @@ function seek(time: number) {
 }
 
 // 处理进度条点击事件以实现 Seek
-function onProgressClick(event: MouseEvent) {
-  const progressElement = event.currentTarget as HTMLProgressElement
-  if (!progressElement || playerState.duration === undefined) {
+function onProgressClick(percentage: number) {
+  if (playerState.duration === undefined) {
     return
   }
 
-  // 1. 获取点击位置的百分比
-  const rect = progressElement.getBoundingClientRect()
-  const clickX = event.clientX - rect.left
-  const percent = clickX / rect.width
-
   // 2. 计算目标时间
-  const targetTime = percent * playerState.duration
+  const targetTime = percentage * playerState.duration
 
   // 3. 寻址
   seek(targetTime)
@@ -279,6 +282,8 @@ async function loadSong(forceRefreshM3U8: boolean = false) {
   loading.value = true
   playerState.duration = undefined
 
+  const currentTime = mediaRef.value.currentTime
+
   try {
     if (hlsPlayer.value) {
       // disable HLS load to prevent multiple segments loading
@@ -298,7 +303,7 @@ async function loadSong(forceRefreshM3U8: boolean = false) {
         try {
           if (mediaRef.value && playerState.track) {
             // restore load
-            hlsPlayer.value!.startLoad(mediaRef.value!.currentTime)
+            hlsPlayer.value!.startLoad(forceRefreshM3U8 ? currentTime : 0)
             // 等待 HLS 解析完成后再播放
             await mediaRef.value!.play()
             playerState.paused = false

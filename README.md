@@ -72,6 +72,6 @@ Pull Requests: [Pull Requests](https://github.com/hexadecimal233/cloudie/pulls)
 - [ ] Proxy support
 - [ ] Scrobbling support
 - [ ] DJ Support
-- [ ] OEmbed Support 
+- [ ] Watch Router updates on dynamic views 
 - [ ] Lyrics service
 -->
