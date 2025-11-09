@@ -216,7 +216,6 @@ import { SCUser, Track, WebProfile } from "@/utils/types"
 import { toast } from "vue-sonner"
 import { useUsersStore } from "@/systems/stores/users"
 import { useRoute } from "vue-router"
-import MiniTrack from "@/components/mini/MiniTrack.vue"
 
 const user = computed(() => useUsersStore().getUserById(Number(useRoute().params.id))!)
 

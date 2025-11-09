@@ -30,7 +30,7 @@
   --color-cloudie-info-800: oklch(0.327 0.087 249.88);
   --color-cloudie-info-900: oklch(0.231 0.062 250.44);
   --color-cloudie-info-950: oklch(0.179 0.047 249.83);
-  
+
   --color-cloudie-success-50: oklch(0.969 0.045 168.01);
   --color-cloudie-success-100: oklch(0.937 0.093 168.41);
   --color-cloudie-success-200: oklch(0.867 0.17 168.62);
@@ -54,7 +54,7 @@
   --color-cloudie-warning-800: oklch(0.355 0.071 84.49);
   --color-cloudie-warning-900: oklch(0.25 0.05 83.37);
   --color-cloudie-warning-950: oklch(0.189 0.039 86.53);
-  
+
   --color-cloudie-error-50: oklch(0.958 0.016 12.9);
   --color-cloudie-error-100: oklch(0.917 0.033 13.24);
   --color-cloudie-error-200: oklch(0.837 0.072 15.52);
@@ -66,7 +66,7 @@
   --color-cloudie-error-800: oklch(0.324 0.11 20);
   --color-cloudie-error-900: oklch(0.233 0.08 19.92);
   --color-cloudie-error-950: oklch(0.184 0.061 19.69);
-  
+
   /* buggy */
   --color-cloudie-neutral-50: oklch(0.976 0.008 358.06);
   --color-cloudie-neutral-100: oklch(0.959 0.014 0.41);

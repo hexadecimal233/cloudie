@@ -21,7 +21,6 @@
 </template>
 
 <script setup lang="ts" name="PlaylistView">
-import TrackList from "@/components/TrackList.vue"
 import { ExactPlaylist, SystemPlaylist, UserPlaylist } from "@/utils/types"
 import { computed, onMounted, ref } from "vue"
 import { usePlaylistsStore } from "@/systems/stores/playlists"

@@ -130,7 +130,7 @@ enum Downloadability {
   Direct,
   Normal,
   Premium,
-  Geo
+  Geo,
 }
 
 // FIXME: table size does not work
@@ -198,7 +198,12 @@ const columns: TableColumn<Track>[] = [
     accessorKey: "tag_list",
     header: i18n.global.t("cloudie.trackList.tags"),
     cell: (info) => {
-      return <div class="line-clamp-2"> <Tags tags={info.getValue() as string} /> </div>
+      return (
+        <div class="line-clamp-2">
+          {" "}
+          <Tags tags={info.getValue() as string} />{" "}
+        </div>
+      )
     },
     filterFn: "includesString",
     meta: {
@@ -235,9 +240,13 @@ const columns: TableColumn<Track>[] = [
       } else if (downloadability === Downloadability.Premium) {
         return <UBadge color="warning">{i18n.global.t("cloudie.trackList.premium")}</UBadge>
       } else {
-        return <UBadge color="info">{i18n.global.t("cloudie.trackList.source", {
-          count: info.row.original.media.transcodings.length,
-        })}</UBadge>
+        return (
+          <UBadge color="info">
+            {i18n.global.t("cloudie.trackList.source", {
+              count: info.row.original.media.transcodings.length,
+            })}
+          </UBadge>
+        )
       }
     },
     sortingFn: (a, b) => {

@@ -23,7 +23,7 @@ export function replaceImageUrl(
 // Check if a track is possible to free download (e.g. official download link)
 export function isPossibleFreeDownload(track: Track) {
   let isFreeDownload = false
-  
+
   if (track.description) {
     isFreeDownload =
       isFreeDownload ||

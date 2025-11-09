@@ -21,7 +21,6 @@
 <script setup lang="ts" name="RadioView">
 import { onMounted } from "vue"
 import { useStations } from "@/utils/api"
-import PlaylistList from "@/components/PlaylistList.vue"
 
 const collection = useStations()
 

@@ -6,15 +6,15 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-    tags: string
+  tags: string
 }>()
 
 function getTags() {
-    if (!props.tags) return []
+  if (!props.tags) return []
 
-    // quoted tags or unquoted words
-    const matches = props.tags.match(/"([^"]*)"|(\S+)/g) || []
-    return matches.map(m => m.replace(/^"|"$/g, ''))
+  // quoted tags or unquoted words
+  const matches = props.tags.match(/"([^"]*)"|(\S+)/g) || []
+  return matches.map((m) => m.replace(/^"|"$/g, ""))
 }
 
 const tags = getTags()

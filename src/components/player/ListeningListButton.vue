@@ -56,7 +56,6 @@
 import { removeMultipleSongs, listeningList } from "@/systems/player/listening-list"
 import { ref, watch, nextTick } from "vue"
 import { config } from "@/systems/config"
-import VirtualList from "./VirtualList.vue"
 
 const open = ref(false)
 const selectedIdxs = ref<number[]>([])
@@ -67,7 +66,10 @@ watch(open, async (isOpen) => {
   if (isOpen && listeningList.value.length > 0) {
     await nextTick()
     // 确保当前播放索引在有效范围内
-    const currentIndex = Math.max(0, Math.min(config.value.listenIndex, listeningList.value.length - 1))
+    const currentIndex = Math.max(
+      0,
+      Math.min(config.value.listenIndex, listeningList.value.length - 1),
+    )
 
     // 使用 VirtualList 的 scrollToIndex 方法滚动到当前播放项
     if (virtualListRef.value && currentIndex >= 0) {

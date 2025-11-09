@@ -83,7 +83,6 @@ function onPause() {
 }
 
 import { formatSecs } from "@/utils/utils"
-import Waveform from "./Waveform.vue"
 
 function onProgressClick(percentage: number) {
   if (playerState.duration === undefined) {

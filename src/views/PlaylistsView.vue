@@ -33,7 +33,6 @@
 <script setup lang="ts" name="PlaylistView">
 import { ref, onMounted, computed } from "vue"
 import { useLibrary } from "@/utils/api"
-import PlaylistList from "@/components/PlaylistList.vue"
 
 const activeTab = ref<"system" | "playlist" | "album">("playlist")
 

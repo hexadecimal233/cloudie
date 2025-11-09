@@ -3,5 +3,4 @@
 </template>
 
 <script setup lang="ts" name="LikesView">
-import CollectionView from "@/components/CollectionView.vue"
 </script>

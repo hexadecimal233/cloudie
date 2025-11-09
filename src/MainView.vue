@@ -61,10 +61,9 @@ import { onMounted, ref, computed, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import { useI18n } from "vue-i18n"
 import { BasicUserInfo, getSearchSuggestions, updateUserInfo, userInfo } from "@/utils/api"
-import AudioPlayer from "./components/AudioPlayer.vue"
 import { NavigationMenuItem } from "@nuxt/ui/runtime/components/NavigationMenu.vue.js"
 import { OverlayScrollbarsComponent } from "overlayscrollbars-vue"
-import { useColorMode, useDebounceFn, useThrottleFn } from "@vueuse/core"
+import { useColorMode, useDebounceFn } from "@vueuse/core"
 
 const route = useRoute()
 const router = useRouter()
@@ -77,7 +76,6 @@ const colorMode = useColorMode()
 const scrollbarTheme = computed(() => {
   return "os-theme-" + (colorMode.value === "dark" ? "light" : "dark")
 })
-
 
 onMounted(async () => {
   await updateUserInfo(true)
@@ -100,7 +98,7 @@ const searchSuggestions = ref<string[]>([])
 
 // Create the debounced function outside of the watch callback
 const debounceGetSuggestions = useDebounceFn(async (term: string) => {
-  console.log('getSearchSuggestions', term)
+  console.log("getSearchSuggestions", term)
   searchSuggestions.value = (await getSearchSuggestions(term)).map((item) => item.output)
 }, 500)
 
