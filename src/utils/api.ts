@@ -247,7 +247,6 @@ interface FacetQuery {
 
 // TODO: facet
 
-
 export function useSearch(query: string, filters: FacetQuery[]) {
   return useSearchCollection<Track>(`/search/tracks`, query, filters, "model", 20)
 }
@@ -352,9 +351,11 @@ export async function getSearchSuggestions(query: string) {
 }
 
 export async function getFeaturedProfiles(id: number) {
-  return (await getV2ApiJson<CollectionResp<SCUser>>(`/users/${id}/featured-profiles`, {
-    limit: 10,
-  })).collection
+  return (
+    await getV2ApiJson<CollectionResp<SCUser>>(`/users/${id}/featured-profiles`, {
+      limit: 10,
+    })
+  ).collection
 }
 
 /**
