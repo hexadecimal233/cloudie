@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="text-3xl font-bold">{{ $t("cloudie.search.result", { query }) }}</div>
+    <div class="text-3xl font-bold">{{ $t("cloudie.search.result") }}</div>
   </div>
 </template>
 

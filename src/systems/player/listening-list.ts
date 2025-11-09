@@ -1,9 +1,12 @@
-import { Track } from "@/utils/types"
+import type { Track } from "@/utils/types"
 import { ref } from "vue"
 import { db } from "@/systems/db/db"
 import * as schema from "@/systems/db/schema"
 import { asc, inArray } from "drizzle-orm"
 import { config } from "@/systems/config"
+
+// FIXME: after delete current index should also be changed
+// FIXME: shffle list not persistient after restarting app
 
 export enum PlayOrder {
   OrderedNoRepeat = "ordered-no-repeat",
@@ -11,9 +14,6 @@ export enum PlayOrder {
   SingleRepeat = "single-repeat",
   Shuffle = "shuffle",
 }
-
-// FIXME: after delete current index should also be changed
-// FIXME: shffle list not persistient after restarting app
 
 export const listeningList = ref<Track[]>([])
 const shuffledIndexMapping = new Map<number, number>() // <shuffled index, original index>
@@ -176,7 +176,7 @@ function mod(a: number, n: number) {
  * @returns The offset track index in the listening list, -1 if there is no such track.
  */
 export async function getNextTrackIndex(offset: number = 1, ignoreShuffle: boolean = false) {
-  let { listenIndex: currentIndex, playOrder } = config.value
+  const { listenIndex: currentIndex, playOrder } = config.value
 
   // back to first track if goes beyond the end
   const newIdx = mod(currentIndex + offset, listeningList.value.length)

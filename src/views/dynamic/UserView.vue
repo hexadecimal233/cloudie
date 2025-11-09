@@ -205,7 +205,6 @@
 
 <script setup lang="ts" name="UserView">
 import { ref, onMounted, watch, computed } from "vue"
-import { VueFinalModal } from "vue-final-modal"
 import {
   getRelatedArtists,
   getSpolight,

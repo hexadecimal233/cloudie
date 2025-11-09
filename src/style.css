@@ -1,43 +1,100 @@
 @import "tailwindcss";
-@plugin "daisyui" {
-  themes: all;
-}
-
-@plugin "daisyui/theme" {
-  name: "cloudie";
-  default: false;
-  prefersdark: false;
-  color-scheme: "light";
-  --color-base-100: oklch(98% 0.003 247.858);
-  --color-base-200: oklch(94% 0.03 12.58);
-  --color-base-300: oklch(89% 0.058 10.001);
-  --color-base-content: oklch(0.515 0.37 360);
-  --color-primary: oklch(0.651 0.208 13);
-  --color-primary-content: oklch(100% 0 0);
-  --color-secondary: oklch(0.651 0.208 13);
-  --color-secondary-content: oklch(100% 0 0);
-  --color-accent: oklch(0.651 0.208 13);
-  --color-accent-content: oklch(100% 0 0);
-  --color-neutral: oklch(0.651 0.208 13);
-  --color-neutral-content: oklch(100% 0 0);
-  --color-info: oklch(70% 0.165 254.624);
-  --color-info-content: oklch(28% 0.091 267.935);
-  --color-success: oklch(76% 0.177 163.223);
-  --color-success-content: oklch(26% 0.051 172.552);
-  --color-warning: oklch(82% 0.189 84.429);
-  --color-warning-content: oklch(27% 0.077 45.635);
-  --color-error: oklch(70% 0.191 22.216);
-  --color-error-content: oklch(25% 0.092 26.042);
-  --radius-selector: 0.5rem;
-  --radius-field: 1rem;
-  --radius-box: 1rem;
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
-  --border: 2px;
-  --depth: 0;
-  --noise: 0;
-}
+@import "@nuxt/ui";
 
 :root {
   @apply select-none;
+}
+
+/* https://www.tints.dev */
+@theme static {
+  --color-cloudie-primary-50: oklch(0.958 0.016 2.8);
+  --color-cloudie-primary-100: oklch(0.925 0.028 6.74);
+  --color-cloudie-primary-200: oklch(0.843 0.063 6.17);
+  --color-cloudie-primary-300: oklch(0.772 0.1 6.95);
+  --color-cloudie-primary-400: oklch(0.698 0.144 7.25);
+  --color-cloudie-primary-500: oklch(0.626 0.191 7.85);
+  --color-cloudie-primary-600: oklch(0.521 0.159 7.82);
+  --color-cloudie-primary-700: oklch(0.413 0.126 8.05);
+  --color-cloudie-primary-800: oklch(0.305 0.092 8.03);
+  --color-cloudie-primary-900: oklch(0.206 0.064 7.59);
+  --color-cloudie-primary-950: oklch(0.106 0.033 5.4);
+
+  --color-cloudie-info-50: oklch(0.967 0.016 266.31);
+  --color-cloudie-info-100: oklch(0.923 0.035 264.4);
+  --color-cloudie-info-200: oklch(0.854 0.07 261.78);
+  --color-cloudie-info-300: oklch(0.777 0.111 258.29);
+  --color-cloudie-info-400: oklch(0.703 0.154 253.16);
+  --color-cloudie-info-500: oklch(0.612 0.164 249.89);
+  --color-cloudie-info-600: oklch(0.518 0.138 249.89);
+  --color-cloudie-info-700: oklch(0.423 0.112 249.63);
+  --color-cloudie-info-800: oklch(0.327 0.087 249.88);
+  --color-cloudie-info-900: oklch(0.231 0.062 250.44);
+  --color-cloudie-info-950: oklch(0.179 0.047 249.83);
+  
+  --color-cloudie-success-50: oklch(0.969 0.045 168.01);
+  --color-cloudie-success-100: oklch(0.937 0.093 168.41);
+  --color-cloudie-success-200: oklch(0.867 0.17 168.62);
+  --color-cloudie-success-300: oklch(0.816 0.16 168.62);
+  --color-cloudie-success-400: oklch(0.764 0.15 168.6);
+  --color-cloudie-success-500: oklch(0.657 0.129 168.59);
+  --color-cloudie-success-600: oklch(0.555 0.108 168.97);
+  --color-cloudie-success-700: oklch(0.445 0.087 168.52);
+  --color-cloudie-success-800: oklch(0.344 0.067 169.06);
+  --color-cloudie-success-900: oklch(0.235 0.046 168.22);
+  --color-cloudie-success-950: oklch(0.182 0.037 168.6);
+
+  --color-cloudie-warning-50: oklch(0.975 0.019 72.57);
+  --color-cloudie-warning-100: oklch(0.949 0.041 74.46);
+  --color-cloudie-warning-200: oklch(0.899 0.09 78.14);
+  --color-cloudie-warning-300: oklch(0.849 0.163 84.23);
+  --color-cloudie-warning-400: oklch(0.795 0.16 84.87);
+  --color-cloudie-warning-500: oklch(0.683 0.138 84.97);
+  --color-cloudie-warning-600: oklch(0.581 0.117 85.22);
+  --color-cloudie-warning-700: oklch(0.467 0.095 85.24);
+  --color-cloudie-warning-800: oklch(0.355 0.071 84.49);
+  --color-cloudie-warning-900: oklch(0.25 0.05 83.37);
+  --color-cloudie-warning-950: oklch(0.189 0.039 86.53);
+  
+  --color-cloudie-error-50: oklch(0.958 0.016 12.9);
+  --color-cloudie-error-100: oklch(0.917 0.033 13.24);
+  --color-cloudie-error-200: oklch(0.837 0.072 15.52);
+  --color-cloudie-error-300: oklch(0.756 0.118 16.28);
+  --color-cloudie-error-400: oklch(0.677 0.172 18.18);
+  --color-cloudie-error-500: oklch(0.595 0.202 20.14);
+  --color-cloudie-error-600: oklch(0.504 0.171 20.38);
+  --color-cloudie-error-700: oklch(0.413 0.14 20.2);
+  --color-cloudie-error-800: oklch(0.324 0.11 20);
+  --color-cloudie-error-900: oklch(0.233 0.08 19.92);
+  --color-cloudie-error-950: oklch(0.184 0.061 19.69);
+  
+  /* buggy */
+  --color-cloudie-neutral-50: oklch(0.976 0.008 358.06);
+  --color-cloudie-neutral-100: oklch(0.959 0.014 0.41);
+  --color-cloudie-neutral-200: oklch(0.909 0.031 0.28);
+  --color-cloudie-neutral-300: oklch(0.865 0.049 358.73);
+  --color-cloudie-neutral-400: oklch(0.772 0.093 359.29);
+  --color-cloudie-neutral-500: oklch(0.674 0.149 358.61);
+  --color-cloudie-neutral-600: oklch(0.572 0.157 358.34);
+  --color-cloudie-neutral-700: oklch(0.465 0.128 358.79);
+  --color-cloudie-neutral-800: oklch(0.358 0.098 358.42);
+  --color-cloudie-neutral-900: oklch(0.25 0.068 358.91);
+  --color-cloudie-neutral-950: oklch(0.195 0.055 357.32);
+}
+
+/* Page transition */
+@layer components {
+  .blur-enter-from,
+  .blur-leave-to {
+    @apply opacity-0 blur-sm scale-95;
+  }
+
+  .blur-enter-to,
+  .blur-leave-from {
+    @apply opacity-100 blur-none scale-100;
+  }
+
+  .blur-enter-active,
+  .blur-leave-active {
+    @apply transition-all duration-300 ease-in-out;
+  }
 }

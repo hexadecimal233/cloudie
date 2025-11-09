@@ -1,10 +1,10 @@
 import path from "node:path"
 import tailwindcss from "@tailwindcss/vite"
+import ui from "@nuxt/ui/vite"
 import vue from "@vitejs/plugin-vue"
 import vueJsx from "@vitejs/plugin-vue-jsx"
 import IconsResolver from "unplugin-icons/resolver"
 import Icons from "unplugin-icons/vite"
-import Components from "unplugin-vue-components/vite"
 import { defineConfig } from "vite"
 
 const host = process.env.TAURI_DEV_HOST
@@ -19,8 +19,10 @@ export default defineConfig(async () => ({
       autoInstall: true,
       scale: 1.5,
     }),
-    Components({
-      resolvers: [IconsResolver()],
+    ui({
+      components: {
+        resolvers: [IconsResolver()], // "unplugin-vue-components/vite"
+      },
     }),
   ],
 

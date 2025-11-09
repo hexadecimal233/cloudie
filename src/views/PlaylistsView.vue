@@ -1,5 +1,6 @@
 <template>
-  <!-- Tab 导航 -->
+  <div>
+      <!-- Tab 导航 -->
   <div class="tabs tabs-border mb-6">
     <input type="radio" name="playlist_tabs" class="tab" :aria-label="$t('cloudie.playlists.playlist')"
       @click="activeTab = 'playlist'" checked />
@@ -26,6 +27,7 @@
       </template>
     </template>
   </PlaylistList>
+  </div>
 </template>
 
 <script setup lang="ts" name="PlaylistView">

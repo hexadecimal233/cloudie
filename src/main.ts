@@ -9,6 +9,7 @@ import { initDownload } from "./systems/download/download"
 import { i18n, initI18n } from "./systems/i18n"
 import { initMedia } from "./systems/player/listening-list"
 import { createPinia } from "pinia"
+import ui from "@nuxt/ui/vue-plugin"
 
 async function initApp() {
   // load systems
@@ -26,6 +27,7 @@ async function initApp() {
   app.use(vfm)
   app.use(router)
   app.use(pinia)
+  app.use(ui)
 
   app.mount("#app")
 }

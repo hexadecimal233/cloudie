@@ -20,6 +20,46 @@ export function replaceImageUrl(
   return url.replace("-large", `-t${size}`)
 }
 
+// Check if a track is possible to free download (e.g. official download link)
+export function isPossibleFreeDownload(track: Track) {
+  let isFreeDownload = false
+  
+  if (track.description) {
+    isFreeDownload =
+      isFreeDownload ||
+      track.description.toLowerCase().includes("free download") ||
+      track.description.toLowerCase().includes("free dl")
+
+    if (isFreeDownload) return true
+  }
+  isFreeDownload =
+    isFreeDownload ||
+    track.title.toLowerCase().includes("free download") ||
+    track.title.toLowerCase().includes("free dl")
+
+  if (isFreeDownload) return true
+
+  // Detect purchase link
+  if (track.purchase_url) {
+    isFreeDownload =
+      isFreeDownload ||
+      track.purchase_url.toLowerCase().includes("dropbox.com") ||
+      track.purchase_url.toLowerCase().includes("drive.google.com") ||
+      track.purchase_url.toLowerCase().includes("mega.nz")
+  }
+
+  if (isFreeDownload) return true
+
+  if (track.purchase_title) {
+    isFreeDownload =
+      isFreeDownload ||
+      track.purchase_title.toLowerCase().includes("free download") ||
+      track.purchase_title.toLowerCase().includes("free dl")
+  }
+
+  return isFreeDownload
+}
+
 export function formatMillis(millis: number): string {
   const seconds = Math.floor(millis / 1000)
   const minutes = Math.floor(seconds / 60)
@@ -85,7 +125,7 @@ export function getArtist(track: Track): string {
 }
 
 export function getCoverUrl(track: Track): string {
-  return track.artwork_url ?? track.user.avatar_url ?? ""
+  return track.artwork_url ?? track.user?.avatar_url ?? ""
 }
 
 export function formatDate(date: Date | string): string {
@@ -97,6 +137,8 @@ export function formatNumber(num: number | null | undefined): string {
   if (num === null || num === undefined) return "0"
   return new Intl.NumberFormat().format(num)
 }
+
+// FS utils
 
 import * as fs from "@tauri-apps/plugin-fs"
 

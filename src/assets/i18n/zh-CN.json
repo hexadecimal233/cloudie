@@ -2,7 +2,7 @@
   "cloudie": {
     "langName": "中文",
     "main": {
-      "searchBar": "搜索 (暂未实现)",
+      "searchBar": "搜索",
       "likes": "喜欢的音乐",
       "playlists": "歌单与专辑",
       "radio": "电台",
@@ -10,7 +10,11 @@
       "downloads": "下载",
       "settings": "设置",
       "feeds": "推荐",
-      "following": "关注"
+      "following": "关注",
+      "track": "单曲",
+      "search": "搜索",
+      "user": "用户",
+      "playlist": "歌单"
     },
     "following": {
       "title": "关注",
@@ -51,7 +55,6 @@
       "pending": "排队中",
       "songInfo": "歌曲信息",
       "playlist": "歌单",
-      "artist": "艺术家",
       "addedTime": "添加时间",
       "origFileName": "原文件名",
       "status": "状态",

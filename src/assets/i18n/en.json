@@ -2,7 +2,7 @@
   "cloudie": {
     "langName": "English",
     "main": {
-      "searchBar": "Search (unimplemented yet)",
+      "searchBar": "Search",
       "likes": "Likes",
       "playlists": "Playlists & Albums",
       "radio": "Radio",
@@ -87,7 +87,6 @@
       "pending": "Pending",
       "songInfo": "Song Info",
       "playlist": "Playlist",
-      "artist": "Artist",
       "addedTime": "Added Time",
       "origFileName": "Original File Name",
       "status": "Status",

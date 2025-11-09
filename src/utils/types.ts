@@ -523,6 +523,7 @@ export interface M3U8Info {
   licenseUrls: any // an object containing playready/fairplay urls
 }
 
+// they are the same huh
 export interface SearchSuggestion {
   output: string
   query: string

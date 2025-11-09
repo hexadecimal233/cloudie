@@ -56,8 +56,6 @@ const router = createRouter({
       component: () => import("./views/dynamic/SearchView.vue"),
     },
   ],
-  linkActiveClass: "menu-active",
-  linkExactActiveClass: "menu-active",
 })
 
 export default router
