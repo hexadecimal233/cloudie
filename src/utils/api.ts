@@ -62,6 +62,10 @@ async function getRequest(url: string, useOAuth: boolean = true, useClientId: bo
     return response
   }
 
+  return await request(sendRequest)
+}
+
+async function request(sendRequest: () => Promise<Response>) {
   const response = await sendRequest()
 
   if (!response.ok) {
@@ -78,6 +82,31 @@ async function getRequest(url: string, useOAuth: boolean = true, useClientId: bo
   }
 
   return response
+}
+
+async function postV2Api(endpoint: string, params: Record<string, any> = {}): Promise<Response> {
+  if (clientIdRefreshing) {
+    throw new Error("clientId is refreshing, please try again later")
+  }
+  endpoint += endpoint.includes("?")
+    ? `&client_id=${config.value.clientId}`
+    : `?client_id=${config.value.clientId}`
+  const finalUrl = `${v2Url}${endpoint}`
+
+  const sendRequest = async () => {
+    const response = await fetch(finalUrl, {
+      method: "POST",
+      headers: {
+        Authorization: `OAuth ${config.value.oauthToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(params),
+    })
+
+    return response
+  }
+
+  return await request(sendRequest)
 }
 
 /**
@@ -403,7 +432,9 @@ export async function unrepostPlaylist(id: number) {
 }
 
 export async function addToHistory(id: number) {
-  throw new Error("Unimplemented")
+  await postV2Api(`/me/play-history`, {
+    track_urn: "soundcloud:tracks:" + id,
+  })
 }
 
 export async function changePlaylist(id: number, trackIds: number[]) {

@@ -7,6 +7,7 @@
           'fill-neutral-500': index / waveformBars.length >= playProgress,
         }" />
       <!-- Yeah rounded stuff just brings more lag -->
+      <!-- TODO: Clickable cursor icon  -->
 
       <line :x1="playProgress * width" :y1="0" :x2="playProgress * width" :y2="height" stroke-linecap="round"
         class="stroke-white stroke-4 will-change-transform transition-all" />

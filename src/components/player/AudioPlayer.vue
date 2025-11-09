@@ -1,6 +1,6 @@
 <template>
-  <video @timeupdate="onTimeUpdate" @ended="onEnded" @loadedmetadata="onLoadedMetadata" @play="onPlay" @pause="onPause" ref="mediaRef" autoplay
-    hidden></video>
+  <video @timeupdate="onTimeUpdate" @ended="onEnded" @loadedmetadata="onLoadedMetadata" @play="onPlay" @pause="onPause"
+    ref="mediaRef" autoplay hidden></video>
 
   <div v-if="!!playerState.track" class="bg-elevated relative w-full">
     <!-- TODO: Progress Bar and Needle than waveform -->
@@ -85,11 +85,7 @@ function onPause() {
 import { formatSecs } from "@/utils/utils"
 
 function onProgressClick(percentage: number) {
-  if (playerState.duration === undefined) {
-    return
-  }
-
-  const targetTime = percentage * playerState.duration
+  const targetTime = percentage * (playerState.duration ?? playerState.track?.duration ?? 0) // FIXME: clicking when initial loading cause next track
 
   playerState.seek(targetTime)
 

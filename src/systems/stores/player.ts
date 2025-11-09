@@ -16,6 +16,8 @@ import { getArtist, getCoverUrl, replaceImageUrl } from "@/utils/utils"
 import { M3U8_CACHE_MANAGER } from "../player/cache"
 import { CachedLoader } from "../player/loader"
 import { Ref } from "vue"
+import { config } from "../config"
+import { addToHistory } from "@/utils/api"
 
 class PlayerState {
   currentTime: number = 0
@@ -111,6 +113,10 @@ export const usePlayerStore = defineStore("player", {
                 hlsPlayer!.startLoad(forceRefreshM3U8 ? currentTime : 0)
                 // 等待 HLS 解析完成后再播放
                 await mediaRef.value?.play()
+
+                // 当这首曲子加载完毕开始播放
+                if (config.value.noHistory) return
+                addToHistory(this.track.id) // FIXME: will also be called if m3u8 error
               }
             } catch (error) {
               console.error("HLS Play Failed:", error)
@@ -165,8 +171,8 @@ export const usePlayerStore = defineStore("player", {
     },
     init(mref: Ref<HTMLVideoElement | null>) {
       console.log("init player", mref.value)
-      if (mediaRef || mref.value === null) {
-        throw new Error("Player is already initialized")
+      if (mediaRef) {
+        console.warn("Player is already initialized")
       }
 
       mediaRef = mref // directly pass reactivity
