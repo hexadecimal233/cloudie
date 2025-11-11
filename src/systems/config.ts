@@ -94,7 +94,7 @@ async function saveConfig() {
       colorMode.value = "light"
 
       appConfig.ui.colors.primary = "cloudie-primary"
-      appConfig.ui.colors.secondary = "cloudie-primary"
+      appConfig.ui.colors.secondary = "cloudie-secondary"
       appConfig.ui.colors.info = "cloudie-info"
       appConfig.ui.colors.success = "cloudie-success"
       appConfig.ui.colors.warning = "cloudie-warning"
@@ -107,7 +107,7 @@ async function saveConfig() {
       colorMode.value = "dark"
 
       appConfig.ui.colors.primary = "cloudie-primary"
-      appConfig.ui.colors.secondary = "cloudie-primary"
+      appConfig.ui.colors.secondary = "cloudie-secondary"
       appConfig.ui.colors.info = "cloudie-info"
       appConfig.ui.colors.success = "cloudie-success"
       appConfig.ui.colors.warning = "cloudie-warning"

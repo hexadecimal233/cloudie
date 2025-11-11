@@ -1,11 +1,35 @@
 <template>
-  <div class="mx-auto flex h-screen flex-col">
-    <div class="flex flex-1 overflow-hidden">
-      <!-- Left Side: Navigation Menu -->
-      <div class="bg-muted w-full max-w-64 flex-shrink-0 flex flex-col gap-y-1 px-4">
-        <img src="/logo.png" alt="cloudie" class="h-20 object-contain" />
+  <div class="mx-auto flex h-screen flex-col bg-muted">
+    <!-- Title Bar PS: data-tauri-drag-region doesn't work somehow -->
+    <div class="w-full px-2 py-1 flex from-primary/5 to-secondary/5"
+      :class="{ 'bg-gradient-to-r': windowStates.isFocused }" @mousedown="Window.getCurrent().startDragging()">
+      <div class="flex items-center gap-2 text-primary">
+        <i-lucide-cloud />
+        <span class="font-bold">Cloudie</span>
+      </div>
 
-        <div class="flex items-center gap-2">
+      <div class="flex-1"></div>
+
+      <div class="flex items-center gap-2" @mousedown.stop>
+        <UButton class="cursor-pointer" icon="i-lucide-minus" color="neutral" variant="link"
+          @click="Window.getCurrent().minimize()" />
+        <UButton class="cursor-pointer" :icon="windowStates.isMaximized ? 'i-lucide-minimize' : 'i-lucide-maximize'"
+          color="neutral" variant="link" @click="Window.getCurrent().toggleMaximize()" />
+        <UButton class="cursor-pointer hover:bg-error hover:text-inverted" icon="i-lucide-x" color="neutral"
+          variant="link" @click="Window.getCurrent().close()" />
+      </div>
+    </div>
+
+    <!-- Main Area -->
+    <div class="flex flex-1 overflow-hidden my-2 mr-4">
+      <!-- Left Side: Navigation Menu -->
+      <div class="w-full max-w-48 flex-shrink-0 flex flex-col px-4">
+        <!--
+        <img src="/logo.png" alt="cloudie" class="h-20 object-contain" />
+        -->
+
+        <!-- Matches the right section text to make the spacing consistent -->
+        <div class="flex items-center gap-2 mt-4 mb-8">
           <template v-if="!loading">
             <UAvatar :src="userInfo.avatar_url" size="lg" />
             <div class="font-bold">{{ userInfo.username }}</div>
@@ -21,7 +45,7 @@
       </div>
 
       <!-- Right Side: Content Browser -->
-      <div class="bg-muted flex flex-1 p-4">
+      <div class="flex flex-1">
         <OverlayScrollbarsComponent class="bg-default rounded-md flex flex-1 flex-col px-8 py-4" defer
           :options="{ scrollbars: { theme: scrollbarTheme } }">
           <!-- Search Bar -->
@@ -64,6 +88,7 @@ import { BasicUserInfo, getSearchSuggestions, updateUserInfo, userInfo } from "@
 import { NavigationMenuItem } from "@nuxt/ui/runtime/components/NavigationMenu.vue.js"
 import { OverlayScrollbarsComponent } from "overlayscrollbars-vue"
 import { useColorMode, useDebounceFn } from "@vueuse/core"
+import { Window } from "@tauri-apps/api/window"
 
 const route = useRoute()
 const router = useRouter()
@@ -71,6 +96,19 @@ const i18n = useI18n()
 const user = ref<BasicUserInfo>()
 const loading = ref(true)
 const colorMode = useColorMode()
+
+const windowStates = ref({
+  isFocused: false,
+  isMaximized: false,
+})
+
+Window.getCurrent().onResized(async ({ }) => {
+  windowStates.value.isMaximized = await Window.getCurrent().isMaximized()
+})
+
+Window.getCurrent().onFocusChanged(({ payload: focused }) => {
+  windowStates.value.isFocused = focused
+})
 
 // 计算滚动条主题
 const scrollbarTheme = computed(() => {
@@ -96,11 +134,10 @@ function getPageTitle() {
 const searchTerm = ref("")
 const searchSuggestions = ref<string[]>([])
 
-// Create the debounced function outside of the watch callback
 const debounceGetSuggestions = useDebounceFn(async (term: string) => {
-  console.log("getSearchSuggestions", term)
-  searchSuggestions.value = (await getSearchSuggestions(term)).map((item) => item.output)
-}, 500)
+  const newSuggestions = (await getSearchSuggestions(term)).map((item) => item.output)
+  searchSuggestions.value = newSuggestions
+}, 250)
 
 watch(searchTerm, (term) => {
   if (!term.trim()) {
@@ -123,7 +160,7 @@ function handleSearch() {
   }
 }
 
-const items = ref<NavigationMenuItem[][]>([
+const items = computed(() => [
   [
     { label: i18n.t("cloudie.main.feeds"), to: "/feeds", icon: "i-lucide-rss" },
     { label: i18n.t("cloudie.main.likes"), to: "/likes", icon: "i-lucide-heart" },

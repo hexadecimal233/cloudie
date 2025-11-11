@@ -1,6 +1,6 @@
 <template>
   <UTooltip :text="$t(`cloudie.player.${config.playOrder}`)">
-    <UButton size="xl" :icon="getIcon(config.playOrder)" class="rounded-full" variant="soft" @click="toggleOrder" />
+    <UButton size="xl" :icon="getIcon(config.playOrder)" class="rounded-full cursor-pointer" variant="soft" @click="toggleOrder" />
   </UTooltip>
 </template>
 

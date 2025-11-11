@@ -1,6 +1,6 @@
 <template>
   <UDrawer v-model:open="open" :overlay="false" direction="right" handle-only>
-    <UButton size="xl" class="rounded-full" icon="i-mdi-playlist-play" variant="soft" />
+    <UButton size="xl" class="rounded-full cursor-pointer" icon="i-mdi-playlist-play" variant="soft" />
 
     <template #content>
       <div class="flex flex-col gap-3 w-md overflow-y-auto p-3">

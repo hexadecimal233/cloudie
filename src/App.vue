@@ -14,4 +14,7 @@ import "vue-final-modal/style.css"
 import "overlayscrollbars/overlayscrollbars.css"
 
 import MainView from "./MainView.vue"
+import { Window } from "@tauri-apps/api/window"
+
+Window.getCurrent().show() // show with delay to prevent flickering
 </script>

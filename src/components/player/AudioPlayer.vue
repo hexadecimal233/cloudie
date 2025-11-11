@@ -14,10 +14,10 @@
 
       <div class="flex items-center justify-center gap-4 w-1/3">
         <ListeningListButton />
-        <UButton size="xl" class="rounded-full" icon="i-mdi-rewind" variant="soft" @click="playerState.nextTrack(-1)" />
+        <UButton size="xl" class="rounded-full cursor-pointer" icon="i-mdi-rewind" variant="soft" @click="playerState.nextTrack(-1)" />
         <UButton :loading="playerState.loading" :icon="playerState.isPaused ? 'i-mdi-play' : 'i-mdi-pause'" size="xl"
-          class="rounded-full" @click="togglePlay" />
-        <UButton size="xl" class="rounded-full" icon="i-mdi-fast-forward" variant="soft"
+          class="rounded-full cursor-pointer" @click="togglePlay" />
+        <UButton size="xl" class="rounded-full cursor-pointer" icon="i-mdi-fast-forward" variant="soft"
           @click="playerState.nextTrack()" />
         <PlayOrderButton />
       </div>

@@ -1,11 +1,11 @@
 <template>
   <div class="flex items-center gap-3">
-    <div class="relative size-16 flex-shrink-0 ">
+    <div class="relative size-14 flex-shrink-0 ">
       <div v-if="!hidePlay" @click="playTrack"
         class="absolute inset-0 size-full flex items-center justify-center opacity-0 hover:opacity-60 bg-black rounded-sm transition-opacity cursor-pointer">
         <i-mdi-play class="text-2xl text-white" />
       </div>
-      <img :src="getCoverUrl(props.track)" :alt="props.track.title" class="size-16 rounded-sm object-cover" />
+      <img :src="getCoverUrl(props.track)" :alt="props.track.title" class="size-14 rounded-sm object-cover" />
     </div>
     <div class="flex flex-col min-w-0 flex-1">
       <UTooltip :text="props.track.title">

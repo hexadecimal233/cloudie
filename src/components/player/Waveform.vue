@@ -1,21 +1,36 @@
 <template>
-  <div @click="waveformClick" ref="waveformContainer" class="w-full h-full p-0.5 cursor-pointer">
-    <svg :width="width" :height="height" class="w-full h-full ">
-      <rect v-for="(h, index) in waveformBars" :key="index" :x="index * BAR_GAP_TOTAL" :y="(height - h * height) / 2"
-        :width="BAR_WIDTH" :height="h * height" rx="2" ry="2" class="transition-all" :class="getBarClass(index)" />
-      <!-- Yeah rounded stuff just brings more lag -->
-      <!-- TODO: Clickable cursor icon  -->
+  <div @click="waveformClick" class="relative p-0.5 w-full h-full cursor-pointer">
+    <svg ref="waveformContainer" :width="elementWidth" :height="elementHeight" class="w-full h-full">
+      <defs>
+        <mask id="progress-mask">
+          <rect x="0" y="0" :width="playProgress * elementWidth" :height="elementHeight" fill="white" />
+        </mask>
+      </defs>
 
-      <line :x1="playProgress * width" :y1="0" :x2="playProgress * width" :y2="height" stroke-linecap="round"
-        class="stroke-white stroke-4 will-change-transform transition-all" />
+      <!-- Base -->
+      <path :d="waveformPath" class="fill-neutral-500 transition-opacity" :class="{ 'opacity-50': !isOutside }" />
+
+      <!-- Played -->
+      <path :d="waveformPath" mask="url(#progress-mask)" class="fill-primary transition-opacity"
+        :class="{ 'opacity-50': !isOutside && hoverProgress > playProgress }" />
+
+
+      <!-- Unplayed -->
+      <rect v-if="!isOutside" :x="playProgress * elementWidth" y="0"
+        :width="(hoverProgress - playProgress) * elementWidth" :height="elementHeight"
+        class="fill-primary opacity-20 transition-opacity" />
     </svg>
+
+    <div class="absolute top-0 bottom-0  opacity-0 bg-white rounded-md will-change-transform transition-all"
+      :class="{ 'w-1 opacity-100': !isOutside }"
+      :style="{ transform: `translateX(${(playProgress * elementWidth - 0.5)}px)` }" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { Waveform } from "@/utils/types"
 import { interpolateInto } from "@/utils/utils"
-import { useElementSize, useMouseInElement, useThrottleFn } from "@vueuse/core"
+import { useMouseInElement, useThrottleFn } from "@vueuse/core"
 import { ref, computed, onMounted, watch } from "vue"
 
 const props = defineProps<{
@@ -32,49 +47,40 @@ const BAR_GAP = BAR_WIDTH / 2
 const BAR_GAP_TOTAL = BAR_WIDTH + BAR_GAP * 2
 
 const waveformContainer = ref<HTMLDivElement | null>(null)
-const { width, height } = useElementSize(waveformContainer)
-const { x, isOutside } = useMouseInElement(waveformContainer)
+const { x, isOutside, elementWidth, elementHeight } = useMouseInElement(waveformContainer)
 
 const waveform = ref<Waveform | null>(null)
 
-const hoverProgressValue = ref(-1)
+const hoverProgress = ref(0)
 
 const updateHoverProgress = useThrottleFn(() => {
-  if (isOutside.value || width.value === 0) {
-    hoverProgressValue.value = -1
+  if (isOutside.value || elementWidth.value === 0) {
+    hoverProgress.value = 0
   } else {
-    hoverProgressValue.value = x.value / width.value
+    hoverProgress.value = x.value / elementWidth.value
   }
-}, 50)
+}, 1000 / 60) // limit to 60fps
 
 // Watch for mouse position changes and update hover progress
-watch([x, isOutside, width], updateHoverProgress, { immediate: true })
+watch([x, isOutside, elementWidth], updateHoverProgress, { immediate: true })
 
-function getBarClass(index: number) {
-  const barPosition = index / waveformBars.value.length
-  const isPlayed = barPosition < props.playProgress
+// Generate SVG path from waveform bars
+const waveformPath = computed(() => {
+  if (waveformBars.value.length === 0) return ""
 
-  // If not hovering, use default colors
-  if (isOutside.value || hoverProgressValue.value < 0) {
-    return isPlayed ? "fill-secondary" : "fill-neutral-500"
-  }
+  let path = ""
 
-  const isHovered = barPosition <= hoverProgressValue.value
+  waveformBars.value.forEach((height, index) => {
+    const barHeight = height * elementHeight.value
+    const x = index * BAR_GAP_TOTAL
+    const y = (elementHeight.value - barHeight) / 2
 
-  if (isPlayed) {
-    if (isHovered) {
-      return "fill-secondary opacity-100 "
-    } else {
-      return "fill-secondary opacity-50"
-    }
-  } else {
-    if (isHovered) {
-      return "fill-primary opacity-50 "
-    } else {
-      return "fill-neutral-500 opacity-50"
-    }
-  }
-}
+    // Create a rectangle for each bar
+    path += `M ${x} ${y} h ${BAR_WIDTH} v ${barHeight} h -${BAR_WIDTH} Z `
+  })
+
+  return path
+})
 
 const waveformBars = computed(() => {
   let samples = waveform.value?.samples || [
@@ -82,7 +88,7 @@ const waveformBars = computed(() => {
   ]
   let maxSampleHeight = waveform.value?.height || 1
 
-  const count = Math.floor(width.value / BAR_GAP_TOTAL)
+  const count = Math.floor(elementWidth.value / BAR_GAP_TOTAL)
   const interpolatedSamples = interpolateInto(samples, count)
   return interpolatedSamples.map((sample) => sample / maxSampleHeight)
 })

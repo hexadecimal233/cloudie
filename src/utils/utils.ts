@@ -79,22 +79,29 @@ export function formatSecs(seconds: number): string {
 
 // https://stackoverflow.com/questions/26941168/javascript-interpolate-an-array-of-numbers
 export function interpolateInto(data: number[], fitCount: number): number[] {
-  var linearInterpolate = function (before: number, after: number, atPoint: number) {
-    return before + (after - before) * atPoint
+  if (fitCount <= 1 || data.length <= 1 || fitCount === data.length) {
+    return data.slice(0, fitCount); 
   }
 
-  var newData = new Array<number>()
-  var springFactor = (data.length - 1) / (fitCount - 1)
-  newData[0] = data[0] // for new allocation
-  for (var i = 1; i < fitCount - 1; i++) {
-    var tmp = i * springFactor
-    var before = Math.floor(tmp)
-    var after = Math.ceil(tmp)
-    var atPoint = tmp - before
-    newData[i] = linearInterpolate(data[before], data[after], atPoint)
+  const springFactor = (data.length - 1) / (fitCount - 1);
+  const newData = new Array<number>(fitCount);
+
+  newData[0] = data[0];
+  newData[fitCount - 1] = data[data.length - 1];
+
+  for (let i = 1; i < fitCount - 1; i++) {
+    const tmp = i * springFactor;
+    const beforeIndex = Math.floor(tmp); 
+    const atPoint = tmp - beforeIndex;
+    const afterIndex = beforeIndex + 1; 
+
+    const beforeValue = data[beforeIndex];
+    const afterValue = data[afterIndex]; 
+
+    newData[i] = beforeValue + (afterValue - beforeValue) * atPoint;
   }
-  newData[fitCount - 1] = data[data.length - 1] // for new allocation
-  return newData
+
+  return newData;
 }
 
 // from soundcloud json

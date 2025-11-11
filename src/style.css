@@ -3,7 +3,11 @@
 
 :root {
   @apply select-none;
+  font-size: 17px;
+  /* modify overall font size */
 }
+
+@theme {}
 
 /* https://www.tints.dev */
 @theme static {
@@ -18,6 +22,18 @@
   --color-cloudie-primary-800: oklch(0.305 0.092 8.03);
   --color-cloudie-primary-900: oklch(0.206 0.064 7.59);
   --color-cloudie-primary-950: oklch(0.106 0.033 5.4);
+
+  --color-cloudie-secondary-50: oklch(0.968 0.022 67.56);
+  --color-cloudie-secondary-100: oklch(0.944 0.04 67.32);
+  --color-cloudie-secondary-200: oklch(0.89 0.079 66.51);
+  --color-cloudie-secondary-300: oklch(0.833 0.121 64.42);
+  --color-cloudie-secondary-400: oklch(0.785 0.154 60.89);
+  --color-cloudie-secondary-500: oklch(0.745 0.179 55.42);
+  --color-cloudie-secondary-600: oklch(0.651 0.166 52.5);
+  --color-cloudie-secondary-700: oklch(0.526 0.132 53.99);
+  --color-cloudie-secondary-800: oklch(0.403 0.1 55.26);
+  --color-cloudie-secondary-900: oklch(0.26 0.06 61.8);
+  --color-cloudie-secondary-950: oklch(0.174 0.037 72.02);
 
   --color-cloudie-info-50: oklch(0.967 0.016 266.31);
   --color-cloudie-info-100: oklch(0.923 0.035 264.4);
@@ -83,6 +99,7 @@
 
 /* Page transition */
 @layer components {
+
   .blur-enter-from,
   .blur-leave-to {
     @apply opacity-0 blur-sm scale-95;
