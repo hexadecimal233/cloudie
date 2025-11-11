@@ -7,7 +7,8 @@
   /* modify overall font size */
 }
 
-@theme {}
+@theme {
+}
 
 /* https://www.tints.dev */
 @theme static {
@@ -99,7 +100,6 @@
 
 /* Page transition */
 @layer components {
-
   .blur-enter-from,
   .blur-leave-to {
     @apply opacity-0 blur-sm scale-95;

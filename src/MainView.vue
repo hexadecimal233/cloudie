@@ -53,7 +53,7 @@
             <UButton color="neutral" icon="i-lucide-chevron-left" variant="subtle" @click="$router.back()" />
             <UInputMenu :items="searchSuggestions" v-model:search-term="searchTerm"
               :placeholder="$t('cloudie.main.search')" @keydown.enter.prevent="handleSearch"
-              @update:model-value="handleSuggestion" class="w-64" />
+              @update:model-value="(value) => searchTerm = value" class="w-64" />
             <UButton color="neutral" icon="i-lucide-search" variant="subtle" @click="handleSearch" />
           </UFieldGroup>
 
@@ -148,12 +148,6 @@ watch(searchTerm, (term) => {
   debounceGetSuggestions(term)
 })
 
-// 当用户选择建议项时触发
-function handleSuggestion(value: string) {
-  searchTerm.value = value
-}
-
-// 当用户点击搜索按钮或按下自定义快捷键时触发
 function handleSearch() {
   if (searchTerm.value.trim()) {
     router.push(`/search/${searchTerm.value}`)

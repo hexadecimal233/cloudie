@@ -116,7 +116,7 @@ export const usePlayerStore = defineStore("player", {
 
                 // 当这首曲子加载完毕开始播放
                 if (config.value.noHistory) return
-                addToHistory(this.track.id) // FIXME: will also be called if m3u8 error
+                addToHistory(this.track) // FIXME: will also be called if m3u8 error
               }
             } catch (error) {
               console.error("HLS Play Failed:", error)

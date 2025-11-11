@@ -80,28 +80,28 @@ export function formatSecs(seconds: number): string {
 // https://stackoverflow.com/questions/26941168/javascript-interpolate-an-array-of-numbers
 export function interpolateInto(data: number[], fitCount: number): number[] {
   if (fitCount <= 1 || data.length <= 1 || fitCount === data.length) {
-    return data.slice(0, fitCount); 
+    return data.slice(0, fitCount)
   }
 
-  const springFactor = (data.length - 1) / (fitCount - 1);
-  const newData = new Array<number>(fitCount);
+  const springFactor = (data.length - 1) / (fitCount - 1)
+  const newData = new Array<number>(fitCount)
 
-  newData[0] = data[0];
-  newData[fitCount - 1] = data[data.length - 1];
+  newData[0] = data[0]
+  newData[fitCount - 1] = data[data.length - 1]
 
   for (let i = 1; i < fitCount - 1; i++) {
-    const tmp = i * springFactor;
-    const beforeIndex = Math.floor(tmp); 
-    const atPoint = tmp - beforeIndex;
-    const afterIndex = beforeIndex + 1; 
+    const tmp = i * springFactor
+    const beforeIndex = Math.floor(tmp)
+    const atPoint = tmp - beforeIndex
+    const afterIndex = beforeIndex + 1
 
-    const beforeValue = data[beforeIndex];
-    const afterValue = data[afterIndex]; 
+    const beforeValue = data[beforeIndex]
+    const afterValue = data[afterIndex]
 
-    newData[i] = beforeValue + (afterValue - beforeValue) * atPoint;
+    newData[i] = beforeValue + (afterValue - beforeValue) * atPoint
   }
 
-  return newData;
+  return newData
 }
 
 // from soundcloud json
