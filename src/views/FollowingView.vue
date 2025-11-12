@@ -1,5 +1,6 @@
 <template>
-  <div class="alert alert-warning">TODO: This is still a demo, translations and content experience might be bad</div>
+  <div>
+      <div class="alert alert-warning">TODO: This is still a demo, translations and content experience might be bad</div>
   <div v-if="loading" class="flex justify-center items-center py-8">
     <div class="loading loading-spinner loading-lg"></div>
     <span class="ml-2">{{ $t("cloudie.common.loading") }}</span>
@@ -51,6 +52,7 @@
     <button class="btn btn-primary" @click="fetchNext">
       {{ $t("cloudie.common.loadMore") }}
     </button>
+  </div>
   </div>
 </template>
 

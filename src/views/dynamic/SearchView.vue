@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="text-3xl font-bold">{{ $t("cloudie.search.result", { query }) }}</div>
+    <div class="text-3xl font-bold">{{ $t("cloudie.search.result") }}</div>
   </div>
 </template>
 
@@ -8,8 +8,4 @@
 import { useRoute } from "vue-router"
 const route = useRoute()
 const query = route.params.query
-
-
-
-
 </script>

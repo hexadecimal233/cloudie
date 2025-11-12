@@ -1,140 +1,133 @@
 <template>
-  <!-- TODO: 更新删除UI，多选 -->
-  <button class="btn btn-sm btn-error">
-    {{ $t("cloudie.downloads.deleteSelected") }}
-  </button>
-
-  <div class="tabs tabs-border mb-6">
-    <input
-      type="radio"
-      name="download_tabs"
-      class="tab"
-      :aria-label="$t('cloudie.downloads.allDownloads')"
-      @click="activeTab = 'all'"
-      checked />
-    <input
-      type="radio"
-      name="download_tabs"
-      class="tab"
-      :aria-label="$t('cloudie.downloads.downloading')"
-      @click="activeTab = 'downloading'" />
-    <input
-      type="radio"
-      name="download_tabs"
-      class="tab"
-      :aria-label="$t('cloudie.downloads.completed')"
-      @click="activeTab = 'completed'" />
-    <input
-      type="radio"
-      name="download_tabs"
-      class="tab"
-      :aria-label="$t('cloudie.downloads.paused')"
-      @click="activeTab = 'paused'" />
-    <input
-      type="radio"
-      name="download_tabs"
-      class="tab"
-      :aria-label="$t('cloudie.downloads.failed')"
-      @click="activeTab = 'failed'" />
+  <div>
+    <!-- TODO: 更新删除UI，多选 -->
+    <UTabs v-model="activeTab" :items="tabs" :content="false" class="w-full" />
+    <UTable ref="table" :ui="{ base: 'table-fixed w-full' }" :columns="columns" :data="filteredItems" />
   </div>
-
-  <table class="table w-full">
-    <thead>
-      <tr>
-        <th>{{ $t("cloudie.downloads.songInfo") }}</th>
-        <th>{{ $t("cloudie.downloads.artist") }}</th>
-        <th>{{ $t("cloudie.downloads.playlist") }}</th>
-        <th>{{ $t("cloudie.downloads.addedTime") }}</th>
-        <th>{{ $t("cloudie.downloads.origFileName") }}</th>
-        <th>{{ $t("cloudie.downloads.status") }}</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="item in filteredItems">
-        <!-- TODO: add a download id as a key -->
-        <td>
-          <div class="flex items-center gap-3">
-            <div class="avatar">
-              <div class="h-12 w-12 rounded">
-                <img
-                  v-if="item.details.coverUrl"
-                  :src="item.details.coverUrl"
-                  :alt="item.details.title" />
-                <div v-else class="bg-base-300 flex h-full w-full items-center justify-center">
-                  <i-mdi-music class="text-base-content opacity-50" />
-                </div>
-              </div>
-            </div>
-            <div class="flex flex-col">
-              <div class="font-bold">{{ item.details.title }}</div>
-              <div class="text-sm opacity-70">ID: {{ item.task.trackId }}</div>
-            </div>
-          </div>
-        </td>
-        <td>
-          <div class="text-sm">{{ item.details.artist }}</div>
-        </td>
-        <td>
-          {{ item.details.playlistName ?? "-" }}
-        </td>
-        <td>
-          {{ new Date(item.task.timestamp).toLocaleString() }}
-        </td>
-        <td>
-          <div class="truncate font-mono" :title="item.task.origFileName ?? ''">
-            {{ item.task.origFileName ?? "-" }}
-          </div>
-        </td>
-        <td>
-          <div class="flex items-center gap-2">
-            <progress
-              v-if="item.downloadingState"
-              class="progress w-56"
-              :value="item.downloadingState.progress"></progress>
-            {{ getStatusTranslation(item) }}
-            <div v-if="item.task.status === 'failed'" class="tooltip" :data-tip="item.failedReason">
-              <i-mdi-information class="text-base-content/70"></i-mdi-information>
-            </div>
-          </div>
-        </td>
-        <td>
-          <div class="flex gap-1">
-            <button v-if="item.downloadingState" @click="item.pause()" class="btn btn-sm btn-ghost">
-              <i-mdi-pause />
-            </button>
-            <button
-              v-else-if="item.task.status === 'paused' || item.task.status === 'failed'"
-              @click="item.resume()"
-              class="btn btn-sm btn-ghost">
-              <i-mdi-play />
-            </button>
-            <button
-              v-if="item.task.status === 'completed'"
-              class="btn btn-sm btn-ghost"
-              @click="revealItemInDir(item.task.path ?? '')">
-              <i-mdi-folder-open />
-            </button>
-            <button @click="promptDelete([item])" class="btn btn-sm btn-ghost">
-              <i-mdi-close />
-            </button>
-
-            <!-- TODO: Play in cloudie & Duration display -->
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
 </template>
 
-<script setup lang="ts" name="DownloadsView">
-import { ref, computed } from "vue"
+<script setup lang="tsx" name="DownloadsView">
+import { ref, computed, useTemplateRef } from "vue"
 import { deleteTasks, downloadTasks, DownloadTask } from "@/systems/download/download"
 import { revealItemInDir } from "@tauri-apps/plugin-opener"
 import { i18n } from "@/systems/i18n"
 import { message } from "@tauri-apps/plugin-dialog"
+import { TableColumn } from "@nuxt/ui"
 
+const table = useTemplateRef("table")
 const activeTab = ref<"all" | "downloading" | "completed" | "paused" | "failed">("all")
+
+const tabs = computed(() => [
+  { label: i18n.global.t("cloudie.downloads.allDownloads"), value: "all" },
+  { label: i18n.global.t("cloudie.downloads.downloading"), value: "downloading" },
+  { label: i18n.global.t("cloudie.downloads.completed"), value: "completed" },
+  { label: i18n.global.t("cloudie.downloads.paused"), value: "paused" },
+  { label: i18n.global.t("cloudie.downloads.failed"), value: "failed" },
+])
+
+const columns: TableColumn<DownloadTask>[] = [
+  {
+    accessorKey: "details.track",
+    header: ({ }) => i18n.global.t("cloudie.downloads.songInfo"),
+    cell: (info: { row: { original: DownloadTask } }) => (
+      <TrackTitle
+        track={info.row.original.details.track}
+        tracks={downloadTasks.value.map((item) => item.details.track)}
+      />
+    ),
+  },
+  {
+    accessorKey: "details.playlistName",
+    header: ({ }) => i18n.global.t("cloudie.downloads.playlist"),
+    cell: (info: { row: { original: DownloadTask } }) =>
+      info.row.original.details.playlistName ?? "-",
+    meta: {
+      class: {
+        th: "w-32 truncate",
+        td: "w-32 truncate",
+      },
+    },
+  },
+  {
+    accessorKey: "task.timestamp",
+    header: ({ }) => i18n.global.t("cloudie.downloads.addedTime"),
+    cell: (info: { row: { original: DownloadTask } }) =>
+      new Date(info.row.original.task.timestamp).toLocaleString(),
+    meta: {
+      class: {
+        th: "w-32 truncate",
+        td: "w-32 truncate",
+      },
+    },
+  },
+  {
+    accessorKey: "task.origFileName",
+    header: ({ }) => i18n.global.t("cloudie.downloads.origName"),
+    cell: (info: { row: { original: DownloadTask } }) => info.row.original.task.origFileName ?? "-",
+    meta: {
+      class: {
+        th: "w-40 truncate",
+        td: "w-40 truncate",
+      },
+    },
+  },
+  {
+    accessorKey: "task.status",
+    header: ({ }) => i18n.global.t("cloudie.downloads.status"),
+    cell: (info: { row: { original: DownloadTask } }) => (
+      <div class="flex items-center gap-2">
+        {info.row.original.downloadingState ? (
+          <UProgress v-model={info.row.original.downloadingState.progress} />
+        ) : null}
+        {getStatusTranslation(info.row.original)}
+        {info.row.original.task.status === "failed" ? (
+          <UTooltip class="tooltip" text={info.row.original.failedReason}>
+            <i-mdi-information />
+          </UTooltip>
+        ) : null}
+      </div>
+    ),
+    meta: {
+      class: {
+        th: "w-32 text-center",
+        td: "w-32 text-center",
+      },
+    },
+  },
+  {
+    id: "actions",
+    header: ({ }) => i18n.global.t("cloudie.downloads.actions"),
+    cell: (info: { row: { original: DownloadTask } }) => (
+      <div class="flex gap-1">
+        {info.row.original.downloadingState && (
+          <UButton icon="i-mdi-pause" onClick={() => info.row.original.pause()} variant="ghost" />
+        )}
+        {(info.row.original.task.status === "paused" ||
+          info.row.original.task.status === "failed") && (
+            <UButton icon="i-mdi-play" onClick={() => info.row.original.resume()} variant="ghost" />
+          )}
+        {info.row.original.task.status === "completed" && (
+          <UButton
+            icon="i-mdi-folder-open"
+            onClick={() => revealItemInDir(info.row.original.task.path ?? "")}
+            variant="ghost"
+          />
+        )}
+        <UButton
+          icon="i-mdi-close"
+          onClick={() => promptDelete([info.row.original])}
+          variant="ghost"
+        />
+      </div>
+    ),
+    meta: {
+      class: {
+        th: "w-32 text-center",
+        td: "w-32 text-center",
+      },
+    },
+  },
+]
 
 const filteredItems = computed(() => {
   const items = downloadTasks.value

@@ -1,12 +1,7 @@
 <template>
-  <div class="tooltip" :data-tip="$t(`cloudie.player.${config.playOrder}`)">
-    <button class="btn btn-circle btn-ghost" @click="toggleOrder">
-      <i-mdi-forward v-if="config.playOrder === PlayOrder.OrderedNoRepeat" />
-      <i-mdi-repeat v-else-if="config.playOrder === PlayOrder.Ordered" />
-      <i-mdi-repeat-once v-else-if="config.playOrder === PlayOrder.SingleRepeat" />
-      <i-mdi-shuffle v-else />
-    </button>
-  </div>
+  <UTooltip :text="$t(`cloudie.player.${config.playOrder}`)">
+    <UButton size="xl" :icon="getIcon(config.playOrder)" class="rounded-full cursor-pointer" variant="soft" @click="toggleOrder" />
+  </UTooltip>
 </template>
 
 <script setup lang="ts">
@@ -19,6 +14,19 @@ const cycle: PlayOrder[] = [
   PlayOrder.SingleRepeat,
   PlayOrder.Shuffle,
 ]
+
+function getIcon(order: PlayOrder) {
+  switch (order) {
+    case PlayOrder.OrderedNoRepeat:
+      return "i-mdi-forward"
+    case PlayOrder.Ordered:
+      return "i-mdi-repeat"
+    case PlayOrder.SingleRepeat:
+      return "i-mdi-repeat-once"
+    case PlayOrder.Shuffle:
+      return "i-mdi-shuffle"
+  }
+}
 
 const toggleOrder = () => {
   const currentOrder = config.value.playOrder as PlayOrder

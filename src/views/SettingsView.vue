@@ -1,144 +1,129 @@
 <template>
-  <div class="flex flex-col">
-    <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">
-      <legend class="fieldset-legend">{{ $t("cloudie.settings.sections.appearance") }}</legend>
+  <div class="flex flex-col gap-4">
+    <UCard>
+      <template #header>
+        <p class="text-lg font-semibold">{{ $t("cloudie.settings.sections.appearance") }}</p>
+      </template>
 
-      <label class="label cursor-pointer">{{ $t("cloudie.settings.config.language") }}</label>
-      <select class="select" v-model="config.language">
-        <option v-for="lang in LANGUAGE_OPTIONS" :key="lang" :value="lang">
-          {{ $t("cloudie.langName", "", { locale: lang }) }}
-        </option>
-      </select>
+      <div class="space-y-4">
+        <UFormField :label="$t('cloudie.settings.config.language')">
+          <USelect v-model="config.language" :items="LANGUAGE_OPTIONS.map((item) => ({
+            value: item,
+            label: $t('cloudie.langName', '', { locale: item })
+          }))" class="w-full max-w-1/3" />
+        </UFormField>
 
-      <label class="label cursor-pointer">{{ $t("cloudie.settings.config.theme") }}</label>
-      <select class="select" v-model="config.theme">
-        <option v-for="theme in THEMES" :key="theme" :value="theme">
-          {{ capitalizeFirstLetter(theme) }}
-        </option>
-      </select>
-    </fieldset>
-    
-    <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">
-      <legend class="fieldset-legend">{{ $t("cloudie.settings.sections.player") }}</legend>
-
-      <label class="label cursor-pointer">
-        <input type="checkbox" class="toggle" v-model="config.noHistory" />
-        <span>{{ $t("cloudie.settings.config.noHistory") }}</span>
-      </label>
-
-      <button class="btn" @click="clearCache">{{ $t("cloudie.settings.etc.clearCache") }}</button>
-    </fieldset>
-
-    <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">
-      <legend class="fieldset-legend">{{ $t("cloudie.settings.sections.download") }}</legend>
-
-      <!-- TODO: doesnt exist indicator -->
-      <label class="label">{{ $t("cloudie.settings.config.savePath") }}</label>
-
-      <div class="join w-full">
-        <label class="input join-item">
-          <i-mdi-alert v-if="!isPathValid" />
-          <input
-            type="text"
-            class="grow"
-            :placeholder="$t('cloudie.settings.config.savePath')"
-            v-model="config.savePath" />
-        </label>
-        <button class="btn join-item" @click="openSavePathDialog">
-          <i-mdi-folder-edit />
-        </button>
-        <button class="btn join-item" @click="openPath(config.savePath)">
-          <i-mdi-folder-open />
-        </button>
+        <UFormField :label="$t('cloudie.settings.config.theme')">
+          <USelect v-model="config.theme" :items="THEMES.map((item) => ({
+            value: item,
+            label: capitalizeFirstLetter(item)
+          }))" class="w-full max-w-1/3" />
+        </UFormField>
       </div>
+    </UCard>
 
-      <label class="label">{{ $t("cloudie.settings.config.parallelDownloads") }}</label>
-      <div>
-        <input
-          type="range"
-          min="1"
-          max="6"
-          value="3"
-          class="range"
-          v-model="config.parallelDownloads" />
-        {{ config.parallelDownloads }}
+    <UCard>
+      <template #header>
+        <h3 class="text-lg font-semibold">{{ $t("cloudie.settings.sections.player") }}</h3>
+      </template>
+
+      <div class="space-y-4">
+        <USwitch v-model="config.noHistory" :label="$t('cloudie.settings.config.noHistory')" />
+
+        <UButton @click="clearCache">{{ $t("cloudie.settings.etc.clearCache") }}</UButton>
       </div>
+    </UCard>
 
-      <label class="label cursor-pointer">{{ $t("cloudie.settings.config.fileNaming") }}</label>
-      <select class="select" v-model="config.fileNaming">
-        <option v-for="naming in FileNaming" :key="naming" :value="naming">
-          {{ $t(`cloudie.settings.fileNamingTypes.${naming}`) }}
-        </option>
-      </select>
+    <UCard>
+      <template #header>
+        <h3 class="text-lg font-semibold">{{ $t("cloudie.settings.sections.download") }}</h3>
+      </template>
 
-      <label class="label cursor-pointer">
-        <input type="checkbox" class="toggle" v-model="config.playlistSeparateDir" />
-        <span>{{ $t("cloudie.settings.config.playlistSeparateDir") }}</span>
-      </label>
+      <div class="space-y-4">
+        <USwitch v-model="config.playlistSeparateDir" :label="$t('cloudie.settings.config.playlistSeparateDir')" />
 
-      <label class="label cursor-pointer">
-        <input type="checkbox" class="toggle" v-model="config.preferDirectDownload" />
-        <span>{{ $t("cloudie.settings.config.preferDirectDownload") }}</span>
-      </label>
+        <USwitch v-model="config.preferDirectDownload" :label="$t('cloudie.settings.config.preferDirectDownload')" />
 
-      <label class="label">{{ $t("cloudie.settings.config.mp3ConvertExts") }}</label>
-      <!-- TODO: Update UX -->
-      <input type="text" class="input" v-model="currentMp3" />
+        <USwitch v-model="config.addCover" :label="$t('cloudie.settings.config.addCover')" />
 
-      <label class="label cursor-pointer">
-        <input type="checkbox" class="toggle" v-model="config.addCover" />
-        <span>{{ $t("cloudie.settings.config.addCover") }}</span>
-      </label>
-    </fieldset>
+        <UFormField :label="$t('cloudie.settings.config.savePath')" :error="!isPathValid ? 'Invalid path' : ''">
+          <UFieldGroup class="w-full">
+            <UInput v-model="config.savePath" :placeholder="$t('cloudie.settings.config.savePath')"
+              class="w-full max-w-1/3" variant="outline" />
+            <UButton @click="openSavePathDialog" icon="i-mdi-folder-edit" variant="outline" />
+            <UButton @click="openPath(config.savePath)" icon="i-mdi-folder-open" variant="outline" />
+          </UFieldGroup>
+        </UFormField>
 
-    <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">
-      <legend class="fieldset-legend">{{ $t("cloudie.settings.sections.misc") }}</legend>
+        <UFormField :label="$t('cloudie.settings.config.mp3ConvertExts')">
+          <UInputMenu v-model="config.mp3ConvertExts" multiple :items="knownExts" class="w-full max-w-1/3" />
+        </UFormField>
 
-      <label class="label cursor-pointer">
-        <span>{{ $t("cloudie.settings.config.virtualDjSupport") }}</span>
-        <input type="checkbox" class="toggle" v-model="config.virtualDjSupport" />
-      </label>
-    </fieldset>
+        <UFormField :label="$t('cloudie.settings.config.parallelDownloads')">
+          <div class="flex items-center gap-4">
+            <USlider v-model="config.parallelDownloads" :min="1" :max="6" class="w-full max-w-1/3" />
+            <span class="text-sm font-medium w-8">{{ config.parallelDownloads }}</span>
+          </div>
+        </UFormField>
 
-    <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">
-      <legend class="fieldset-legend">{{ $t("cloudie.settings.sections.login") }}</legend>
-
-      <label class="label">{{ $t("cloudie.settings.config.clientId") }}</label>
-      <div class="join">
-        <input
-          type="text"
-          class="input join-item"
-          :placeholder="$t('cloudie.settings.config.clientId')"
-          v-model="config.clientId" />
-        <button class="btn join-item" @click="refreshClientId()">
-          <!-- TODO: 可视化 刷新 -->
-          <i-mdi-refresh />
-        </button>
+        <UFormField :label="$t('cloudie.settings.config.fileNaming')">
+          <USelect v-model="config.fileNaming" :items="Object.values(FileNaming).map((item) => ({
+            value: item,
+            label: $t(`cloudie.settings.fileNamingTypes.${item}`)
+          }))" class="w-full max-w-1/3" />
+        </UFormField>
       </div>
+    </UCard>
 
-      <input
-        type="password"
-        class="input"
-        :placeholder="$t('cloudie.settings.config.oauthToken')"
-        v-model="config.oauthToken" />
+    <UCard>
+      <template #header>
+        <h3 class="text-lg font-semibold">{{ $t("cloudie.settings.sections.misc") }}</h3>
+      </template>
 
-      <button class="btn" @click="loginSoundcloud()">
-        {{ $t("cloudie.settings.etc.loginSoundcloud") }}
-      </button>
-    </fieldset>
+      <div class="space-y-4">
+        <USwitch v-model="config.virtualDjSupport" :label="$t('cloudie.settings.config.virtualDjSupport')" />
+      </div>
+    </UCard>
 
-    <fieldset class="fieldset border-base-300 rounded-box border p-4 text-lg">
-      <legend class="fieldset-legend">{{ $t("cloudie.settings.sections.about") }}</legend>
+    <UCard>
+      <template #header>
+        <h3 class="text-lg font-semibold">{{ $t("cloudie.settings.sections.login") }}</h3>
+      </template>
 
-      <div class="flex flex-col items-center gap-2">
+      <div class="space-y-4">
+        <UFormField :label="$t('cloudie.settings.config.clientId')">
+          <UFieldGroup class="w-full">
+            <UInput v-model="config.clientId" :placeholder="$t('cloudie.settings.config.clientId')"
+              class="w-full max-w-1/3" />
+            <UButton @click="refreshClientId()" icon="i-mdi-refresh" variant="outline" />
+          </UFieldGroup>
+        </UFormField>
+
+        <UFormField :label="$t('cloudie.settings.config.oauthToken')">
+          <UFieldGroup class="w-full">
+            <UInput v-model="config.oauthToken" type="password" :placeholder="$t('cloudie.settings.config.oauthToken')"
+              class="w-full max-w-1/3" />
+            <UButton @click="loginSoundcloud()" variant="outline">{{ $t("cloudie.settings.etc.loginSoundcloud") }}
+            </UButton>
+          </UFieldGroup>
+        </UFormField>
+      </div>
+    </UCard>
+
+    <UCard>
+      <template #header>
+        <h3 class="text-lg font-semibold">{{ $t("cloudie.settings.sections.about") }}</h3>
+      </template>
+
+      <div class="flex flex-col items-center gap-4">
         <img src="/logo.png" alt="logo" class="h-[120px] w-fit" />
 
         <span class="text-xl font-bold">Cloudie</span>
 
-        <span>{{ $t("cloudie.settings.about.desc") }}</span>
+        <span class="text-center">{{ $t("cloudie.settings.about.desc") }}</span>
 
-        <div>
-          <span class="mr-2">
+        <div class="flex items-center gap-2">
+          <span class="text-sm">
             {{
               $t("cloudie.settings.about.version", {
                 version: versionInfo.version,
@@ -146,27 +131,23 @@
               })
             }}
           </span>
-          <a
-            class="btn btn-sm"
-            href="https://github.com/hexadecimal233/cloudie/releases"
-            target="_blank">
-            <i-mdi-earth-arrow-up />
+          <UButton size="sm" variant="outline" icon="i-mdi-earth-arrow-up"
+            to="https://github.com/hexadecimal233/cloudie/releases" target="_blank">
             {{ $t("cloudie.settings.about.visitReleases") }}
-          </a>
+          </UButton>
         </div>
 
         <div class="flex gap-2">
-          <a class="btn" href="https://github.com/hexadecimal233/cloudie" target="_blank">
-            <i-mdi-github />
+          <UButton icon="i-mdi-github" to="https://github.com/hexadecimal233/cloudie" target="_blank" variant="outline">
             {{ $t("cloudie.settings.about.repo") }}
-          </a>
-          <a class="btn" href="https://github.com/hexadecimal233/cloudie/issues" target="_blank">
-            <i-mdi-bug />
+          </UButton>
+          <UButton icon="i-mdi-bug" to="https://github.com/hexadecimal233/cloudie/issues" target="_blank"
+            variant="outline">
             {{ $t("cloudie.settings.about.issue") }}
-          </a>
+          </UButton>
         </div>
       </div>
-    </fieldset>
+    </UCard>
   </div>
 </template>
 
@@ -175,7 +156,7 @@ import { config, THEMES } from "@/systems/config"
 import { open } from "@tauri-apps/plugin-dialog"
 import { refreshClientId } from "@/utils/api"
 import { getVersion } from "@tauri-apps/api/app"
-import { computed, onMounted, ref } from "vue"
+import { computed, onMounted, ref, watch } from "vue"
 import { invoke } from "@tauri-apps/api/core"
 import { openPath } from "@tauri-apps/plugin-opener"
 import { toast } from "vue-sonner"
@@ -191,14 +172,14 @@ const versionInfo = ref({
   latestVersion: "",
 })
 
-const currentMp3 = computed({
-  get() {
-    return config.value.mp3ConvertExts.join(",")
+const knownExts = ref(["m4a", "aac", "flac", "wav", "ogg", "opus"])
+
+watch(
+  () => config.value.savePath,
+  async (path) => {
+    isPathValid.value = await fs.exists(path)
   },
-  set(v) {
-    config.value.mp3ConvertExts = v.split(",")
-  },
-})
+)
 
 onMounted(async () => {
   isPathValid.value = await fs.exists(config.value.savePath)

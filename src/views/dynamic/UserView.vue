@@ -205,38 +205,36 @@
 
 <script setup lang="ts" name="UserView">
 import { ref, onMounted, watch, computed } from "vue"
-import { VueFinalModal } from "vue-final-modal"
 import {
-    getRelatedArtists,
-    getSpolight,
-    getWebProfiles,
-    useTracks,
-    useUserComments,
+  getRelatedArtists,
+  getSpolight,
+  getWebProfiles,
+  useTracks,
+  useUserComments,
 } from "@/utils/api"
 import { SCUser, Track, WebProfile } from "@/utils/types"
 import { toast } from "vue-sonner"
 import { useUsersStore } from "@/systems/stores/users"
 import { useRoute } from "vue-router"
-import MiniTrack from "@/components/mini/MiniTrack.vue"
 
 const user = computed(() => useUsersStore().getUserById(Number(useRoute().params.id))!)
 
 const tabs = [
-    { id: "tracks", label: "Tracks" },
-    { id: "spotlight", label: "Spotlight" },
-    { id: "webProfiles", label: "Web Profiles" },
-    { id: "relatedArtists", label: "Related Artists" },
-    { id: "comments", label: "Comments" },
+  { id: "tracks", label: "Tracks" },
+  { id: "spotlight", label: "Spotlight" },
+  { id: "webProfiles", label: "Web Profiles" },
+  { id: "relatedArtists", label: "Related Artists" },
+  { id: "comments", label: "Comments" },
 ]
 
 const activeTab = ref(0)
 
 // Data for each tab
 const {
-    data: tracks,
-    error: tracksError,
-    loading: tracksLoading,
-    fetchNext: fetchTracks,
+  data: tracks,
+  error: tracksError,
+  loading: tracksLoading,
+  fetchNext: fetchTracks,
 } = useTracks(user.value.id)
 
 const spotlight = ref<Track[]>([])
@@ -252,137 +250,137 @@ const relatedArtistsLoading = ref(false)
 const relatedArtistsError = ref<string | null>(null)
 
 const {
-    data: comments,
-    error: commentsError,
-    loading: commentsLoading,
-    fetchNext: fetchComments,
-} = useUserComments(user.value.id)  
+  data: comments,
+  error: commentsError,
+  loading: commentsLoading,
+  fetchNext: fetchComments,
+} = useUserComments(user.value.id)
 
 // Load data for each tab
 const loadTracks = async () => {
-    if (tracks.value.length > 0) return // Already loaded
+  if (tracks.value.length > 0) return // Already loaded
 
-    await fetchTracks()
+  await fetchTracks()
 }
 
 const loadSpotlight = async () => {
-    if (spotlight.value.length > 0) return // Already loaded
+  if (spotlight.value.length > 0) return // Already loaded
 
-    spotlightLoading.value = true
-    spotlightError.value = null
+  spotlightLoading.value = true
+  spotlightError.value = null
 
-    try {
-        spotlight.value = await getSpolight(user.value.id)
-    } catch (err: any) {
-        console.error("Error loading user spotlight:", err)
-        spotlightError.value = err.message || "Failed to load spotlight"
-    } finally {
-        spotlightLoading.value = false
-    }
+  try {
+    spotlight.value = await getSpolight(user.value.id)
+  } catch (err: any) {
+    console.error("Error loading user spotlight:", err)
+    spotlightError.value = err.message || "Failed to load spotlight"
+  } finally {
+    spotlightLoading.value = false
+  }
 }
 
 const loadWebProfiles = async () => {
-    if (webProfiles.value.length > 0) return // Already loaded
+  if (webProfiles.value.length > 0) return // Already loaded
 
-    webProfilesLoading.value = true
-    webProfilesError.value = null
+  webProfilesLoading.value = true
+  webProfilesError.value = null
 
-    try {
-        webProfiles.value = await getWebProfiles(user.value.id)
-    } catch (err: any) {
-        console.error("Error loading user web profiles:", err)
-        webProfilesError.value = err.message || "Failed to load web profiles"
-    } finally {
-        webProfilesLoading.value = false
-    }
+  try {
+    webProfiles.value = await getWebProfiles(user.value.id)
+  } catch (err: any) {
+    console.error("Error loading user web profiles:", err)
+    webProfilesError.value = err.message || "Failed to load web profiles"
+  } finally {
+    webProfilesLoading.value = false
+  }
 }
 
 const loadRelatedArtists = async () => {
-    if (relatedArtists.value.length > 0) return // Already loaded
+  if (relatedArtists.value.length > 0) return // Already loaded
 
-    relatedArtistsLoading.value = true
-    relatedArtistsError.value = null
+  relatedArtistsLoading.value = true
+  relatedArtistsError.value = null
 
-    try {
-        relatedArtists.value = await getRelatedArtists(user.value.id)
-    } catch (err: any) {
-        console.error("Error loading related artists:", err)
-        relatedArtistsError.value = err.message || "Failed to load related artists"
-    } finally {
-        relatedArtistsLoading.value = false
-    }
+  try {
+    relatedArtists.value = await getRelatedArtists(user.value.id)
+  } catch (err: any) {
+    console.error("Error loading related artists:", err)
+    relatedArtistsError.value = err.message || "Failed to load related artists"
+  } finally {
+    relatedArtistsLoading.value = false
+  }
 }
 
 const loadComments = async () => {
-    if (comments.value.length > 0) return // Already loaded
+  if (comments.value.length > 0) return // Already loaded
 
-    await fetchComments()
+  await fetchComments()
 }
 
 // Load data when tab changes
 watch(activeTab, (newTab) => {
-    switch (newTab) {
-        case 0: // Tracks
-            loadTracks()
-            break
-        case 1: // Spotlight
-            loadSpotlight()
-            break
-        case 2: // Web Profiles
-            loadWebProfiles()
-            break
-        case 3: // Related Artists
-            loadRelatedArtists()
-            break
-        case 4: // Comments
-            loadComments()
-            break
-    }
+  switch (newTab) {
+    case 0: // Tracks
+      loadTracks()
+      break
+    case 1: // Spotlight
+      loadSpotlight()
+      break
+    case 2: // Web Profiles
+      loadWebProfiles()
+      break
+    case 3: // Related Artists
+      loadRelatedArtists()
+      break
+    case 4: // Comments
+      loadComments()
+      break
+  }
 })
 
 // Load initial tab data
 onMounted(() => {
-    loadTracks()
+  loadTracks()
 })
 
 // Helper functions
 const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60)
-    const remainingSeconds = Math.floor(seconds % 60)
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = Math.floor(seconds % 60)
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
 }
 
 const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString()
+  return new Date(date).toLocaleDateString()
 }
 
 const playTrack = (track: Track) => {
-    // This would need to be implemented based on the player system
-    // For now, just show a toast
-    toast.info(`Playing: ${track.title}`)
+  // This would need to be implemented based on the player system
+  // For now, just show a toast
+  toast.info(`Playing: ${track.title}`)
 }
 
 const openWebProfile = (url: string) => {
-    window.open(url, "_blank")
+  window.open(url, "_blank")
 }
 
 const openUserProfile = (permalink: string) => {
-    window.open(`https://soundcloud.com/${permalink}`, "_blank")
+  window.open(`https://soundcloud.com/${permalink}`, "_blank")
 }
 
 const getNetworkIcon = (network: string) => {
-    // Return appropriate icon for each social network
-    // This is a simplified version, you might want to use actual icons
-    const icons: Record<string, string> = {
-        facebook: "📘",
-        twitter: "🐦",
-        instagram: "📷",
-        youtube: "📺",
-        soundcloud: "🎵",
-        spotify: "🎶",
-        bandcamp: "💿",
-        website: "🌐",
-    }
-    return icons[network.toLowerCase()] || "🔗"
+  // Return appropriate icon for each social network
+  // This is a simplified version, you might want to use actual icons
+  const icons: Record<string, string> = {
+    facebook: "📘",
+    twitter: "🐦",
+    instagram: "📷",
+    youtube: "📺",
+    soundcloud: "🎵",
+    spotify: "🎶",
+    bandcamp: "💿",
+    website: "🌐",
+  }
+  return icons[network.toLowerCase()] || "🔗"
 }
 </script>

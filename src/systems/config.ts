@@ -4,46 +4,9 @@ import { refreshClientId } from "@/utils/api"
 import { i18n, LANGUAGE_OPTIONS } from "./i18n"
 import { PlayOrder } from "./player/listening-list"
 import { FileNaming } from "./download/parser"
-import { useThrottleFn } from "@vueuse/core"
+import { useColorMode, useDebounceFn, useThrottleFn } from "@vueuse/core"
 
-export const THEMES = [
-  "cloudie",
-  "light",
-  "dark",
-  "cupcake",
-  "bumblebee",
-  "emerald",
-  "corporate",
-  "synthwave",
-  "retro",
-  "cyberpunk",
-  "valentine",
-  "halloween",
-  "garden",
-  "forest",
-  "aqua",
-  "lofi",
-  "pastel",
-  "fantasy",
-  "wireframe",
-  "black",
-  "luxury",
-  "dracula",
-  "cmyk",
-  "autumn",
-  "business",
-  "acid",
-  "lemonade",
-  "night",
-  "coffee",
-  "winter",
-  "dim",
-  "nord",
-  "sunset",
-  "caramellatte",
-  "abyss",
-  "silk",
-] as const
+export const THEMES = ["cloudie", "cloudie-dark"] as const
 
 type Theme = (typeof THEMES)[number]
 
@@ -77,6 +40,8 @@ class Config {
 }
 
 let store: Store
+const appConfig = useAppConfig()
+const colorMode = useColorMode()
 
 // 响应式配置
 export const config = ref(new Config())
@@ -111,20 +76,47 @@ export async function loadConfig() {
   }
 }
 
-// Save all config with a throttle
+// Save all config with a debounce
+const writeConfig = useDebounceFn(async () => {
+  for (const key of Object.keys(config.value) as (keyof Config)[]) {
+    await store.set(key, config.value[key])
+  }
+
+  await store.save()
+}, 3000)
+
 async function saveConfig() {
-  await useThrottleFn(async () => {
-    // Refresh display language
-    i18n.global.locale.value = config.value.language
-    // Update theme class
-    document.documentElement.setAttribute("data-theme", config.value.theme)
+  // Refresh display language
+  i18n.global.locale.value = config.value.language
+  // Update theme
+  switch (config.value.theme) {
+    case "cloudie":
+      colorMode.value = "light"
 
-    const currentConfig = config.value
+      appConfig.ui.colors.primary = "cloudie-primary"
+      appConfig.ui.colors.secondary = "cloudie-secondary"
+      appConfig.ui.colors.info = "cloudie-info"
+      appConfig.ui.colors.success = "cloudie-success"
+      appConfig.ui.colors.warning = "cloudie-warning"
+      appConfig.ui.colors.error = "cloudie-error"
 
-    for (const key of Object.keys(currentConfig) as (keyof Config)[]) {
-      await store.set(key, currentConfig[key])
-    }
+      appConfig.ui.colors.neutral = "stone"
+      document.documentElement.style.setProperty("--ui-radius", `0.5rem`) // didnt find a way to set radius in appConfig
+      break
+    case "cloudie-dark":
+      colorMode.value = "dark"
 
-    await store.save()
-  }, 3000)()
+      appConfig.ui.colors.primary = "cloudie-primary"
+      appConfig.ui.colors.secondary = "cloudie-secondary"
+      appConfig.ui.colors.info = "cloudie-info"
+      appConfig.ui.colors.success = "cloudie-success"
+      appConfig.ui.colors.warning = "cloudie-warning"
+      appConfig.ui.colors.error = "cloudie-error"
+
+      appConfig.ui.colors.neutral = "stone"
+      document.documentElement.style.setProperty("--ui-radius", `0.5rem`) // didnt find a way to set radius in appConfig
+      break
+  }
+
+  await writeConfig()
 }

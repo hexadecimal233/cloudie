@@ -2,9 +2,9 @@
   "cloudie": {
     "langName": "English",
     "main": {
-      "searchBar": "Search (unimplemented yet)",
+      "searchBar": "Search",
       "likes": "Likes",
-      "playlists": "Playlists & Albums",
+      "library": "Library",
       "radio": "Radio",
       "history": "Play History",
       "downloads": "Downloads",
@@ -39,7 +39,7 @@
         "any_license": "Any License",
         "location": "Location",
         "genre": "Genre"
-      } 
+      }
     },
     "following": {
       "title": "Following",
@@ -70,6 +70,7 @@
       "onTrack": "on track"
     },
     "player": {
+      "listening": "Listening List",
       "ordered-no-repeat": "Ordered No Repeat",
       "ordered": "Ordered",
       "single-repeat": "Single Repeat",
@@ -87,9 +88,8 @@
       "pending": "Pending",
       "songInfo": "Song Info",
       "playlist": "Playlist",
-      "artist": "Artist",
       "addedTime": "Added Time",
-      "origFileName": "Original File Name",
+      "origName": "Original Name",
       "status": "Status",
       "tag": "Applying Metadata"
     },
@@ -113,7 +113,7 @@
       "deleteFromPlaylist": "Delete from Playlist",
       "tags": "Tags"
     },
-    "playlists": {
+    "library": {
       "playlist": "Playlist",
       "album": "Album",
       "systemPlaylist": "System Playlist",
@@ -151,7 +151,9 @@
       "reposts": "Reposts",
       "comments": "Comments",
       "relatedTracks": "Related Tracks",
-      "noComments": "No comments found"
+      "noComments": "No comments found",
+      "relatedAlbums": "Related Albums",
+      "relatedPlaylists": "Related Playlists"
     },
     "settings": {
       "config": {

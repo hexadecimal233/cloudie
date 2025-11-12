@@ -2,15 +2,19 @@
   "cloudie": {
     "langName": "中文",
     "main": {
-      "searchBar": "搜索 (暂未实现)",
+      "searchBar": "搜索",
       "likes": "喜欢的音乐",
-      "playlists": "歌单与专辑",
+      "library": "库",
       "radio": "电台",
       "history": "播放历史",
       "downloads": "下载",
       "settings": "设置",
       "feeds": "推荐",
-      "following": "关注"
+      "following": "关注",
+      "track": "单曲",
+      "search": "搜索",
+      "user": "用户",
+      "playlist": "歌单"
     },
     "following": {
       "title": "关注",
@@ -51,7 +55,6 @@
       "pending": "排队中",
       "songInfo": "歌曲信息",
       "playlist": "歌单",
-      "artist": "艺术家",
       "addedTime": "添加时间",
       "origFileName": "原文件名",
       "status": "状态",
@@ -84,7 +87,7 @@
       "shuffle": "随机播放",
       "removeSelected": "删除选中"
     },
-    "playlists": {
+    "library": {
       "playlist": "歌单",
       "album": "专辑",
       "systemPlaylist": "系统推荐",
@@ -102,7 +105,9 @@
       "cancel": "取消",
       "close": "关闭",
       "userInfoErr": "更新用户信息失败",
-      "loadFailed": "加载曲目失败, 将在5秒后播放下一单曲"
+      "loadFailed": "加载曲目失败, 将在5秒后播放下一单曲",
+      "clearCacheFailed": "清除缓存失败",
+      "clearCacheSuccess": "缓存清除成功"
     },
     "trackView": {
       "description": "描述",
@@ -162,8 +167,34 @@
         "issue": "问题反馈"
       },
       "etc": {
-        "loginSoundcloud": "登录 Soundcloud"
+        "loginSoundcloud": "登录 Soundcloud",
+        "clearCache": "清除缓存"
       }
+    },
+    "search": {
+      "filters": {
+        "any_length": "任意长度",
+        "any_license": "任何许可证",
+        "any_time": "任何时间",
+        "created_at": "创建于",
+        "epic": "超长",
+        "genre": "风格",
+        "last_day": "过去一天",
+        "last_hour": "过去一小时",
+        "last_month": "过去一个月",
+        "last_week": "过去一周",
+        "last_year": "去年",
+        "length": "长度",
+        "license": "许可证",
+        "location": "地点",
+        "long": "长",
+        "medium": "中",
+        "short": "短",
+        "to_modify_commercially": "商业修改",
+        "to_share": "分享",
+        "to_use_commercially": "商业用途"
+      },
+      "result": "找到 {playlists} 个播放列表、{tracks} 个曲目、{users} 个用户"
     }
   }
 }

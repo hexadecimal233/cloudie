@@ -62,6 +62,10 @@ async function getRequest(url: string, useOAuth: boolean = true, useClientId: bo
     return response
   }
 
+  return await request(sendRequest)
+}
+
+async function request(sendRequest: () => Promise<Response>) {
   const response = await sendRequest()
 
   if (!response.ok) {
@@ -78,6 +82,31 @@ async function getRequest(url: string, useOAuth: boolean = true, useClientId: bo
   }
 
   return response
+}
+
+async function postV2Api(endpoint: string, params: Record<string, any> = {}): Promise<Response> {
+  if (clientIdRefreshing) {
+    throw new Error("clientId is refreshing, please try again later")
+  }
+  endpoint += endpoint.includes("?")
+    ? `&client_id=${config.value.clientId}`
+    : `?client_id=${config.value.clientId}`
+  const finalUrl = `${v2Url}${endpoint}`
+
+  const sendRequest = async () => {
+    const response = await fetch(finalUrl, {
+      method: "POST",
+      headers: {
+        Authorization: `OAuth ${config.value.oauthToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(params),
+    })
+
+    return response
+  }
+
+  return await request(sendRequest)
 }
 
 /**
@@ -247,7 +276,6 @@ interface FacetQuery {
 
 // TODO: facet
 
-
 export function useSearch(query: string, filters: FacetQuery[]) {
   return useSearchCollection<Track>(`/search/tracks`, query, filters, "model", 20)
 }
@@ -352,9 +380,11 @@ export async function getSearchSuggestions(query: string) {
 }
 
 export async function getFeaturedProfiles(id: number) {
-  return (await getV2ApiJson<CollectionResp<SCUser>>(`/users/${id}/featured-profiles`, {
-    limit: 10,
-  })).collection
+  return (
+    await getV2ApiJson<CollectionResp<SCUser>>(`/users/${id}/featured-profiles`, {
+      limit: 10,
+    })
+  ).collection
 }
 
 /**
@@ -401,8 +431,80 @@ export async function unrepostPlaylist(id: number) {
   throw new Error("Unimplemented")
 }
 
-export async function addToHistory(id: number) {
-  throw new Error("Unimplemented")
+export async function addToHistory(track: Track) {
+  const anonId = random6Digit() + "-" + random6Digit() + "-" + random6Digit() + "-" + random6Digit()
+  const uuid = uuidv4() // generate a v4 uuid
+  const time = Date.now()
+
+  const event = {
+    events: [
+      {
+        event: "audio_performance",
+        version: "v0.0.0",
+        payload: {
+          type: "play",
+          latency: Math.floor(1000 + Math.random() * 2000).toString(),
+          protocol: "hls",
+          player_type: "MaestroHLSMSE",
+          host: "playback.media-streaming.soundcloud.cloud",
+          format: "aac",
+          app_state: "foreground",
+          track_urn: "soundcloud:tracks:" + track.id,
+          player_version: "v24.2.0",
+          player_build_number: "1203",
+          preset: "aac_160k",
+          quality: "sq",
+          audio_quality_mode: "standard",
+          entity_type: "soundcloud",
+          anonymous_id: anonId,
+          client_id: "46941",
+          ts: time.toString(),
+          url: "https://soundcloud.com/you/history",
+          session_id: uuid,
+          app_version: "1762854424",
+          user: "soundcloud:users:" + userInfo.value.id,
+          referrer: "https://soundcloud.com/",
+        },
+      },
+      {
+        event: "audio",
+        version: "v1.27.17",
+        payload: {
+          page_name: "collection:history", // or tracks:main, varies
+          source: "history", // or recommender, varies
+          track_length: track.full_duration,
+          track_authorization: track.track_authorization,
+          player_type: "MaestroHLSMSE",
+          preset: "aac_160k",
+          quality: "sq",
+          audio_quality_mode: "standard",
+          app_state: "foreground",
+          action: "play",
+          trigger: "manual",
+          policy: track.policy,
+          monetization_model: track.monetization_model,
+          query_position: 1, // sometimes 0
+          track: "soundcloud:tracks:" + track.id,
+          track_owner: "soundcloud:users:" + track.user_id,
+          playhead_position: 42, // a random number
+          anonymous_id: anonId,
+          client_id: 46941,
+          ts: time, // this is not string
+          url: "https://soundcloud.com/you/history",
+          session_id: uuid,
+          app_version: "1762854424",
+          user: "soundcloud:users:" + userInfo.value.id,
+          referrer: "https://soundcloud.com/",
+        },
+      },
+    ],
+    auth_token: config.value.oauthToken,
+  }
+
+  await postV2Api(`/me/play-history`, {
+    track_urn: "soundcloud:tracks:" + track.id,
+  })
+  await postV2Api(`/me`, event)
 }
 
 export async function changePlaylist(id: number, trackIds: number[]) {
@@ -412,6 +514,18 @@ export async function changePlaylist(id: number, trackIds: number[]) {
 /**
  * Internal API Utils
  */
+
+function random6Digit() {
+  return Math.floor(100000 + Math.random() * 900000).toString()
+}
+
+function uuidv4() {
+  return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) =>
+    (Number(c) ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (Number(c) / 4))))
+      .toString(16)
+      .toUpperCase(),
+  )
+}
 
 async function resolveUrl<T>(url: string) {
   return await getV2ApiJson<T>(`/resolve`, { url })

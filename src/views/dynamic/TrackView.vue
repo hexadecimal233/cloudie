@@ -165,8 +165,6 @@ import { addToListeningList as addTrackToListeningList } from "@/systems/player/
 import { addDownloadTask } from "@/systems/download/download"
 import { usePlayerStore } from "@/systems/stores/player"
 import { LocalPlaylist, Track } from "@/utils/types"
-import MiniPlaylist from "@/components/mini/MiniPlaylist.vue"
-import MiniTrack from "@/components/mini/MiniTrack.vue"
 
 const route = useRoute()
 const playerStore = usePlayerStore()

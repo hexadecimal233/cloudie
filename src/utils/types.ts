@@ -523,6 +523,7 @@ export interface M3U8Info {
   licenseUrls: any // an object containing playready/fairplay urls
 }
 
+// they are the same huh
 export interface SearchSuggestion {
   output: string
   query: string
@@ -565,16 +566,9 @@ export interface Waveform {
   samples: number[] // the length of samples should match width, and maximum value must match height.
 }
 
-export type LicenseFilter =
-  | "to_modify_commercially"
-  | "to_use_commercially"
-  | "to_share"
+export type LicenseFilter = "to_modify_commercially" | "to_use_commercially" | "to_share"
 
-export type DurationFilter =
-  | "short"
-  | "medium"
-  | "long"
-  | "epic"
+export type DurationFilter = "short" | "medium" | "long" | "epic"
 
 export type CreatedAtFilter =
   | "last_hour"

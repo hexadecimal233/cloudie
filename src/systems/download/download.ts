@@ -81,17 +81,11 @@ class DownloadStat {
 }
 
 class DownloadDetail {
-  title: string
-  artist: string
-  coverUrl: string
   playlistName?: string
   playlist: BasePlaylist
   track: Track
 
   constructor(playlist: BasePlaylist, track: Track) {
-    this.title = track.title
-    this.artist = getArtist(track)
-    this.coverUrl = getCoverUrl(track)
     this.playlistName = playlist.title || undefined
     // metas
     this.playlist = playlist
@@ -237,11 +231,11 @@ async function runTask(task: DownloadTask) {
       task.downloadingState.name = "tag"
       await invoke("add_tags", {
         filePath: task.task.path,
-        title: task.details.title,
+        title: task.details.track.title,
         album: task.details.playlistName || "",
-        artist: task.details.artist,
+        artist: getArtist(task.details.track),
         coverUrl: config.value.addCover
-          ? replaceImageUrl(task.details.coverUrl, "1080x1080")
+          ? replaceImageUrl(getCoverUrl(task.details.track), "1080x1080")
           : undefined,
       })
     } catch (error) {

@@ -1,25 +1,26 @@
 <template>
-  <div v-if="currentPlaylist" class="text-xl">
-    {{ currentPlaylist.title }}
-  </div>
   <div>
-    <TrackList :playlist="currentPlaylist">
-      <template #bottom>
-        <template v-if="loading">
-          <div class="loading loading-spinner loading-lg"></div>
-          <span class="ml-2">{{ $t("cloudie.common.loading") }}</span>
-        </template>
+    <div v-if="currentPlaylist" class="text-xl">
+      {{ currentPlaylist.title }}
+    </div>
+    <div>
+      <TrackList :playlist="currentPlaylist">
+        <template #bottom>
+          <template v-if="loading">
+            <div class="loading loading-spinner loading-lg"></div>
+            <span class="ml-2">{{ $t("cloudie.common.loading") }}</span>
+          </template>
 
-        <template v-else>
-          <span class="ml-2">{{ $t("cloudie.common.noMore") }}</span>
+          <template v-else>
+            <span class="ml-2">{{ $t("cloudie.common.noMore") }}</span>
+          </template>
         </template>
-      </template>
-    </TrackList>
+      </TrackList>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts" name="PlaylistView">
-import TrackList from "@/components/TrackList.vue"
 import { ExactPlaylist, SystemPlaylist, UserPlaylist } from "@/utils/types"
 import { computed, onMounted, ref } from "vue"
 import { usePlaylistsStore } from "@/systems/stores/playlists"

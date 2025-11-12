@@ -15,8 +15,11 @@
         "title": "Cloudie",
         "width": 1280,
         "height": 720,
-        "minWidth": 1280,
-        "minHeight": 720
+        "minWidth": 1000,
+        "minHeight": 720,
+        "decorations": false,
+        "transparent": true,
+        "visible": false
       }
     ],
     "security": {
