@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col h-full">
     <div class="mb-2 flex items-center gap-2">
       <div class="flex-1"></div>
       <div>
@@ -47,16 +47,17 @@
     </span>
 
     <UContextMenu :items="items">
-      <UTable :virtualize="{
-        estimateSize: 96
-      }" class="h-96" ref="table" :data="props.playlist.tracks" :columns="columns" v-model:global-filter="searchQuery"
-        :loading="props.loading" @contextmenu="(_e, row) => items = getOperationItems(row.original)" />
+      <UTable ref="table" :ui="{ base: 'table-fixed w-full' }" :data="props.playlist.tracks" :columns="columns"
+        :global-filter="searchQuery || undefined" :loading="props.loading" :virtualize="{
+          estimateSize: 80
+        }" @contextmenu="(_e, row) => items = getOperationItems(row.original)">
+      </UTable>
     </UContextMenu>
   </div>
 </template>
 
 <script setup lang="tsx">
-import { computed, ref, useTemplateRef } from "vue"
+import { onMounted, ref, useTemplateRef } from "vue"
 import { formatMillis, isPossibleFreeDownload } from "@/utils/utils"
 import { addDownloadTask } from "@/systems/download/download"
 import { ExactPlaylist, Track } from "@/utils/types"
@@ -67,15 +68,34 @@ import { i18n } from "@/systems/i18n"
 import { usePlayerStore } from "@/systems/stores/player"
 import { open } from "@tauri-apps/plugin-shell"
 import { ContextMenuItem, TableColumn } from "@nuxt/ui"
+import { useInfiniteScroll } from "@vueuse/core"
 
 const props = defineProps<{
   playlist: ExactPlaylist
   loading?: boolean
+  loadMore?: () => void
+  hasMore?: boolean
 }>()
 
 const items = ref<ContextMenuItem[]>([])
 const searchQuery = ref("")
 const table = useTemplateRef("table")
+
+onMounted(() => {
+  useInfiniteScroll(
+    table.value?.$el,
+    () => {
+      console.log("load more")
+      props.loadMore?.()
+    },
+    {
+      distance: 200,
+      canLoadMore: () => {
+        return !!props.loadMore && !props.loading && props.hasMore
+      },
+    },
+  )
+})
 
 function getOperationItems(track: Track) {
   return [
@@ -133,10 +153,9 @@ enum Downloadability {
   Geo,
 }
 
-// FIXME: table size does not work
 const columns: TableColumn<Track>[] = [
   {
-    id: "select1",
+    id: "select",
     header: ({ table }) => (
       <UCheckbox
         modelValue={
@@ -155,6 +174,12 @@ const columns: TableColumn<Track>[] = [
         aria-label="Select track"
       />
     ),
+    meta: {
+      class: {
+        th: "w-8",
+        td: "w-8",
+      },
+    },
   },
   {
     accessorFn: (_, i) => i,
@@ -164,8 +189,8 @@ const columns: TableColumn<Track>[] = [
     enableSorting: true,
     meta: {
       class: {
-        th: "min-w-16 max-w-16 text-center",
-        td: "min-w-16 max-w-16 text-center",
+        th: "w-16",
+        td: "w-16",
       },
     },
   },
@@ -174,42 +199,34 @@ const columns: TableColumn<Track>[] = [
     header: ({ column }) => getSortHeader(column, i18n.global.t("cloudie.trackList.song")),
     cell: (info) => <TrackTitle track={info.row.original} tracks={props.playlist.tracks} />,
     enableSorting: true,
-    meta: {
-      class: {
-        th: "min-w-0 max-w-full",
-        td: "min-w-0 max-w-full",
-      },
-    },
   },
   {
     accessorKey: "genre",
     header: ({ column }) => getSortHeader(column, i18n.global.t("cloudie.trackList.genre")),
-    cell: (info) => info.getValue(),
+    cell: (info) => {
+      return <UTooltip text={info.getValue() as string}>{info.getValue()}</UTooltip>
+    },
     filterFn: "includesString",
     meta: {
       class: {
-        th: "min-w-16 max-w-16 ",
-        td: "min-w-16 max-w-16 ",
+        th: "w-32 truncate",
+        td: "w-32 truncate",
       },
     },
     enableSorting: true,
   },
   {
+    // TODO: tag list tooltip
     accessorKey: "tag_list",
     header: i18n.global.t("cloudie.trackList.tags"),
     cell: (info) => {
-      return (
-        <div class="line-clamp-2">
-          {" "}
-          <Tags tags={info.getValue() as string} />{" "}
-        </div>
-      )
+      return <Tags class="overflow-x-scroll" tags={info.getValue() as string} />
     },
     filterFn: "includesString",
     meta: {
       class: {
-        th: "min-w-32 max-w-32 ",
-        td: "min-w-32 max-w-32 ",
+        th: "w-32",
+        td: "w-32",
       },
     },
   },
@@ -220,8 +237,8 @@ const columns: TableColumn<Track>[] = [
     enableSorting: true,
     meta: {
       class: {
-        th: "min-w-24 max-w-24 ",
-        td: "min-w-24 max-w-24 ",
+        th: "w-20",
+        td: "w-20",
       },
     },
   },
@@ -249,6 +266,7 @@ const columns: TableColumn<Track>[] = [
         )
       }
     },
+    // FIXME: sorting
     sortingFn: (a, b) => {
       const aDownloadability = getDownloadability(a.original)
       const bDownloadability = getDownloadability(b.original)
@@ -257,8 +275,8 @@ const columns: TableColumn<Track>[] = [
     enableSorting: true,
     meta: {
       class: {
-        th: "min-w-32 max-w-32 ",
-        td: "min-w-32 max-w-32 ",
+        th: "w-36 text-center",
+        td: "w-36 text-center",
       },
     },
   },
@@ -273,7 +291,7 @@ function getSortHeader(column: Column<Track>, text: string) {
     : "i-lucide-arrow-down-up"
 
   return (
-    <div class="contents flex items-center">
+    <div class="flex items-center">
       {text}
       <UButton
         class="opacity-40"

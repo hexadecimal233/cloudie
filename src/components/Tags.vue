@@ -1,12 +1,16 @@
 <template>
-    <div class="flex gap-2">
-        <UBadge v-for="tag in tags" :key="tag" color="neutral">#{{ tag }}</UBadge>
-    </div>
+  <UMarquee v-if="useMarquee" class="flex gap-2">
+    <UBadge v-for="tag in tags" :key="tag" variant="soft" color="neutral">#{{ tag }}</UBadge>
+  </UMarquee>
+  <div v-else class="flex gap-2">
+    <UBadge v-for="tag in tags" :key="tag" variant="soft" color="neutral">#{{ tag }}</UBadge>
+  </div>
 </template>
 
 <script setup lang="ts">
 const props = defineProps<{
   tags: string
+  useMarquee?: boolean
 }>()
 
 function getTags() {

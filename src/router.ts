@@ -21,8 +21,8 @@ const router = createRouter({
       component: () => import("./views/HistoryView.vue"),
     },
     {
-      path: "/playlists",
-      component: () => import("./views/PlaylistsView.vue"),
+      path: "/library",
+      component: () => import("./views/LibraryView.vue"),
     },
     {
       path: "/radio",

@@ -3,12 +3,11 @@
   <PlaylistList :items="collection.data.value" :cache="{}">
     <template #bottom>
       <template v-if="collection.loading.value">
-        <div class="loading loading-spinner loading-lg"></div>
         <span class="ml-2">{{ $t("cloudie.common.loading") }}</span>
       </template>
 
       <template v-else-if="collection.hasNext.value">
-        <button class="btn" @click="collection.fetchNext">{{ $t("cloudie.common.loadMore") }}</button>
+        <UButton @click="collection.fetchNext">{{ $t("cloudie.common.loadMore") }}</UButton>
       </template>
 
       <template v-else>

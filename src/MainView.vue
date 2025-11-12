@@ -45,9 +45,8 @@
       </div>
 
       <!-- Right Side: Content Browser -->
-      <div class="flex flex-1">
-        <OverlayScrollbarsComponent class="bg-default rounded-md flex flex-1 flex-col px-8 py-4" defer
-          :options="{ scrollbars: { theme: scrollbarTheme } }">
+      <div class="flex flex-col flex-1">
+        <div class="bg-default rounded-md flex flex-1 flex-col gap-4 px-8 py-4 overflow-hidden">
           <!-- Search Bar -->
           <UFieldGroup class="w-full">
             <UButton color="neutral" icon="i-lucide-chevron-left" variant="subtle" @click="$router.back()" />
@@ -58,20 +57,27 @@
           </UFieldGroup>
 
 
-          <UContainer class="py-8">
-            <div class="mb-4 text-2xl font-bold">
-              {{ getPageTitle() }}
-            </div>
+          <!-- Page -->
+          <router-view v-slot="{ Component }">
+            <OverlayScrollbarsComponent class="flex-1" defer ref="scrollbarRef"
+              :options="{ scrollbars: { theme: scrollbarTheme } }">
+              <!-- Set H-full for virtualist to work properly -->
+              <UContainer class="flex-col flex h-full">
+                <div class="my-2 text-2xl font-bold">
+                  {{ getPageTitle() }}
+                </div>
 
-            <router-view v-slot="{ Component }">
-              <Transition name="blur" mode="out-in">
-                <keep-alive>
-                  <component :is="Component" />
-                </keep-alive>
-              </Transition>
-            </router-view>
-          </UContainer>
-        </OverlayScrollbarsComponent>
+                <Transition name="blur" mode="out-in">
+                  <keep-alive>
+                    <component :is="Component" />
+                  </keep-alive>
+                </Transition>
+              </UContainer>
+            </OverlayScrollbarsComponent>
+          </router-view>
+
+        </div>
+
       </div>
     </div>
 
@@ -85,7 +91,6 @@ import { onMounted, ref, computed, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import { useI18n } from "vue-i18n"
 import { BasicUserInfo, getSearchSuggestions, updateUserInfo, userInfo } from "@/utils/api"
-import { NavigationMenuItem } from "@nuxt/ui/runtime/components/NavigationMenu.vue.js"
 import { OverlayScrollbarsComponent } from "overlayscrollbars-vue"
 import { useColorMode, useDebounceFn } from "@vueuse/core"
 import { Window } from "@tauri-apps/api/window"
@@ -158,7 +163,7 @@ const items = computed(() => [
   [
     { label: i18n.t("cloudie.main.feeds"), to: "/feeds", icon: "i-lucide-rss" },
     { label: i18n.t("cloudie.main.likes"), to: "/likes", icon: "i-lucide-heart" },
-    { label: i18n.t("cloudie.main.playlists"), to: "/playlists", icon: "i-lucide-list" },
+    { label: i18n.t("cloudie.main.library"), to: "/library", icon: "i-lucide-list" },
     { label: i18n.t("cloudie.main.radio"), to: "/radio", icon: "i-lucide-radio-tower" },
     { label: i18n.t("cloudie.main.history"), to: "/history", icon: "i-lucide-history" },
     { label: i18n.t("cloudie.main.following"), to: "/following", icon: "i-lucide-users" },

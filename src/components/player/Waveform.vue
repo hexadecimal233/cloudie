@@ -16,7 +16,8 @@
 
 
       <!-- Unplayed -->
-      <rect v-if="!isOutside" :x="playProgress * elementWidth" y="0"
+      <rect v-if="!isOutside && (hoverProgress - playProgress) > 0"
+        :x="playProgress * elementWidth" y="0"
         :width="(hoverProgress - playProgress) * elementWidth" :height="elementHeight"
         class="fill-primary opacity-20 transition-opacity" />
     </svg>

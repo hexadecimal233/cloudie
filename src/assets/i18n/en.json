@@ -4,7 +4,7 @@
     "main": {
       "searchBar": "Search",
       "likes": "Likes",
-      "playlists": "Playlists",
+      "library": "Library",
       "radio": "Radio",
       "history": "Play History",
       "downloads": "Downloads",
@@ -88,7 +88,7 @@
       "songInfo": "Song Info",
       "playlist": "Playlist",
       "addedTime": "Added Time",
-      "origFileName": "Original File Name",
+      "origName": "Original Name",
       "status": "Status",
       "tag": "Applying Metadata"
     },
@@ -112,7 +112,7 @@
       "deleteFromPlaylist": "Delete from Playlist",
       "tags": "Tags"
     },
-    "playlists": {
+    "library": {
       "playlist": "Playlist",
       "album": "Album",
       "systemPlaylist": "System Playlist",
@@ -150,7 +150,9 @@
       "reposts": "Reposts",
       "comments": "Comments",
       "relatedTracks": "Related Tracks",
-      "noComments": "No comments found"
+      "noComments": "No comments found",
+      "relatedAlbums": "Related Albums",
+      "relatedPlaylists": "Related Playlists"
     },
     "settings": {
       "config": {
