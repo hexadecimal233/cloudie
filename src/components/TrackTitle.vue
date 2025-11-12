@@ -11,13 +11,13 @@
       <UTooltip :text="props.track.title">
         <ULink :to="`/track/${props.track.id}`"
           class="truncate font-bold cursor-pointer max-w-full inline-block text-highlighted"
-          :class="{ 'text-primary hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-500': props.important }">
+          :class="{ 'text-primary hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-500': isListening }">
           {{ props.track.title }}
         </ULink>
       </UTooltip>
       <UTooltip :text="getArtist(props.track)">
         <ULink :to="`/user/${props.track.user_id}`" class="truncate text-muted cursor-pointer max-w-full inline-block"
-          :class="{ 'text-primary hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-500': props.important }">
+          :class="{ 'text-primary hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-500': isListening }">
           {{ getArtist(props.track) }}
         </ULink>
       </UTooltip>
@@ -29,13 +29,16 @@
 import { Track } from "@/utils/types"
 import { getArtist, getCoverUrl } from "@/utils/utils"
 import { usePlayerStore } from "@/systems/stores/player"
+import { computed } from "vue";
+
+const player = usePlayerStore()
+const isListening = computed(() => !props.hidePlay && player.track !== undefined && player.track.id === props.track.id)
 
 const props = defineProps<{
   track: Track
   tracks?: Track[]
   listeningIndex?: number
   hidePlay?: boolean
-  important?: boolean
 }>()
 const playerStore = usePlayerStore()
 

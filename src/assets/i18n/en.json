@@ -70,6 +70,7 @@
       "onTrack": "on track"
     },
     "player": {
+      "listening": "Listening List",
       "ordered-no-repeat": "Ordered No Repeat",
       "ordered": "Ordered",
       "single-repeat": "Single Repeat",

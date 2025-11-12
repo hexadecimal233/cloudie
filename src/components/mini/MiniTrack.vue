@@ -1,10 +1,10 @@
 <template>
   <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-accented transition-colors min-w-0 w-full">
-    <TrackTitle class="flex-1 min-w-0" :track="track" :tracks="tracks" :listeningIndex="listeningIndex" :important="important" />
+    <TrackTitle class="flex-1 min-w-0" :track="track" :tracks="tracks" :listeningIndex="listeningIndex" />
 
     <div class="flex items-center gap-2">
       <span class="text-sm opacity-50">{{ formatMillis(track.full_duration)
-      }}</span>
+        }}</span>
       <UButton v-if="listeningIndex === undefined" variant="ghost" @click="addToListeningList">
         <i-mdi-plus />
       </UButton>
@@ -25,7 +25,6 @@ const props = defineProps<{
   track: Track
   tracks?: Track[]
   listeningIndex?: number
-  important?: boolean
 }>()
 
 function addToListeningList() {

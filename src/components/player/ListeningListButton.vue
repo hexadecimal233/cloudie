@@ -32,8 +32,7 @@
                   selectedIdxs = selectedIdxs.filter((i) => i !== index)
                 }
               }" :value="index" />
-              <MiniTrack :track="item" :listening-index="index"
-                :important="index === config.listenIndex" />
+              <MiniTrack :track="item" :listening-index="index" />
             </div>
           </template>
         </VirtualList>

@@ -5,9 +5,20 @@
   @apply select-none;
   font-size: 17px;
   /* modify overall font size */
+  
+  --ui-bg: white;
+  --ui-bg-muted: var(--ui-color-neutral-50);
+  --ui-bg-elevated: var(--ui-color-neutral-200);
+  --ui-bg-accented: var(--ui-color-neutral-300);
+  --ui-bg-inverted: var(--ui-color-neutral-900);
 }
 
-@theme {
+.dark {
+  --ui-bg: var(--ui-color-neutral-900);
+  --ui-bg-muted: var(--ui-color-neutral-800);
+  --ui-bg-elevated: var(--ui-color-neutral-700);
+  --ui-bg-accented: var(--ui-color-neutral-600);
+  --ui-bg-inverted: white;
 }
 
 /* https://www.tints.dev */
@@ -100,6 +111,7 @@
 
 /* Page transition */
 @layer components {
+
   .blur-enter-from,
   .blur-leave-to {
     @apply opacity-0 blur-sm scale-95;
@@ -112,6 +124,6 @@
 
   .blur-enter-active,
   .blur-leave-active {
-    @apply transition-all duration-300 ease-in-out;
+    @apply transition-all duration-250 ease-in-out;
   }
 }

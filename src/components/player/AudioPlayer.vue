@@ -2,9 +2,9 @@
   <video @timeupdate="onTimeUpdate" @ended="onEnded" @loadedmetadata="onLoadedMetadata" @play="onPlay" @pause="onPause"
     ref="mediaRef" autoplay hidden></video>
 
-  <div v-if="!!playerState.track" class="bg-elevated relative w-full">
+  <div v-if="!!playerState.track" class="bg-muted relative w-full">
     <!-- TODO: Progress Bar and Needle than waveform -->
-    <div class="h-10 bg-accented w-full overflow-hidden">
+    <div class="h-10 bg-elevated w-full overflow-hidden">
       <Waveform :waveform-url="playerState.track.waveform_url"
         :play-progress="playerState.currentTime / (playerState.duration || 1)" @click="onProgressClick"></Waveform>
     </div>
