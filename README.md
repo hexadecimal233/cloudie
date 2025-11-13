@@ -82,4 +82,5 @@ Pull Requests: [Pull Requests](https://github.com/hexadecimal233/cloudie/pulls)
 - [ ] Lyrics service
 - [ ] icon start to load online again...
 - [ ] cloudie.common.loading cloudie.common.loadMore cloudie.common.noMore cloudie.common.empty cloudie.common.emptyDesc
+- [ ] music title loading animation
 -->
