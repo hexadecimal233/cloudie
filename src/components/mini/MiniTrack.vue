@@ -4,13 +4,9 @@
 
     <div class="flex items-center gap-2">
       <span class="text-sm opacity-50">{{ formatMillis(track.full_duration)
-        }}</span>
-      <UButton v-if="listeningIndex === undefined" variant="ghost" @click="addToListeningList">
-        <i-mdi-plus />
-      </UButton>
-      <UButton variant="ghost" @click="downloadTrack">
-        <i-mdi-download />
-      </UButton>
+      }}</span>
+      <UButton icon="i-mdi-plus" v-if="listeningIndex === undefined" variant="ghost" @click="addToListeningList" />
+      <UButton icon="i-mdi-download" variant="ghost" @click="downloadTrack" />
     </div>
   </div>
 </template>

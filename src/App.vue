@@ -8,9 +8,7 @@
 
 <script setup lang="ts">
 import { Toaster } from "vue-sonner"
-import { ModalsContainer } from "vue-final-modal"
 import "vue-sonner/style.css"
-import "vue-final-modal/style.css"
 import "overlayscrollbars/overlayscrollbars.css"
 
 import MainView from "./MainView.vue"

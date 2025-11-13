@@ -16,7 +16,7 @@
         </ULink>
       </UTooltip>
       <UTooltip :text="getArtist(props.track)">
-        <ULink :to="`/user/${props.track.user_id}`" class="truncate text-muted cursor-pointer max-w-full inline-block"
+        <ULink :to="`/user/${props.track.user_id}`" class="truncate text-sm text-muted cursor-pointer max-w-full inline-block"
           :class="{ 'text-primary hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-500': isListening }">
           {{ getArtist(props.track) }}
         </ULink>

@@ -183,6 +183,12 @@ pub fn run() {
             sql: include_str!("../drizzle/0002_m3u8_cache.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 3,
+            description: "remove foreign keys",
+            sql: include_str!("../drizzle/0003_remove_foreign.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     let mut builder = tauri::Builder::default()

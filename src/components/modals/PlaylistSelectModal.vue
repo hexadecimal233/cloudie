@@ -14,9 +14,8 @@
                             {{ $t('cloudie.common.empty') }}
                         </div>
                         <div v-else class="space-y-2 p-2">
-                            <MiniPlaylist 
-                                v-for="playlist in data" :key="playlist.id" :playlist="playlist" @click="selectPlaylist(playlist)"
-                            />
+                            <MiniPlaylist v-for="playlist in data" :key="playlist.id" :playlist="playlist"
+                                @click="selectPlaylist(playlist)" />
                             <div v-if="loading && data.length > 0" class="flex justify-center p-4">
                                 <USpinner />
                             </div>
@@ -27,7 +26,7 @@
                     </div>
                 </template>
                 <template #create>
-                    
+
                 </template>
             </UTabs>
         </template>
@@ -39,11 +38,19 @@ import { ref, computed, onMounted, nextTick, onUnmounted } from 'vue';
 import { usePlaylists, userInfo } from '@/utils/api';
 import MiniPlaylist from '@/components/mini/MiniPlaylist.vue';
 import { i18n } from '@/systems/i18n';
+import { useInfiniteScroll } from '@vueuse/core';
 
 const emit = defineEmits(['close', 'select']);
 
 const scrollContainer = ref<HTMLElement | null>(null);
 const { data, error, loading, hasNext, fetchNext } = usePlaylists(userInfo.value.id);
+const infiniteScroll = useInfiniteScroll(scrollContainer, fetchNext,
+    {
+        distance: 200,
+        canLoadMore: () => {
+            return hasNext && !loading
+        },
+    },);
 
 const items = computed(() => [
     { slot: 'all', label: i18n.global.t('cloudie.playlistSelectModal.all') },
@@ -54,26 +61,7 @@ const selectPlaylist = (playlist: any) => {
 
 };
 
-const handleScroll = () => {
-    if (!scrollContainer.value || loading.value || !hasNext.value) return;
-    
-    const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value;
-    if (scrollTop + clientHeight >= scrollHeight - 100) {
-        fetchNext();
-    }
-};
-
-onMounted(async () => {
+onMounted(() => {
     fetchNext();
-    await nextTick();
-    if (scrollContainer.value) {
-        scrollContainer.value.addEventListener('scroll', handleScroll);
-    }
-});
-
-onUnmounted(() => {
-    if (scrollContainer.value) {
-        scrollContainer.value.removeEventListener('scroll', handleScroll);
-    }
 });
 </script>

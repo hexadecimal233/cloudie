@@ -1,7 +1,6 @@
 import { createApp } from "vue"
 import App from "./App.vue"
 import "./style.css"
-import { createVfm } from "vue-final-modal"
 import router from "./router"
 import { loadConfig as initConfig } from "./systems/config"
 import { initDb } from "./systems/db/db"
@@ -19,12 +18,10 @@ async function initApp() {
   await initDownload()
   await initMedia()
 
-  const vfm = createVfm()
   const pinia = createPinia()
 
   const app = createApp(App)
   app.use(i18n)
-  app.use(vfm)
   app.use(router)
   app.use(pinia)
   app.use(ui)

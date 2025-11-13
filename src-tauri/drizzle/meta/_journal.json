@@ -22,6 +22,13 @@
       "when": 1762172923353,
       "tag": "0002_m3u8_cache",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1763038600770,
+      "tag": "0003_remove_foreign",
+      "breakpoints": true
     }
   ]
 }

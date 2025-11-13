@@ -68,7 +68,7 @@
 
                 <div class="flex-1 h-full overflow-hidden">
                   <Transition name="blur" mode="out-in">
-                    <keep-alive>
+                    <keep-alive include="DownloadsView,FeedsView,FollowingView,HistoryView,LibraryView,LikesView,RadioView,SettingsView">
                       <component :is="Component" />
                     </keep-alive>
                   </Transition>
