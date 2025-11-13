@@ -145,6 +145,14 @@ export function formatNumber(num: number | null | undefined): string {
   return new Intl.NumberFormat().format(num)
 }
 
+export function openModal(component: any, props: any) {
+  const overlay = useOverlay()
+
+  const modal = overlay.create(component)
+
+  return modal.open(props)
+}
+
 // FS utils
 
 import * as fs from "@tauri-apps/plugin-fs"

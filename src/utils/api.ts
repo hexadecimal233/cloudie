@@ -27,47 +27,49 @@ let clientIdRefreshing = false
 const v2Url = "https://api-v2.soundcloud.com"
 
 // 发出v2 api json请求
-// TODO: specify requests that require authorization
 async function getV2ApiJson<T>(endpoint: string, params: Record<string, any> = {}): Promise<T> {
-  const finalUrl = `${v2Url}${endpoint}?${new URLSearchParams(params).toString()}`
+  const finalUrl = `${endpoint}?${new URLSearchParams(params).toString()}`
 
-  return (await getRequest(finalUrl, true, true)).json()
+  return (await requestV2Api("GET", finalUrl)).json()
 }
 
-// 发出鉴权Json请求
-async function getJson(url: string, useOAuth: boolean = true, useClientId: boolean = true) {
-  return (await getRequest(url, useOAuth, useClientId)).json()
+// 发出鉴权Json get请求
+async function getJson(url: string) {
+  return (await requestV2Api("GET", url, undefined, true)).json()
 }
 
-// 发出有鉴权的请求
-async function getRequest(url: string, useOAuth: boolean = true, useClientId: boolean = true) {
-  // Add client_id to url
-  if (useClientId) {
-    if (clientIdRefreshing) {
-      throw new Error("clientId is refreshing, please try again later")
-    }
-    url += url.includes("?")
-      ? `&client_id=${config.value.clientId}`
-      : `?client_id=${config.value.clientId}`
+// Generic v2 API request
+async function requestV2Api(
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
+  endpoint: string,
+  body?: Record<string, any>,
+  endpointAsFullUrl = false
+): Promise<Response> {
+  if (clientIdRefreshing) {
+    throw new Error("clientId is refreshing, please try again later")
   }
 
+  // Add client_id to endpoint
+  endpoint += endpoint.includes("?")
+    ? `&client_id=${config.value.clientId}`
+    : `?client_id=${config.value.clientId}`
+
+  const finalUrl = `${endpointAsFullUrl ? "" : v2Url}${endpoint}`
+
   const sendRequest = async () => {
-    const response = await fetch(url, {
-      method: "GET",
+    const response = await fetch(finalUrl, {
+      method,
       headers: {
-        Authorization: useOAuth ? `OAuth ${config.value.oauthToken}` : "",
+        Authorization: `OAuth ${config.value.oauthToken}`,
+        ...(body ? { "Content-Type": "application/json" } : {}),
       },
+      body: body ? JSON.stringify(body) : undefined,
     })
 
     return response
   }
 
-  return await request(sendRequest)
-}
-
-async function request(sendRequest: () => Promise<Response>) {
   const response = await sendRequest()
-
   if (!response.ok) {
     if ((response.status === 401 || response.status === 403) && !clientIdRefreshing) {
       // 尝试刷新一次client_id
@@ -84,30 +86,25 @@ async function request(sendRequest: () => Promise<Response>) {
   return response
 }
 
+
 async function postV2Api(endpoint: string, params: Record<string, any> = {}): Promise<Response> {
-  if (clientIdRefreshing) {
-    throw new Error("clientId is refreshing, please try again later")
-  }
-  endpoint += endpoint.includes("?")
-    ? `&client_id=${config.value.clientId}`
-    : `?client_id=${config.value.clientId}`
-  const finalUrl = `${v2Url}${endpoint}`
-
-  const sendRequest = async () => {
-    const response = await fetch(finalUrl, {
-      method: "POST",
-      headers: {
-        Authorization: `OAuth ${config.value.oauthToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(params),
-    })
-
-    return response
-  }
-
-  return await request(sendRequest)
+  return await requestV2Api("POST", endpoint, params)
 }
+
+async function putV2Api(endpoint: string, body?: Record<string, any>): Promise<Response> {
+  return await requestV2Api("PUT", endpoint, body)
+}
+
+async function deleteV2Api(endpoint: string, params: Record<string, any> = {}): Promise<Response> {
+  return await requestV2Api("DELETE", endpoint, params)
+}
+
+async function patchV2Api(endpoint: string, body?: Record<string, any>): Promise<Response> {
+  return await requestV2Api("PATCH", endpoint, body)
+}
+
+// Export the new API functions
+export { putV2Api, deleteV2Api, patchV2Api, requestV2Api }
 
 /**
  * Public methods
@@ -210,7 +207,7 @@ export function useLikes(userId: number) {
 }
 
 export function usePlaylists(userId: number) {
-  return useCollection<TrackLike>(`/users/${userId}/playlists`, 50) // TODO: whats the difference (maybe id?)
+  return useCollection<UserPlaylist>(`/users/${userId}/playlists`, 50)
 }
 
 export function useHistory() {
@@ -509,6 +506,18 @@ export async function addToHistory(track: Track) {
 
 export async function changePlaylist(id: number, trackIds: number[]) {
   throw new Error("Unimplemented")
+}
+
+export async function createPlaylist(title: string, tracks: number[], isPrivate: boolean) {
+  await postV2Api(`/playlists`, {
+    "playlist": {
+      title,
+      "sharing": isPrivate ? "private" : "public",
+      tracks,
+      "_resource_id": "f-26",
+      "_resource_type": "playlist"
+    }
+  })
 }
 
 /**

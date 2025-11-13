@@ -29,10 +29,12 @@
 import { Track } from "@/utils/types"
 import { getArtist, getCoverUrl } from "@/utils/utils"
 import { usePlayerStore } from "@/systems/stores/player"
-import { computed } from "vue";
+import { computed } from "vue"
 
 const player = usePlayerStore()
-const isListening = computed(() => !props.hidePlay && player.track !== undefined && player.track.id === props.track.id)
+const isListening = computed(
+  () => !props.hidePlay && player.track !== undefined && player.track.id === props.track.id,
+)
 
 const props = defineProps<{
   track: Track

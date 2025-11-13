@@ -1,17 +1,15 @@
 <template>
-  <div class="mini-playlist">
-    <div class="flex items-center gap-3 mb-3">
-      <img :src="getCoverUrl(playlist)" :alt="playlist.name || playlist.title"
-        class="w-16 h-16 rounded-lg object-cover" />
-      <div>
-        <h3 class="font-bold text-lg">{{ playlist.name || playlist.title }}</h3>
-        <p class="text-sm opacity-70">{{ (playlist.tracks || []).length }} {{ $t("cloudie.trackList.song") }}</p>
-      </div>
-      <button class="btn btn-primary btn-sm ml-auto" @click="playAll">
-        <i-mdi-play />
-        {{ $t("cloudie.common.play") }}
-      </button>
+  <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-accented transition-colors min-w-0 w-full">
+    <img :src="getCoverUrl(playlist)" :alt="playlist.name || playlist.title"
+      class="w-16 h-16 rounded-lg object-cover" />
+    <div>
+      <span class="font-bold text-lg">{{ playlist.name || playlist.title }}</span>
+      <p class="text-sm opacity-70">{{ (playlist.tracks || []).length }} {{ $t("cloudie.trackList.song") }}</p>
     </div>
+    <button class="btn btn-primary btn-sm ml-auto" @click="playAll">
+      <i-mdi-play />
+      {{ $t("cloudie.common.play") }}
+    </button>
   </div>
 </template>
 
@@ -21,7 +19,7 @@ import { BasePlaylist, LocalPlaylist, Track } from "@/utils/types"
 import { usePlayerStore } from "@/systems/stores/player"
 
 const props = defineProps<{
-  playlist: BasePlaylist | any
+  playlist: BasePlaylist
 }>()
 
 const playerStore = usePlayerStore()

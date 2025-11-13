@@ -6,32 +6,16 @@
         <UInput :placeholder="$t('cloudie.trackList.search')" v-model="searchQuery" />
       </div>
 
-      <div class="dropdown dropdown-end">
-        <div tabindex="0" role="button" class="btn">
-          <i-mdi-ellipsis-horizontal />
-        </div>
-        <ul tabindex="-1" class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
-          <li>
-            <a @click="downloadSelected">
-              {{ $t("cloudie.trackList.download") }}
-            </a>
-          </li>
-          <li>
-            <a @click="addToPlaylist">
-              {{ $t("cloudie.trackList.addToPlaylist") }}
-            </a>
-          </li>
-          <li>
-            <a @click="listenSelected">
-              {{ $t("cloudie.trackList.addToListening") }}
-            </a>
-          </li>
-          <li>
-            <a @click="deleteFromPlaylist">
-              {{ $t("cloudie.trackList.deleteFromPlaylist") }}
-            </a>
-          </li>
-        </ul>
+      <div class="flex items-center gap-2">
+        <UButton label="test" @click="player.play(props.playlist.tracks[0], props.playlist.tracks)">{{
+          $t("cloudie.trackList.listenAll") }}</UButton>
+        <UButton variant="subtle" @click="addMultipleToListeningList(props.playlist.tracks)">{{
+          $t("cloudie.trackList.addAll") }}</UButton>
+
+        <UButton @click="listenSelected">{{ $t("cloudie.trackList.listenSelected") }}</UButton>
+        <UButton variant="subtle" @click="addToListening">{{ $t("cloudie.trackList.addToListening") }}</UButton>
+        <UButton @click="downloadSelected">{{ $t("cloudie.trackList.download") }}</UButton>
+        <UButton variant="subtle" @click="addToPlaylist">{{ $t("cloudie.trackList.addToPlaylist") }}</UButton>
       </div>
     </div>
 
@@ -47,8 +31,8 @@
     </span>
 
     <UContextMenu :items="items">
-      <UTable ref="table" :ui="{ base: 'table-fixed w-full' }" :data="props.playlist.tracks" :columns="columns"
-        :global-filter="searchQuery || undefined" :loading="props.loading" :virtualize="{
+      <UTable class="h-full" ref="table" :ui="{ base: 'table-fixed w-full' }" :data="props.playlist.tracks"
+        :columns="columns" :global-filter="searchQuery || undefined" :loading="props.loading" :virtualize="{
           estimateSize: 80
         }" @contextmenu="(_e, row) => items = getOperationItems(row.original)">
       </UTable>
@@ -58,10 +42,11 @@
 
 <script setup lang="tsx">
 import { onMounted, ref, useTemplateRef } from "vue"
-import { formatMillis, isPossibleFreeDownload } from "@/utils/utils"
+import { formatMillis, isPossibleFreeDownload, openModal } from "@/utils/utils"
 import { addDownloadTask } from "@/systems/download/download"
 import { ExactPlaylist, Track } from "@/utils/types"
-import { addMultipleToListeningList, addToListeningList } from "@/systems/player/listening-list"
+import { addMultipleToListeningList } from "@/systems/player/listening-list"
+import PlaylistSelectModal from "@/components/modals/PlaylistSelectModal.vue"
 
 import { Column } from "@tanstack/vue-table"
 import { i18n } from "@/systems/i18n"
@@ -80,6 +65,7 @@ const props = defineProps<{
 const items = ref<ContextMenuItem[]>([])
 const searchQuery = ref("")
 const table = useTemplateRef("table")
+const player = usePlayerStore()
 
 onMounted(() => {
   useInfiniteScroll(
@@ -103,12 +89,12 @@ function getOperationItems(track: Track) {
       {
         label: i18n.global.t("cloudie.trackList.addToListening"),
         icon: "i-mdi-plus",
-        onClick: () => addToListeningList(track),
+        onClick: () => addMultipleToListeningList([track]),
       },
       {
         label: i18n.global.t("cloudie.trackList.listenSelected"),
         icon: "i-mdi-play",
-        onClick: () => usePlayerStore().play(track, props.playlist.tracks),
+        onClick: () => player.play(track, props.playlist.tracks),
       },
       {
         label: i18n.global.t("cloudie.trackList.openInNew"),
@@ -120,12 +106,7 @@ function getOperationItems(track: Track) {
       {
         label: i18n.global.t("cloudie.trackList.addToPlaylist"),
         icon: "i-mdi-plus",
-        onClick: () => addToPlaylist(track),
-      },
-      {
-        label: i18n.global.t("cloudie.trackList.deleteFromPlaylist"),
-        icon: "i-mdi-delete",
-        onClick: () => deleteFromPlaylist(track),
+        onClick: () => addTracksToPlaylist([track]),
       },
     ],
   ]
@@ -311,16 +292,46 @@ function getSortHeader(column: Column<Track>, text: string) {
 //   return [...new Set(tags)]
 // })
 
+function selected() {
+  return table.value?.tableApi?.getFilteredSelectedRowModel().rows || []
+}
+
 async function downloadSelected() {
-  for (const row of table.value?.tableApi?.getFilteredSelectedRowModel().rows || []) {
+  for (const row of selected()) {
     await download(row.original)
   }
 }
 
-async function listenSelected() {
-  addMultipleToListeningList(
-    table.value?.tableApi?.getFilteredSelectedRowModel().rows.map((row) => row.original) || [],
+function listenSelected() {
+  const selectedRows = selected()
+  if (!selectedRows.length) return
+
+  player.play(
+    selectedRows[0].original,
+    selectedRows.map((row) => row.original),
   )
+}
+
+async function addToListening() {
+  addMultipleToListeningList(
+    selected().map((row) => row.original),
+  )
+}
+
+async function addTracksToPlaylist(tracks: Track[]) {
+  if (!tracks.length) return
+  await openModal(
+    PlaylistSelectModal,
+    {
+      tracks: tracks,
+    },
+  )
+}
+
+async function addToPlaylist() {
+  const selectedRows = selected()
+  if (!selectedRows.length) return
+  await addTracksToPlaylist(selectedRows.map((row) => row.original))
 }
 
 async function download(track: Track) {

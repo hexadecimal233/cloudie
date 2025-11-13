@@ -8,6 +8,14 @@ Cloudie
 <p align="center">
 Yet another Open Source Kawaii Soundcloud Client.
 </p>
+<p align="center">
+<a href="https://ui.nuxt.com" target="_blank"><img src="https://img.shields.io/badge/Built%20with-Nuxt%20UI-00DC82?style=flat-square&logo=nuxt.js&logoColor=white" alt="Built with Nuxt UI"></a>
+<a href="https://www.rust-lang.org/" target="_blank"><img src="https://img.shields.io/badge/Powered%20by-Tauri-1b99a7?style=flat-square&logo=rust&logoColor=white" alt="Powered by Tauri"></a>
+<a href="https://github.com/hexadecimal233/cloudie/releases" target="_blank"><img src="https://img.shields.io/github/downloads/hexadecimal233/cloudie/total?style=flat-square&logo=github&logoColor=white" alt="GitHub Downloads"></a>
+<a href="https://github.com/hexadecimal233/cloudie/releases/latest" target="_blank"><img src="https://img.shields.io/github/v/release/hexadecimal233/cloudie?style=flat-square&logo=github&logoColor=white" alt="Latest Release"></a>
+</p>
+
+
 
 <!--
 TODO: Add a Telegram / QQ / Discord group

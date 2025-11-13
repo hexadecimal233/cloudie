@@ -59,19 +59,20 @@
 
           <!-- Page -->
           <router-view v-slot="{ Component }">
-            <OverlayScrollbarsComponent class="flex-1" defer ref="scrollbarRef"
-              :options="{ scrollbars: { theme: scrollbarTheme } }">
+            <OverlayScrollbarsComponent defer ref="scrollbarRef" :options="{ scrollbars: { theme: scrollbarTheme } }">
               <!-- Set H-full for virtualist to work properly -->
               <UContainer class="flex-col flex h-full">
                 <div class="my-2 text-2xl font-bold">
                   {{ getPageTitle() }}
                 </div>
 
-                <Transition name="blur" mode="out-in">
-                  <keep-alive>
-                    <component :is="Component" />
-                  </keep-alive>
-                </Transition>
+                <div class="flex-1 h-full overflow-hidden">
+                  <Transition name="blur" mode="out-in">
+                    <keep-alive>
+                      <component :is="Component" />
+                    </keep-alive>
+                  </Transition>
+                </div>
               </UContainer>
             </OverlayScrollbarsComponent>
           </router-view>

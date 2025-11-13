@@ -5,7 +5,7 @@
   @apply select-none;
   font-size: 17px;
   /* modify overall font size */
-  
+
   --ui-bg: white;
   --ui-bg-muted: var(--ui-color-neutral-50);
   --ui-bg-elevated: var(--ui-color-neutral-200);
@@ -111,7 +111,6 @@
 
 /* Page transition */
 @layer components {
-
   .blur-enter-from,
   .blur-leave-to {
     @apply opacity-0 blur-sm scale-95;

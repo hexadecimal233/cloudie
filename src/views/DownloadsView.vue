@@ -28,7 +28,7 @@ const tabs = computed(() => [
 const columns: TableColumn<DownloadTask>[] = [
   {
     accessorKey: "details.track",
-    header: ({ }) => i18n.global.t("cloudie.downloads.songInfo"),
+    header: ({}) => i18n.global.t("cloudie.downloads.songInfo"),
     cell: (info: { row: { original: DownloadTask } }) => (
       <TrackTitle
         track={info.row.original.details.track}
@@ -38,7 +38,7 @@ const columns: TableColumn<DownloadTask>[] = [
   },
   {
     accessorKey: "details.playlistName",
-    header: ({ }) => i18n.global.t("cloudie.downloads.playlist"),
+    header: ({}) => i18n.global.t("cloudie.downloads.playlist"),
     cell: (info: { row: { original: DownloadTask } }) =>
       info.row.original.details.playlistName ?? "-",
     meta: {
@@ -50,7 +50,7 @@ const columns: TableColumn<DownloadTask>[] = [
   },
   {
     accessorKey: "task.timestamp",
-    header: ({ }) => i18n.global.t("cloudie.downloads.addedTime"),
+    header: ({}) => i18n.global.t("cloudie.downloads.addedTime"),
     cell: (info: { row: { original: DownloadTask } }) =>
       new Date(info.row.original.task.timestamp).toLocaleString(),
     meta: {
@@ -62,7 +62,7 @@ const columns: TableColumn<DownloadTask>[] = [
   },
   {
     accessorKey: "task.origFileName",
-    header: ({ }) => i18n.global.t("cloudie.downloads.origName"),
+    header: ({}) => i18n.global.t("cloudie.downloads.origName"),
     cell: (info: { row: { original: DownloadTask } }) => info.row.original.task.origFileName ?? "-",
     meta: {
       class: {
@@ -73,7 +73,7 @@ const columns: TableColumn<DownloadTask>[] = [
   },
   {
     accessorKey: "task.status",
-    header: ({ }) => i18n.global.t("cloudie.downloads.status"),
+    header: ({}) => i18n.global.t("cloudie.downloads.status"),
     cell: (info: { row: { original: DownloadTask } }) => (
       <div class="flex items-center gap-2">
         {info.row.original.downloadingState ? (
@@ -96,7 +96,7 @@ const columns: TableColumn<DownloadTask>[] = [
   },
   {
     id: "actions",
-    header: ({ }) => i18n.global.t("cloudie.downloads.actions"),
+    header: ({}) => i18n.global.t("cloudie.downloads.actions"),
     cell: (info: { row: { original: DownloadTask } }) => (
       <div class="flex gap-1">
         {info.row.original.downloadingState && (
@@ -104,8 +104,8 @@ const columns: TableColumn<DownloadTask>[] = [
         )}
         {(info.row.original.task.status === "paused" ||
           info.row.original.task.status === "failed") && (
-            <UButton icon="i-mdi-play" onClick={() => info.row.original.resume()} variant="ghost" />
-          )}
+          <UButton icon="i-mdi-play" onClick={() => info.row.original.resume()} variant="ghost" />
+        )}
         {info.row.original.task.status === "completed" && (
           <UButton
             icon="i-mdi-folder-open"
