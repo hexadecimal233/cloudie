@@ -38,10 +38,13 @@ const router = createRouter({
     },
     { path: "/:pathMatch(.*)*", redirect: "/feeds" },
     // Dynamic Pages
-    // TODO: Separate system playlist and user playlist
     {
-      path: "/playlist/:id", // the string(system-playlist) or number id.
-      component: () => import("./views/dynamic/PlaylistView.vue"),
+      path: "/user-playlist/:id", // the number id.
+      component: () => import("./views/dynamic/lists/UserPlaylistView.vue"),
+    },
+    {
+      path: "/system-playlist/:id", // the string id.
+      component: () => import("./views/dynamic/lists/SystemPlaylistView.vue"),
     },
     {
       path: "/track/:id",

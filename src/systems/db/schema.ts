@@ -54,9 +54,7 @@ export const listeningList = sqliteTable("ListeningList", {
 })
 
 export const m3u8Cache = sqliteTable("M3U8Cache", {
-  trackId: integer()
-    .primaryKey()
-    .notNull(),
+  trackId: integer().primaryKey().notNull(),
   m3u8: text().notNull(),
 })
 

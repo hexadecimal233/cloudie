@@ -34,34 +34,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick, onUnmounted } from 'vue';
-import { usePlaylists, userInfo } from '@/utils/api';
-import MiniPlaylist from '@/components/mini/MiniPlaylist.vue';
-import { i18n } from '@/systems/i18n';
-import { useInfiniteScroll } from '@vueuse/core';
+import { ref, computed, onMounted, nextTick, onUnmounted } from "vue"
+import { usePlaylists } from "@/utils/api"
+import MiniPlaylist from "@/components/mini/MiniPlaylist.vue"
+import { i18n } from "@/systems/i18n"
+import { useInfiniteScroll } from "@vueuse/core"
+import { useUserStore } from "@/systems/stores/user"
 
-const emit = defineEmits(['close', 'select']);
+const emit = defineEmits(["close", "select"])
 
-const scrollContainer = ref<HTMLElement | null>(null);
-const { data, error, loading, hasNext, fetchNext } = usePlaylists(userInfo.value.id);
-const infiniteScroll = useInfiniteScroll(scrollContainer, fetchNext,
-    {
-        distance: 200,
-        canLoadMore: () => {
-            return hasNext && !loading
-        },
-    },);
+const userInfo = useUserStore()
+const scrollContainer = ref<HTMLElement | null>(null)
+const { data, error, loading, hasNext, fetchNext } = usePlaylists(userInfo.id)
+const infiniteScroll = useInfiniteScroll(scrollContainer, fetchNext, {
+  distance: 200,
+  canLoadMore: () => {
+    return hasNext && !loading
+  },
+})
 
 const items = computed(() => [
-    { slot: 'all', label: i18n.global.t('cloudie.playlistSelectModal.all') },
-    { slot: 'create', label: i18n.global.t('cloudie.playlistSelectModal.create') }
-]);
+  { slot: "all", label: i18n.global.t("cloudie.playlistSelectModal.all") },
+  { slot: "create", label: i18n.global.t("cloudie.playlistSelectModal.create") },
+])
 
-const selectPlaylist = (playlist: any) => {
-
-};
+const selectPlaylist = (playlist: any) => {}
 
 onMounted(() => {
-    fetchNext();
-});
+  fetchNext()
+})
 </script>

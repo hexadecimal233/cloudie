@@ -30,7 +30,7 @@
 
         <!-- Matches the right section text to make the spacing consistent -->
         <div class="flex items-center gap-2 mt-4 mb-8">
-          <template v-if="!loading">
+          <template v-if="!loading && userInfo.id !== -1">
             <UAvatar :src="userInfo.avatar_url" size="lg" />
             <div class="font-bold">{{ userInfo.username }}</div>
           </template>
@@ -66,7 +66,7 @@
                   {{ getPageTitle() }}
                 </div>
 
-                <div class="flex-1 h-full overflow-hidden">
+                <div class="flex-1 h-full">
                   <Transition name="blur" mode="out-in">
                     <keep-alive include="DownloadsView,FeedsView,FollowingView,HistoryView,LibraryView,LikesView,RadioView,SettingsView">
                       <component :is="Component" />
@@ -91,7 +91,8 @@
 import { onMounted, ref, computed, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import { useI18n } from "vue-i18n"
-import { BasicUserInfo, getSearchSuggestions, updateUserInfo, userInfo } from "@/utils/api"
+import { useUserStore } from "@/systems/stores/user"
+import { getSearchSuggestions } from "@/utils/api"
 import { OverlayScrollbarsComponent } from "overlayscrollbars-vue"
 import { useColorMode, useDebounceFn } from "@vueuse/core"
 import { Window } from "@tauri-apps/api/window"
@@ -99,16 +100,16 @@ import { Window } from "@tauri-apps/api/window"
 const route = useRoute()
 const router = useRouter()
 const i18n = useI18n()
-const user = ref<BasicUserInfo>()
 const loading = ref(true)
 const colorMode = useColorMode()
+const userInfo = useUserStore()
 
 const windowStates = ref({
   isFocused: false,
   isMaximized: false,
 })
 
-Window.getCurrent().onResized(async ({ }) => {
+Window.getCurrent().onResized(async ({}) => {
   windowStates.value.isMaximized = await Window.getCurrent().isMaximized()
 })
 
@@ -122,8 +123,7 @@ const scrollbarTheme = computed(() => {
 })
 
 onMounted(async () => {
-  await updateUserInfo(true)
-  user.value = userInfo.value
+  await userInfo.initializeUserState()
   loading.value = false
 })
 

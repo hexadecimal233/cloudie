@@ -57,16 +57,12 @@
 </template>
 
 <script setup lang="ts" name="FollowingView">
-import { onMounted, watch } from "vue"
-import { useFollowings, userInfo } from "@/utils/api"
-import { useUsersStore } from "@/systems/stores/users"
-import { SCUser } from "@/utils/types"
+import { onMounted } from "vue"
+import { useFollowings } from "@/utils/api"
+import { useUserStore } from "@/systems/stores/user"
 
-const { data: followings, loading, error, hasNext, fetchNext } = useFollowings(userInfo.value.id)
-
-watch(followings, async (newFollowings: SCUser[]) => {
-  useUsersStore().users = newFollowings // TODO: this is a temp solution
-})
+const userInfo = useUserStore()
+const { data: followings, loading, error, hasNext, fetchNext } = useFollowings(userInfo.id)
 
 onMounted(async () => {
   await fetchNext()

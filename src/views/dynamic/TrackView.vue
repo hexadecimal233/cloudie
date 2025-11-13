@@ -135,7 +135,7 @@
   </div>
 
 </template>
-<script setup lang="ts" name="TrackView">
+<script setup lang="ts">
 import { ref, onMounted, computed } from "vue"
 import { useRoute } from "vue-router"
 import { db } from "@/systems/db/db"

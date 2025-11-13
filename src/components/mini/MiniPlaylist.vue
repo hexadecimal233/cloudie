@@ -3,7 +3,7 @@
     <img :src="artworkUrl" :alt="props.playlist.title" class="size-14 rounded-sm object-cover" />
     <div class="flex flex-col min-w-0 flex-1">
       <UTooltip :text="props.playlist.title">
-        <ULink :to="`/playlist/${props.playlist.id}`"
+        <ULink :to="`/user-playlist/${props.playlist.id}`"
           class="truncate font-bold cursor-pointer max-w-full inline-block text-highlighted">
           {{ props.playlist.title }}
         </ULink>
@@ -23,8 +23,8 @@
 <script setup lang="ts">
 import { replaceImageUrl } from "@/utils/utils"
 import { UserPlaylist } from "@/utils/types"
-import { usePlaylistsStore } from "@/systems/stores/playlists";
-import { computed } from "vue";
+import { usePlaylistsStore } from "@/systems/stores/playlists"
+import { computed } from "vue"
 
 const playlistsStore = usePlaylistsStore()
 
@@ -39,7 +39,6 @@ const artworkUrl = computed(() => {
 
   return replaceImageUrl(artworkUrl)
 })
-
 
 const props = defineProps<{
   playlist: UserPlaylist

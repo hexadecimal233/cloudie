@@ -7,6 +7,7 @@ import { initDb } from "./systems/db/db"
 import { initDownload } from "./systems/download/download"
 import { i18n, initI18n } from "./systems/i18n"
 import { initMedia } from "./systems/player/listening-list"
+import piniaPluginPersistedstate from "pinia-plugin-persistedstate"
 import { createPinia } from "pinia"
 import ui from "@nuxt/ui/vue-plugin"
 
@@ -18,7 +19,9 @@ async function initApp() {
   await initDownload()
   await initMedia()
 
+  // load pinia
   const pinia = createPinia()
+  pinia.use(piniaPluginPersistedstate)
 
   const app = createApp(App)
   app.use(i18n)

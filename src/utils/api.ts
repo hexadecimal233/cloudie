@@ -22,6 +22,7 @@ import type {
   Transcoding,
   WebProfile,
 } from "./types"
+import { useUserStore } from "@/systems/stores/user"
 
 let clientIdRefreshing = false
 const v2Url = "https://api-v2.soundcloud.com"
@@ -43,7 +44,7 @@ async function requestV2Api(
   method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
   endpoint: string,
   body?: Record<string, any>,
-  endpointAsFullUrl = false
+  endpointAsFullUrl = false,
 ): Promise<Response> {
   if (clientIdRefreshing) {
     throw new Error("clientId is refreshing, please try again later")
@@ -85,7 +86,6 @@ async function requestV2Api(
 
   return response
 }
-
 
 async function postV2Api(endpoint: string, params: Record<string, any> = {}): Promise<Response> {
   return await requestV2Api("POST", endpoint, params)
@@ -141,46 +141,6 @@ export async function refreshClientId() {
 /**
  * API methods
  */
-
-// TODO: logged off support
-export class BasicUserInfo {
-  id: number = -1
-  username: string = ""
-  avatar_url: string = ""
-  permalink: string = ""
-}
-
-export const userInfo = ref<BasicUserInfo>(new BasicUserInfo())
-
-// Get basic info for current user
-export async function updateUserInfo(forceUpdate: boolean = false) {
-  const userStr = localStorage.getItem("user")
-
-  if (userStr) {
-    const user = JSON.parse(userStr) as BasicUserInfo
-    userInfo.value = user
-    if (!forceUpdate) {
-      return user
-    }
-  }
-
-  try {
-    const res = await getV2ApiJson<Me>("/me")
-    userInfo.value = {
-      id: res.id,
-      username: res.username,
-      avatar_url: res.avatar_url,
-      permalink: res.permalink,
-    } as BasicUserInfo
-    localStorage.setItem("user", JSON.stringify(userInfo.value))
-    return userInfo.value
-  } catch (err) {
-    console.error("Get UserInfo Error", err)
-    // TODO: some sort of log out logic (like cleaning the oauth token kinda brutal but wanna make sure its a 401 or 403 and we do this)
-    toast.error(i18n.global.t("cloudie.toasts.userInfoErr"), { description: err as string })
-    return new BasicUserInfo()
-  }
-}
 
 /**
  * Collection responses
@@ -293,6 +253,27 @@ export function useSearchAlbums(query: string, filters: FacetQuery[]) {
   return useSearchCollection<UserPlaylist>(`/search/albums`, query, filters, "genre", 20)
 }
 
+// User state related methods
+export async function getFollowersIds() {
+  return (await getV2ApiJson<CollectionResp<number>>("me/followers/ids")).collection
+}
+
+export async function getFollowingIds(id: number) {
+  return (await getV2ApiJson<CollectionResp<number>>(`/users/${id}/followings/ids`)).collection
+}
+
+export async function useMeSystemPlaylistLikeUrns() {
+  return (await getV2ApiJson<CollectionResp<string>>(`/me/system_playlist_likes/urns`, { limit: 5000 })).collection
+}
+
+export function useMeTrackLikeIds() {
+  return useCollection<number>(`/me/track_likes/ids`, 200)
+}
+
+export async function useMePlaylistLikeIds() {
+  return (await getV2ApiJson<CollectionResp<number>>(`/me/playlist_likes/ids`, { limit: 5000 })).collection
+}
+
 /**
  * Get Responses
  */
@@ -327,8 +308,9 @@ export async function getM3U8Info(transcoding: Transcoding) {
 
 // used when pushing new tracks to the listening list
 export async function getRelatedTracks(id: number) {
+  const userInfo = useUserStore()
   const response = await getV2ApiJson<QueryCollection<Track>>(`/tracks/${id}/related`, {
-    user_id: userInfo.value.id,
+    user_id: userInfo.id,
     limit: 30,
   })
   return response.collection
@@ -428,7 +410,24 @@ export async function unrepostPlaylist(id: number) {
   throw new Error("Unimplemented")
 }
 
+export async function changePlaylist(id: number, trackIds: number[]) {
+  throw new Error("Unimplemented")
+}
+
+export async function createPlaylist(title: string, tracks: number[], isPrivate: boolean) {
+  await postV2Api(`/playlists`, {
+    playlist: {
+      title,
+      sharing: isPrivate ? "private" : "public",
+      tracks,
+      _resource_id: "f-26",
+      _resource_type: "playlist",
+    },
+  })
+}
+
 export async function addToHistory(track: Track) {
+  const userInfo = useUserStore()
   const anonId = random6Digit() + "-" + random6Digit() + "-" + random6Digit() + "-" + random6Digit()
   const uuid = uuidv4() // generate a v4 uuid
   const time = Date.now()
@@ -459,7 +458,7 @@ export async function addToHistory(track: Track) {
           url: "https://soundcloud.com/you/history",
           session_id: uuid,
           app_version: "1762854424",
-          user: "soundcloud:users:" + userInfo.value.id,
+          user: "soundcloud:users:" + userInfo.id,
           referrer: "https://soundcloud.com/",
         },
       },
@@ -490,7 +489,7 @@ export async function addToHistory(track: Track) {
           url: "https://soundcloud.com/you/history",
           session_id: uuid,
           app_version: "1762854424",
-          user: "soundcloud:users:" + userInfo.value.id,
+          user: "soundcloud:users:" + userInfo.id,
           referrer: "https://soundcloud.com/",
         },
       },
@@ -502,22 +501,6 @@ export async function addToHistory(track: Track) {
     track_urn: "soundcloud:tracks:" + track.id,
   })
   await postV2Api(`/me`, event)
-}
-
-export async function changePlaylist(id: number, trackIds: number[]) {
-  throw new Error("Unimplemented")
-}
-
-export async function createPlaylist(title: string, tracks: number[], isPrivate: boolean) {
-  await postV2Api(`/playlists`, {
-    "playlist": {
-      title,
-      "sharing": isPrivate ? "private" : "public",
-      tracks,
-      "_resource_id": "f-26",
-      "_resource_type": "playlist"
-    }
-  })
 }
 
 /**

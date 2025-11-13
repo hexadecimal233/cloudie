@@ -1,21 +1,21 @@
 <template>
-  <div class="flex flex-col h-full">
-    <div class="mb-2 flex items-center gap-2">
-      <div class="flex-1"></div>
-      <div>
-        <UInput :placeholder="$t('cloudie.trackList.search')" v-model="searchQuery" />
-      </div>
-
+  <div class="flex gap-2 flex-col h-full">
+    <div class="flex items-center gap-2">
       <div class="flex items-center gap-2">
-        <UButton label="test" @click="player.play(props.playlist.tracks[0], props.playlist.tracks)">{{
+        <UButton label="test" @click="player.play(props.tracks[0], props.tracks)">{{
           $t("cloudie.trackList.listenAll") }}</UButton>
-        <UButton variant="subtle" @click="addMultipleToListeningList(props.playlist.tracks)">{{
+        <UButton variant="subtle" @click="addMultipleToListeningList(props.tracks)">{{
           $t("cloudie.trackList.addAll") }}</UButton>
 
         <UButton @click="listenSelected">{{ $t("cloudie.trackList.listenSelected") }}</UButton>
         <UButton variant="subtle" @click="addToListening">{{ $t("cloudie.trackList.addToListening") }}</UButton>
         <UButton @click="downloadSelected">{{ $t("cloudie.trackList.download") }}</UButton>
         <UButton variant="subtle" @click="addToPlaylist">{{ $t("cloudie.trackList.addToPlaylist") }}</UButton>
+      </div>
+
+      <div class="flex-1"></div>
+      <div>
+        <UInput icon="i-lucide-search" :placeholder="$t('cloudie.trackList.search')" v-model="searchQuery" />
       </div>
     </div>
 
@@ -31,8 +31,8 @@
     </span>
 
     <UContextMenu :items="items">
-      <UTable class="h-full" ref="table" :ui="{ base: 'table-fixed w-full' }" :data="props.playlist.tracks"
-        :columns="columns" :global-filter="searchQuery || undefined" :loading="props.loading" :virtualize="{
+      <UTable class="h-full" ref="table" :ui="{ base: 'table-fixed w-full' }" :data="props.tracks" :columns="columns"
+        :global-filter="searchQuery || undefined" :loading="props.loading" :virtualize="{
           estimateSize: 80
         }" @contextmenu="(_e, row) => items = getOperationItems(row.original)">
       </UTable>
@@ -44,7 +44,7 @@
 import { onMounted, ref, useTemplateRef } from "vue"
 import { formatMillis, isPossibleFreeDownload, openModal } from "@/utils/utils"
 import { addDownloadTask } from "@/systems/download/download"
-import { ExactPlaylist, Track } from "@/utils/types"
+import { BasePlaylist, Track } from "@/utils/types"
 import { addMultipleToListeningList } from "@/systems/player/listening-list"
 import PlaylistSelectModal from "@/components/modals/PlaylistSelectModal.vue"
 
@@ -56,7 +56,8 @@ import { ContextMenuItem, TableColumn } from "@nuxt/ui"
 import { useInfiniteScroll } from "@vueuse/core"
 
 const props = defineProps<{
-  playlist: ExactPlaylist
+  tracks: Track[]
+  parentPlaylist: BasePlaylist
   loading?: boolean
   loadMore?: () => void
   hasMore?: boolean
@@ -94,7 +95,7 @@ function getOperationItems(track: Track) {
       {
         label: i18n.global.t("cloudie.trackList.listenSelected"),
         icon: "i-mdi-play",
-        onClick: () => player.play(track, props.playlist.tracks),
+        onClick: () => player.play(track, props.tracks),
       },
       {
         label: i18n.global.t("cloudie.trackList.openInNew"),
@@ -178,7 +179,7 @@ const columns: TableColumn<Track>[] = [
   {
     accessorKey: "title",
     header: ({ column }) => getSortHeader(column, i18n.global.t("cloudie.trackList.song")),
-    cell: (info) => <TrackTitle track={info.row.original} tracks={props.playlist.tracks} />,
+    cell: (info) => <TrackTitle track={info.row.original} tracks={props.tracks} />,
     enableSorting: true,
   },
   {
@@ -313,19 +314,14 @@ function listenSelected() {
 }
 
 async function addToListening() {
-  addMultipleToListeningList(
-    selected().map((row) => row.original),
-  )
+  addMultipleToListeningList(selected().map((row) => row.original))
 }
 
 async function addTracksToPlaylist(tracks: Track[]) {
   if (!tracks.length) return
-  await openModal(
-    PlaylistSelectModal,
-    {
-      tracks: tracks,
-    },
-  )
+  await openModal(PlaylistSelectModal, {
+    tracks: tracks,
+  })
 }
 
 async function addToPlaylist() {
@@ -335,6 +331,6 @@ async function addToPlaylist() {
 }
 
 async function download(track: Track) {
-  await addDownloadTask(track, props.playlist)
+  await addDownloadTask(track, props.parentPlaylist)
 }
 </script>

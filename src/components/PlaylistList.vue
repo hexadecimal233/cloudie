@@ -52,7 +52,11 @@ function openPlaylist(likeResp: PlaylistLike) {
   const playlistId = likeResp.playlist?.id ?? likeResp.system_playlist!.id
   playlistsStore.currentResp = likeResp
 
-  router.push(`/playlist/${playlistId}`)
+  if (likeResp.system_playlist) {
+    router.push(`/system-playlist/${playlistId}`)
+  } else {
+    router.push(`/user-playlist/${playlistId}`)
+  }
 }
 
 // get & fetch missing artwork

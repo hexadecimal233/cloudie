@@ -192,7 +192,7 @@
   </div>
 </template>
 
-<script setup lang="ts" name="UserView">
+<script setup lang="ts">
 import { ref, onMounted, watch } from "vue"
 import {
   getRelatedArtists,
@@ -207,7 +207,6 @@ import { toast } from "vue-sonner"
 import { useRoute } from "vue-router"
 
 const id = Number(useRoute().params.id)
-
 
 const tabs = [
   { id: "tracks", label: "Tracks" },
@@ -265,8 +264,6 @@ const loadUser = async () => {
     userLoading.value = false
   }
 }
-
-
 
 // Load data for each tab
 const loadTracks = async () => {

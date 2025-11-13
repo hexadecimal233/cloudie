@@ -3,6 +3,7 @@ import tailwindcss from "@tailwindcss/vite"
 import ui from "@nuxt/ui/vite"
 import vue from "@vitejs/plugin-vue"
 import vueJsx from "@vitejs/plugin-vue-jsx"
+import vueDevTools from 'vite-plugin-vue-devtools'
 import IconsResolver from "unplugin-icons/resolver"
 import Icons from "unplugin-icons/vite"
 import { defineConfig } from "vite"
@@ -24,6 +25,7 @@ export default defineConfig(async () => ({
         resolvers: [IconsResolver()], // "unplugin-vue-components/vite"
       },
     }),
+    vueDevTools(),
   ],
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`

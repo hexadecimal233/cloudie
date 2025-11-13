@@ -104,6 +104,16 @@ export async function savePlaylist(playlist: ExactPlaylist) {
     .returning()
 }
 
+export async function fetchUserPlaylist(playlistId: number) {
+  const resp = await API.getPlaylist(playlistId)
+  if (!resp.tracks) {
+    throw new Error("Playlist tracks is empty")
+  }
+  resp.tracks = await API.getTracks(resp.tracks.map((t) => t.id))
+
+  return resp
+}
+
 export async function fetchPlaylistUpdates(likeResp: PlaylistLike, _existTrackIds?: number[]) {
   const currentPlaylist: SystemPlaylist | UserPlaylist =
     likeResp.playlist ?? likeResp.system_playlist
