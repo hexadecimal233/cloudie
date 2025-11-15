@@ -28,13 +28,17 @@ import { useLibrary } from "@/utils/api"
 import { i18n } from "@/systems/i18n"
 
 const items = computed(() => [
-  { label: i18n.global.t("cloudie.library.playlist"), icon: "i-lucide-list", slot: "playlist" },
+  {
+    label: i18n.global.t("cloudie.library.playlist"),
+    icon: "i-mingcute-playlist-line",
+    slot: "playlist",
+  },
   {
     label: i18n.global.t("cloudie.library.systemPlaylist"),
-    icon: "i-lucide-server",
+    icon: "i-mingcute-server-line",
     slot: "system",
   },
-  { label: i18n.global.t("cloudie.library.album"), icon: "i-lucide-album", slot: "album" },
+  { label: i18n.global.t("cloudie.library.album"), icon: "i-mingcute-album-line", slot: "album" },
 ])
 
 const collection = useLibrary()

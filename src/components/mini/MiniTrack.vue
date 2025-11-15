@@ -9,7 +9,7 @@
         :icon="user.isLikedTrack(track.id) ? 'i-mingcute-heart-fill' : 'i-mingcute-heart-line'" 
         :color="user.isLikedTrack(track.id) ? 'primary' : 'neutral'"
          @click="user.toggleLikeTrack(track.id)" />
-      <UButton color="neutral" icon="i-mingcute-plus-line" v-if="listeningIndex === undefined" variant="ghost" @click="addToListeningList" />
+      <UButton color="neutral" icon="i-mingcute-add-line" v-if="listeningIndex === undefined" variant="ghost" @click="addToListeningList" />
       <UButton color="neutral" icon="i-mingcute-download-line" variant="ghost" @click="downloadTrack" />
     </div>
   </div>

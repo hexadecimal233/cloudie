@@ -1,5 +1,7 @@
 <template>
   <div>
+    <FullTrack :track="track" :stream-item="trackRepost" />
+    <FullPlaylist :track="track" />
     <MiniUser :user="user" />
     <MiniTrack :track="track" />
     <MiniPlaylist :playlist="playlist" />
@@ -8,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { SCUser, SystemPlaylist, Track, UserPlaylist } from "@/utils/types"
+import { SCUser, StreamItem, SystemPlaylist, Track, UserPlaylist } from "@/utils/types"
 
 const user = {
   avatar_url: "https://i1.sndcdn.com/avatars-OQNGzHzVoOPkhX15-znhjbA-large.jpg",
@@ -2482,4 +2484,38 @@ const systemPlaylist = {
   kind: "system-playlist",
   id: "soundcloud:system-playlists:artist-stations:1079866894",
 } as SystemPlaylist
+
+const trackRepost = {
+  created_at: new Date("2025-11-14T22:56:40Z"),
+  type: "track",
+  user: {
+    avatar_url: "https://i1.sndcdn.com/avatars-7FCZZ7eE5VDklJPE-abiPew-large.jpg",
+    first_name: "The",
+    followers_count: 5094,
+    full_name: "The Bois",
+    id: 278435762,
+    kind: "user",
+    last_modified: new Date("2025-11-08T21:56:38Z"),
+    last_name: "Bois",
+    permalink: "sadbois_official",
+    permalink_url: "https://soundcloud.com/sadbois_official",
+    uri: "https://api.soundcloud.com/users/soundcloud%3Ausers%3A278435762",
+    urn: "soundcloud:users:278435762",
+    username: "SadBois",
+    verified: false,
+    city: "Long Island NY",
+    country_code: null,
+    badges: {
+      pro: false,
+      creator_mid_tier: false,
+      pro_unlimited: true,
+      verified: false,
+    },
+    station_urn: "soundcloud:system-playlists:artist-stations:278435762",
+    station_permalink: "artist-stations:278435762",
+  },
+  uuid: "25",
+  caption: "If you're coming over from Tik-Tok, welcome to the family! 🦋sssssssssssssssssssssssss🦋sssssssssssssssssssssssss🦋sssssssssssssssssssssssss🦋sssssssssssssssssssssssss🦋sssssssssssssssssssssssss🦋sssssssssssssssssssssssss",
+  track,
+} as StreamItem
 </script>

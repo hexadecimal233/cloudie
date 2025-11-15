@@ -198,7 +198,6 @@
       "etc": {
         "loginSoundcloud": "Login to Soundcloud",
         "clearCache": "Clear Cache",
-        "bgLocalFile": "<Local File>",
         "invalidSavePath": "Invalid Save Path"
       }
     },

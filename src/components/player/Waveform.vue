@@ -1,8 +1,8 @@
 <template>
-  <div @click="waveformClick" class="relative p-0.5 w-full h-full cursor-pointer">
+  <div @click="waveformClick" class="relative py-0.5 w-full h-full cursor-pointer overflow-hidden">
     <svg ref="waveformContainer" :width="elementWidth" :height="elementHeight" class="w-full h-full">
       <defs>
-        <mask id="progress-mask">
+        <mask :id="`progress-mask-${id}`">
           <rect x="0" y="0" :width="playProgress * elementWidth" :height="elementHeight" fill="white" />
         </mask>
       </defs>
@@ -11,7 +11,7 @@
       <path :d="waveformPath" class="fill-neutral-500 transition-opacity" :class="{ 'opacity-50': !isOutside }" />
 
       <!-- Played -->
-      <path :d="waveformPath" mask="url(#progress-mask)" class="fill-primary transition-opacity"
+      <path :d="waveformPath" :mask="`url(#progress-mask-${id})`" class="fill-primary transition-opacity"
         :class="{ 'opacity-50': !isOutside && hoverProgress > playProgress }" />
 
 
@@ -22,33 +22,44 @@
         class="fill-primary opacity-20 transition-opacity" />
     </svg>
 
-    <div class="absolute top-0 bottom-0  opacity-0 bg-white rounded-md will-change-transform transition-all"
+    <div v-if="player.isPlayingTrack(props.track)" class="absolute top-0 bottom-0  opacity-0 bg-white rounded-md will-change-transform transition-all"
       :class="{ 'w-1 opacity-100': !isOutside }"
       :style="{ transform: `translateX(${(playProgress * elementWidth - 0.5)}px)` }" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Waveform } from "@/utils/types"
+import { usePlayerStore } from "@/systems/stores/player"
+import { Track, Waveform } from "@/utils/types"
 import { interpolateInto } from "@/utils/utils"
 import { useMouseInElement, useThrottleFn } from "@vueuse/core"
-import { ref, computed, onMounted, watch } from "vue"
+import { ref, computed, onMounted, watch, useId } from "vue"
 
 const props = defineProps<{
-  waveformUrl: string
-  playProgress: number
+  track: Track
 }>()
 
-const emit = defineEmits<{
-  (e: "click", percentage: number): void
-}>()
+const id = useId()
+const player = usePlayerStore()
+
+const playProgress = computed(() => {
+  if (player.isPlayingTrack(props.track)) {
+    return player.playProgress
+  }
+
+  return 0
+})
+
+// const emit = defineEmits<{
+//   (e: "click", percentage: number): void
+// }>()
 
 const BAR_WIDTH = 2
 const BAR_GAP = BAR_WIDTH / 2
 const BAR_GAP_TOTAL = BAR_WIDTH + BAR_GAP * 2
 
 const waveformContainer = ref<HTMLDivElement | null>(null)
-const { x, isOutside, elementWidth, elementHeight } = useMouseInElement(waveformContainer)
+const { elementX, isOutside, elementWidth, elementHeight } = useMouseInElement(waveformContainer)
 
 const waveform = ref<Waveform | null>(null)
 
@@ -58,12 +69,12 @@ const updateHoverProgress = useThrottleFn(() => {
   if (isOutside.value || elementWidth.value === 0) {
     hoverProgress.value = 0
   } else {
-    hoverProgress.value = x.value / elementWidth.value
+    hoverProgress.value = elementX.value / elementWidth.value
   }
 }, 1000 / 60) // limit to 60fps
 
 // Watch for mouse position changes and update hover progress
-watch([x, isOutside, elementWidth], updateHoverProgress, { immediate: true })
+watch([elementX, isOutside, elementWidth], updateHoverProgress, { immediate: true })
 
 // Generate SVG path from waveform bars
 const waveformPath = computed(() => {
@@ -100,10 +111,19 @@ function waveformClick(event: MouseEvent) {
   const clickX = event.clientX - rect.left
   const percent = clickX / rect.width
 
-  emit("click", percent)
+  const targetTime = percent * props.track.duration / 1000 
+
+  if (!player.isPlayingTrack(props.track)) {
+    player.pendingDuration = targetTime
+    player.play(props.track)
+  } else {
+    player.resume()
+    player.seek(targetTime)
+  }
+  // emit("click", percent)
 }
 
-watch(() => props.waveformUrl, fetchWaveform)
+watch(() => props.track.waveform_url, fetchWaveform)
 
 function fetchWaveform(url: string) {
   waveform.value = null
@@ -120,6 +140,6 @@ function fetchWaveform(url: string) {
 
 // load waveform data
 onMounted(() => {
-  fetchWaveform(props.waveformUrl)
+  fetchWaveform(props.track.waveform_url)
 })
 </script>

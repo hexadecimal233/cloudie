@@ -4,6 +4,7 @@ import { refreshClientId } from "@/utils/api"
 import { i18n, LANGUAGE_OPTIONS } from "./i18n"
 import { FileNaming } from "./download/parser"
 import { useColorMode, useDebounceFn } from "@vueuse/core"
+import dayjs from "dayjs"
 
 export const THEMES = [
   "cloudie",
@@ -93,6 +94,8 @@ const writeConfig = useDebounceFn(async () => {
 async function saveConfig() {
   // Refresh display language
   i18n.global.locale.value = config.value.language
+  const localeCode = config.value.language.toLowerCase()
+  dayjs.locale(localeCode)
 
   // Update theme
   const isDark = config.value.theme.endsWith("-dark")

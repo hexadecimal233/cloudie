@@ -27,9 +27,10 @@ export enum PlayOrder {
 
 class PlayerState {
   currentTime: number = 0
-  duration: number | undefined = undefined
+  duration: number = Infinity
   loading: boolean = false
   isPaused: boolean = true
+  pendingDuration: number | undefined
 
   listenIndex: number = -1
   playOrder: PlayOrder = PlayOrder.Ordered
@@ -41,7 +42,7 @@ let hlsPlayer: Hls | undefined
 // FIXME: Clicking too fast cause audio stream mismatch
 export const usePlayerStore = defineStore("player", {
   persist: {
-    omit: ["loading", "isPaused"],
+    omit: ["loading", "isPaused", "pendingDuration"],
   },
   state: (): PlayerState => {
     return {
@@ -51,8 +52,17 @@ export const usePlayerStore = defineStore("player", {
   getters: {
     track: (): Track | undefined => getCurrentTrack(),
     mediaRef: (): Ref<HTMLVideoElement | null> | undefined => mediaRef,
+    playProgress: (state): number => {
+      if (!isFinite(state.duration)) {
+        return 0
+      }
+      return state.currentTime / state.duration
+    },
   },
   actions: {
+    isPlayingTrack(track: Track): boolean {
+      return this.track !== undefined && this.track.id === track.id
+    },
     updateMedia(track: Track) {
       // Update MediaSession & Window Title
       if ("mediaSession" in navigator) {
@@ -69,7 +79,7 @@ export const usePlayerStore = defineStore("player", {
         })
       }
 
-      getCurrentWindow().setTitle(track.title + " - " + getArtist(track) + " - Cloudie")
+      getCurrentWindow().setTitle(`${track.title} - ${getArtist(track)} - Cloudie`)
     },
 
     async nextTrack(offset: number = 1) {
@@ -97,9 +107,9 @@ export const usePlayerStore = defineStore("player", {
         console.warn("Song is already loading")
       }
 
-      // 加载新源之前，将 duration 设为 undefined，显示加载状态
+      // 加载新源之前，将 duration 设为 Infinity，显示加载状态
       this.loading = true
-      this.duration = undefined
+      this.duration = Infinity
 
       try {
         if (hlsPlayer) {
@@ -120,7 +130,11 @@ export const usePlayerStore = defineStore("player", {
             try {
               if (mediaRef && this.track) {
                 // restore load
-                hlsPlayer!.startLoad(this.currentTime)
+                hlsPlayer!.startLoad(this.pendingDuration || this.currentTime)
+                if (this.pendingDuration) {
+                  this.pendingDuration = undefined
+                }
+
                 // 等待 HLS 解析完成后再播放
                 await mediaRef.value?.play()
 
@@ -150,10 +164,11 @@ export const usePlayerStore = defineStore("player", {
       }
     },
     seek(time: number) {
-      if (!mediaRef || !mediaRef.value || !isFinite(time)) {
+      if (!mediaRef || !mediaRef.value) {
         return
       }
-      const safeTime = Math.max(0, Math.min(time, this.duration || time))
+
+      const safeTime = Math.max(0, Math.min(time, this.duration))
       mediaRef.value.currentTime = safeTime
     },
     async resume() {
@@ -256,10 +271,15 @@ export const usePlayerStore = defineStore("player", {
         console.error("HLS is not supported on this browser.")
       }
     },
-    play(track: Track, replacedTracklist?: Track[]) {
+    async play(track: Track, replacedTracklist?: Track[]) {
+      if (this.track && this.track.id === track.id) {
+        this.resume()
+        return
+      }
+
       thePlay(track, replacedTracklist)
     },
-    playIndex(index: number) {
+    async playIndex(index: number) {
       thePlayIndex(index)
     },
   },

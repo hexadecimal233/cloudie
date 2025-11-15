@@ -235,7 +235,7 @@ interface PlaylistLikeBase {
   type: PlaylistLikeType
   user: User
   uuid: string
-  caption: null
+  caption: null | string
   playlist?: UserPlaylist
   system_playlist?: SystemPlaylist
 }
@@ -413,7 +413,7 @@ export interface StreamItem {
   type: StreamType
   user: User
   uuid: string
-  caption: null
+  caption: null | string
   reposted?: Reposted
   track?: Track
   playlist?: UserPlaylist
@@ -425,7 +425,7 @@ export type StreamType = "track" | "track-repost" | "playlist" | "playlist-repos
 export interface Reposted {
   target_urn: string
   user_urn: string
-  caption: null
+  caption: null | string
 }
 
 export interface QueryCollection<T> {

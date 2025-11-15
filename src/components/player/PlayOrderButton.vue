@@ -19,13 +19,13 @@ const cycle: PlayOrder[] = [
 function getIcon(order: PlayOrder) {
   switch (order) {
     case PlayOrder.OrderedNoRepeat:
-      return "i-mdi-forward"
+      return "i-mingcute-large-arrow-right-fill"
     case PlayOrder.Ordered:
-      return "i-mdi-repeat"
+      return "i-mingcute-repeat-line"
     case PlayOrder.SingleRepeat:
-      return "i-mdi-repeat-once"
+      return "i-mingcute-repeat-one-line"
     case PlayOrder.Shuffle:
-      return "i-mdi-shuffle"
+      return "i-mingcute-shuffle-line"
   }
 }
 

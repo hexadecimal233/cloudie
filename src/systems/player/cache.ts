@@ -90,6 +90,8 @@ export class M3U8CacheManager {
     } catch (_) {
       // Directory does not exist or removal failed
     }
+
+    await db.delete(m3u8Cache)
   }
 }
 

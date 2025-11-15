@@ -82,7 +82,7 @@ const columns: TableColumn<DownloadTask>[] = [
         {getStatusTranslation(info.row.original)}
         {info.row.original.task.status === "failed" ? (
           <UTooltip class="tooltip" text={info.row.original.failedReason}>
-            <i-mdi-information />
+            <i-mingcute-information-line />
           </UTooltip>
         ) : null}
       </div>
@@ -100,21 +100,29 @@ const columns: TableColumn<DownloadTask>[] = [
     cell: (info: { row: { original: DownloadTask } }) => (
       <div class="flex gap-1">
         {info.row.original.downloadingState && (
-          <UButton icon="i-mdi-pause" onClick={() => info.row.original.pause()} variant="ghost" />
+          <UButton
+            icon="i-mingcute-pause-line"
+            onClick={() => info.row.original.pause()}
+            variant="ghost"
+          />
         )}
         {(info.row.original.task.status === "paused" ||
           info.row.original.task.status === "failed") && (
-          <UButton icon="i-mdi-play" onClick={() => info.row.original.resume()} variant="ghost" />
+          <UButton
+            icon="i-mingcute-play-line"
+            onClick={() => info.row.original.resume()}
+            variant="ghost"
+          />
         )}
         {info.row.original.task.status === "completed" && (
           <UButton
-            icon="i-mdi-folder-open"
+            icon="i-mingcute-folder-open-line"
             onClick={() => revealItemInDir(info.row.original.task.path ?? "")}
             variant="ghost"
           />
         )}
         <UButton
-          icon="i-mdi-close"
+          icon="i-mingcute-close-line"
           onClick={() => promptDelete([info.row.original])}
           variant="ghost"
         />

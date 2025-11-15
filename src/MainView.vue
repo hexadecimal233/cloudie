@@ -1,25 +1,25 @@
 <template>
-  <div class="mx-auto flex h-screen flex-col bg-muted relative">
+  <div class="mx-auto flex h-screen flex-col bg-muted relative overflow-hidden">
     <!-- Background -->
-    <div v-if="config.bg" class="absolute inset-0 bg-cover bg-fixed bg-center opacity-20 background"
+    <div v-show="config.bg" class="absolute inset-0 bg-cover bg-fixed bg-center opacity-10 dark:opacity-10 background transition-all duration-700 ease-in-out z-[9999] pointer-events-none"
       :style="{ backgroundImage: `url(${config.bg})` }"
-      :class="{'blur-sm': config.bgBlur}"></div>
+      :class="{'blur-sm scale-105': config.bgBlur}"></div>
 
     <!-- Title Bar PS: data-tauri-drag-region doesn't work somehow -->
     <div class="w-full px-2 py-1 flex from-primary/5 to-secondary/5 z-10 bg-gradient-to-r" @mousedown="Window.getCurrent().startDragging()">
       <div class="flex items-center gap-2">
-        <i-lucide-cloud class="text-primary" />
+        <i-mingcute-moon-cloudy-line class="text-primary" />
         <span class="font-bold" :class="{'text-primary': windowStates.isFocused}">Cloudie</span>
       </div>
 
       <div class="flex-1"></div>
 
       <div class="flex items-center gap-2" :class="{'opacity-50': !windowStates.isFocused}" @mousedown.stop>
-        <UButton class="cursor-pointer" icon="i-lucide-minus" color="neutral" variant="link"
+        <UButton class="cursor-pointer" icon="i-mingcute-minimize-line" color="neutral" variant="link"
           @click="Window.getCurrent().minimize()" />
-        <UButton class="cursor-pointer" :icon="windowStates.isMaximized ? 'i-lucide-minimize' : 'i-lucide-maximize'"
+        <UButton class="cursor-pointer" :icon="windowStates.isMaximized ? 'i-mingcute-restore-line' : 'i-mingcute-rectangle-line'"
           color="neutral" variant="link" @click="Window.getCurrent().toggleMaximize()" />
-        <UButton class="cursor-pointer hover:bg-error hover:text-inverted" icon="i-lucide-x" color="neutral"
+        <UButton class="cursor-pointer hover:bg-error hover:text-inverted" icon="i-mingcute-close-line" color="neutral"
           variant="link" @click="Window.getCurrent().close()" />
       </div>
     </div>
@@ -28,13 +28,9 @@
     <div class="flex flex-1 overflow-hidden my-2">
       <!-- Left Side: Navigation Menu -->
       <div class="w-full max-w-48 flex-shrink-0 flex flex-col px-4 bg-default rounded-r-lg">
-        <!--
-        <img src="/logo.png" alt="cloudie" class="h-20 object-contain" />
-        -->
-
         <!-- Matches the right section text to make the spacing consistent -->
         <div class="flex items-center gap-2 mt-4 mb-8">
-          <template v-if="!loading && userInfo.id !== -1">
+          <template v-if="!loading && userInfo.isLoggedIn">
             <UAvatar :src="userInfo.avatar_url" size="lg" />
             <div class="font-bold">{{ userInfo.username }}</div>
           </template>
@@ -53,12 +49,12 @@
         <div class="bg-default rounded-lg flex flex-1 flex-col gap-4 px-6 py-4 overflow-y-hidden mx-2">
           <!-- Search Bar -->
           <div class="w-full flex items-center gap-2">
-            <UButton color="neutral" icon="i-lucide-chevron-left" variant="subtle" @click="$router.back()" />
+            <UButton color="neutral" icon="i-mingcute-left-line" variant="subtle" @click="$router.back()" />
             <UFieldGroup >
-              <UInputMenu leading-icon="i-lucide-search" :items="searchSuggestions" v-model:search-term="searchTerm"
+              <UInputMenu leading-icon="i-mingcute-search-line" :items="searchSuggestions" v-model:search-term="searchTerm"
                 :placeholder="$t('cloudie.main.search')" @keydown.enter.prevent="handleSearch"
                 @update:model-value="(value) => searchTerm = value" class="w-64" />
-              <UButton color="neutral" icon="i-lucide-x" variant="outline" @click="searchTerm = ''" />
+              <UButton color="neutral" icon="i-mingcute-close-line" variant="outline" @click="searchTerm = ''" />
             </UFieldGroup>
           </div>
 
@@ -66,7 +62,7 @@
           <!-- Page -->
           <router-view v-slot="{ Component }">
             <OverlayScrollbarsComponent defer ref="scrollbarRef" :options="{ scrollbars: { theme: scrollbarTheme } }">
-              <!-- Set H-full for virtualist to work properly -->
+              <!-- Set H-full for VirtualList to work properly -->
               <UContainer class="flex-col flex h-full sm:px-0.5 lg:px-0.5 px-0.5">
                 <div class="my-2 text-2xl font-bold">
                   {{ getPageTitle() }}
@@ -113,6 +109,8 @@ const windowStates = ref({
   isFocused: false,
   isMaximized: false,
 })
+
+
 
 Window.getCurrent().onResized(async ({}) => {
   windowStates.value.isMaximized = await Window.getCurrent().isMaximized()
@@ -167,22 +165,16 @@ function handleSearch() {
 
 const items = computed(() => [
   [
-    { label: i18n.t("cloudie.main.feeds"), to: "/feeds", icon: "i-lucide-rss" },
-    { label: i18n.t("cloudie.main.likes"), to: "/likes", icon: "i-lucide-heart" },
-    { label: i18n.t("cloudie.main.library"), to: "/library", icon: "i-lucide-list" },
-    { label: i18n.t("cloudie.main.radio"), to: "/radio", icon: "i-lucide-radio-tower" },
-    { label: i18n.t("cloudie.main.history"), to: "/history", icon: "i-lucide-history" },
-    { label: i18n.t("cloudie.main.following"), to: "/following", icon: "i-lucide-users" },
+    { label: i18n.t("cloudie.main.feeds"), to: "/feeds", icon: "i-mingcute-rss-line" },
+    { label: i18n.t("cloudie.main.likes"), to: "/likes", icon: "i-mingcute-heart-line" },
+    { label: i18n.t("cloudie.main.library"), to: "/library", icon: "i-mingcute-playlist-line" },
+    { label: i18n.t("cloudie.main.radio"), to: "/radio", icon: "i-mingcute-radio-line" },
+    { label: i18n.t("cloudie.main.history"), to: "/history", icon: "i-mingcute-history-line" },
+    { label: i18n.t("cloudie.main.following"), to: "/following", icon: "i-mingcute-group-line" },
   ],
   [
-    { label: i18n.t("cloudie.main.downloads"), to: "/downloads", icon: "i-lucide-download" },
-    { label: i18n.t("cloudie.main.settings"), to: "/settings", icon: "i-lucide-cog" },
+    { label: i18n.t("cloudie.main.downloads"), to: "/downloads", icon: "i-mingcute-download-line" },
+    { label: i18n.t("cloudie.main.settings"), to: "/settings", icon: "i-mingcute-settings-3-line" },
   ],
 ])
 </script>
-
-<style scoped>
-.background {
-  transition: filter 0.3s ease-in-out;
-}
-</style>

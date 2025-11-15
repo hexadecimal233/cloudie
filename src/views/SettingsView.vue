@@ -22,11 +22,12 @@
 
         <UFormField :label="$t('cloudie.settings.config.bg')">
           <UFieldGroup class="w-full">
-          <UInput v-model="bg" :placeholder="$t('cloudie.settings.config.bg')"
+          <UInput :disabled="isLocalBg" v-model="bg" :placeholder="$t('cloudie.settings.config.bg')"
             class="w-full max-w-1/3" variant="outline" />
             
-          <UButton @click="changeBg" icon="i-mdi-folder-edit" variant="outline" />
+          <UButton @click="changeBg" icon="i-mingcute-file-upload-line" variant="outline" />
           <UButton @click="bg = 'https://t.mwm.moe/moez'" icon="i-mdi-dice" variant="outline" />
+          <UButton @click="bg = ''" icon="i-mingcute-close-line" variant="outline" />
           </UFieldGroup>
         </UFormField>
 
@@ -63,12 +64,12 @@
             <UInput v-model="config.savePath" :placeholder="$t('cloudie.settings.config.savePath')"
               class="w-full max-w-1/3" variant="outline" />
             <UButton @click="openSavePathDialog" icon="i-mdi-folder-edit" variant="outline" />
-            <UButton @click="openPath(config.savePath)" icon="i-mdi-folder-open" variant="outline" />
+            <UButton @click="openPath(config.savePath)" icon="i-mingcute-folder-open-line" variant="outline" />
           </UFieldGroup>
         </UFormField>
 
         <UFormField :label="$t('cloudie.settings.config.mp3ConvertExts')">
-          <UInputMenu v-model="config.mp3ConvertExts" multiple :items="knownExts" class="w-full max-w-1/3" />
+          <UInputMenu :placeholder="$t('cloudie.settings.config.mp3ConvertExts')" v-model="config.mp3ConvertExts" multiple :items="knownExts" class="w-full max-w-1/3" />
         </UFormField>
 
         <UFormField :label="$t('cloudie.settings.config.parallelDownloads')">
@@ -107,7 +108,7 @@
           <UFieldGroup class="w-full">
             <UInput v-model="config.clientId" :placeholder="$t('cloudie.settings.config.clientId')"
               class="w-full max-w-1/3" />
-            <UButton @click="refreshClientId()" icon="i-mdi-refresh" variant="outline" />
+            <UButton @click="refreshClientId()" icon="i-mingcute-refresh-1-line" variant="outline" />
           </UFieldGroup>
         </UFormField>
 
@@ -143,17 +144,17 @@
               })
             }}
           </span>
-          <UButton size="sm" variant="outline" icon="i-mdi-earth-arrow-up"
+          <UButton size="sm" variant="outline" icon="i-mingcute-version-line"
             to="https://github.com/hexadecimal233/cloudie/releases" target="_blank">
             {{ $t("cloudie.settings.about.visitReleases") }}
           </UButton>
         </div>
 
         <div class="flex gap-2">
-          <UButton icon="i-mdi-github" to="https://github.com/hexadecimal233/cloudie" target="_blank" variant="outline">
+          <UButton icon="i-mingcute-github-line" to="https://github.com/hexadecimal233/cloudie" target="_blank" variant="outline">
             {{ $t("cloudie.settings.about.repo") }}
           </UButton>
-          <UButton icon="i-mdi-bug" to="https://github.com/hexadecimal233/cloudie/issues" target="_blank"
+          <UButton icon="i-mingcute-bug-line" to="https://github.com/hexadecimal233/cloudie/issues" target="_blank"
             variant="outline">
             {{ $t("cloudie.settings.about.issue") }}
           </UButton>
@@ -183,10 +184,13 @@ const versionInfo = ref({
   latestVersion: "",
 })
 
+const isLocalBg = computed(() => {
+  return config.value.bg.startsWith("http://asset.localhost")
+})
+
 const bg = computed({
   get: () => {
-    if (config.value.bg.startsWith("http://asset.localhost"))
-      return i18n.global.t("cloudie.settings.etc.bgLocalFile")
+    if (isLocalBg.value) return decodeURIComponent(config.value.bg.slice("http://asset.localhost/".length))
     return config.value.bg
   },
   set: (val) => {

@@ -15,7 +15,7 @@
 
       <div class="flex-1"></div>
       <div>
-        <UInput icon="i-lucide-search" :placeholder="$t('cloudie.trackList.search')" v-model="searchQuery" />
+        <UInput icon="i-mingcute-search-line" :placeholder="$t('cloudie.trackList.search')" v-model="searchQuery" />
       </div>
     </div>
 
@@ -89,24 +89,24 @@ function getOperationItems(track: Track) {
     [
       {
         label: i18n.global.t("cloudie.trackList.addToListening"),
-        icon: "i-mdi-plus",
+        icon: "i-mingcute-add-line",
         onClick: () => addMultipleToListeningList([track]),
       },
       {
         label: i18n.global.t("cloudie.trackList.listenSelected"),
-        icon: "i-mdi-play",
+        icon: "i-mingcute-play-line",
         onClick: () => player.play(track, props.tracks),
       },
       {
         label: i18n.global.t("cloudie.trackList.openInNew"),
-        icon: "i-mdi-open-in-new",
+        icon: "i-mingcute-external-link-line",
         onClick: () => open(track.permalink_url),
       },
     ],
     [
       {
         label: i18n.global.t("cloudie.trackList.addToPlaylist"),
-        icon: "i-mdi-plus",
+        icon: "i-mingcute-playlist-line",
         onClick: () => addTracksToPlaylist([track]),
       },
     ],
@@ -268,9 +268,9 @@ function getSortHeader(column: Column<Track>, text: string) {
   const isSorted = column.getIsSorted()
   const sortIcon = isSorted
     ? isSorted === "asc"
-      ? "i-lucide-arrow-up-narrow-wide"
-      : "i-lucide-arrow-down-wide-narrow"
-    : "i-lucide-arrow-down-up"
+      ? "i-mingcute-align-arrow-up-line"
+      : "i-mingcute-align-arrow-down-line"
+    : "i-mingcute-transfer-2-line"
 
   return (
     <div class="flex items-center">

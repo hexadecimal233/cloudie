@@ -88,18 +88,9 @@ export async function addMultipleToListeningList(tracks: Track[]) {
   await refreshTrackIds()
 }
 
-// FIXME: Things messed up visually when adding
+// compat method for adding multiple tracks
 export async function addToListeningList(track: Track) {
-  // check if that track exists and delete it
-  const existingIndex = listeningList.value.findIndex((t) => t.id === track.id)
-  if (existingIndex !== -1) {
-    listeningList.value.splice(existingIndex, 1)
-  }
-
-  // add right after current track
-  listeningList.value.splice(usePlayerStore().listenIndex + 1, 0, track)
-
-  await refreshTrackIds()
+  await addMultipleToListeningList([track])
 }
 
 let trackUpdateCallback: (idx: number) => void = () => {}
@@ -126,7 +117,7 @@ export async function addAndPlay(track: Track, replacedTracklist?: Track[]) {
   }
 
   await addToListeningList(track) // this called when replace to ensure we are playing the upcoming track
-  usePlayerStore().listenIndex = await getNextTrackIndex(1, true)
+  usePlayerStore().listenIndex = listeningList.value.findIndex((t) => t.id === track.id)
   trackUpdateCallback(usePlayerStore().listenIndex)
 }
 
@@ -170,7 +161,7 @@ function mod(a: number, n: number) {
  * @param offset The offset from the current track. Default is 1.
  * @returns The offset track index in the listening list, -1 if there is no such track.
  */
-export async function getNextTrackIndex(offset: number = 1, ignoreShuffle: boolean = false) {
+export async function getNextTrackIndex(offset: number = 1, override: boolean = false) {
   const { listenIndex: currentIndex, playOrder } = usePlayerStore()
 
   // back to first track if goes beyond the end
@@ -187,9 +178,12 @@ export async function getNextTrackIndex(offset: number = 1, ignoreShuffle: boole
         return newIdx
       }
     case PlayOrder.SingleRepeat:
+      if (override) {
+        return newIdx
+      }
       return currentIndex
     case PlayOrder.Shuffle: {
-      if (ignoreShuffle) {
+      if (override) {
         return newIdx
       }
 

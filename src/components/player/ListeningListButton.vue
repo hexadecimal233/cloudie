@@ -1,6 +1,6 @@
 <template>
   <UDrawer v-model:open="open" :overlay="false" direction="right" handle-only>
-    <UButton size="xl" class="rounded-full cursor-pointer" icon="i-mdi-playlist-play" variant="soft" />
+    <UButton size="xl" class="rounded-full cursor-pointer" icon="i-mingcute-playlist-line" variant="soft" />
 
     <template #content>
       <div class="flex flex-col gap-3 w-md overflow-y-auto p-3">
@@ -16,7 +16,7 @@
 
           <div class="flex-1"></div>
 
-          <UButton icon="i-lucide-x" size="xl" variant="ghost" @click="open = false" />
+          <UButton icon="i-mingcute-close-line" size="xl" variant="ghost" @click="open = false" />
         </div>
 
 
@@ -54,7 +54,7 @@
 <script setup lang="ts" name="ListeningView">
 import { removeMultipleSongs, listeningList } from "@/systems/player/listening-list"
 import { ref, watch, nextTick } from "vue"
-import { config } from "@/systems/config"
+import { usePlayerStore } from "@/systems/stores/player"
 
 const open = ref(false)
 const selectedIdxs = ref<number[]>([])
@@ -67,7 +67,7 @@ watch(open, async (isOpen) => {
     // 确保当前播放索引在有效范围内
     const currentIndex = Math.max(
       0,
-      Math.min(config.value.listenIndex, listeningList.value.length - 1),
+      Math.min(usePlayerStore().listenIndex, listeningList.value.length - 1),
     )
 
     // 使用 VirtualList 的 scrollToIndex 方法滚动到当前播放项

@@ -193,11 +193,11 @@ export async function refreshClientId() {
  * Collection responses
  */
 
-export async function useStream() {
+export function useStream() {
   return useCollection<StreamItem>("/stream", 20, { promoted_playlist: true }) // dunno if this is used for advertising :/
 }
 
-export async function useUserStream(id: number) {
+export function useUserStream(id: number) {
   return useCollection<StreamItem>(`/stream/users/${id}`, 20)
 }
 
@@ -225,33 +225,33 @@ export function useTrackComments(id: number) {
   return useCollection<Comment>(`/tracks/${id}/comments`, 10, { threaded: 0 })
 }
 
-export async function useTrackAlbums(id: number) {
+export function useTrackAlbums(id: number) {
   return useCollection<UserPlaylist>(`/tracks/${id}/albums`, 10, { representation: "mini" })
 }
 
-export async function useTrackPlaylistsWithoutAlbum(id: number) {
+export function useTrackPlaylistsWithoutAlbum(id: number) {
   return useCollection<UserPlaylist>(`/tracks/${id}/playlists_without_albums`, 10, {
     representation: "mini",
   })
 }
 
-export async function useTrackPlaylists(id: number) {
+export function useTrackPlaylists(id: number) {
   return useCollection<UserPlaylist>(`/tracks/${id}/playlists`, 10, { representation: "mini" })
 }
 
-export async function useTrackLikers(id: number) {
+export function useTrackLikers(id: number) {
   return useCollection<SCUser>(`/tracks/${id}/likers`, 9)
 }
 
-export async function useTrackReposters(id: number) {
+export function useTrackReposters(id: number) {
   return useCollection<SCUser>(`/tracks/${id}/reposters`, 9)
 }
 
-export async function usePlaylistLikers(id: number) {
+export function usePlaylistLikers(id: number) {
   return useCollection<SCUser>(`/playlists/${id}/likers`, 50)
 }
 
-export async function usePlaylistReposters(id: number) {
+export function usePlaylistReposters(id: number) {
   return useCollection<SCUser>(`/playlists/${id}/reposters`, 50)
 }
 

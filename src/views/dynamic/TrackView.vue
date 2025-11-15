@@ -21,19 +21,19 @@
               <p class="text-sm opacity-50">{{ formatMillis(track.full_duration) }}</p>
               <div class="flex gap-2 mt-2">
                 <button class="btn btn-primary" @click="playTrack">
-                  <i-mdi-play />
+                  <i-mingcute-play-fill />
                   {{ $t("cloudie.common.play") }}
                 </button>
                 <button class="btn btn-ghost" @click="addToListeningList">
-                  <i-mdi-plus />
+                  <i-mingcute-plus-line />
                   {{ $t("cloudie.trackList.addToListening") }}
                 </button>
                 <button class="btn btn-ghost" @click="downloadTrack">
-                  <i-mdi-download />
+                  <i-mingcute-download-line />
                   {{ $t("cloudie.trackList.download") }}
                 </button>
                 <a class="btn btn-ghost" :href="track.permalink_url" target="_blank">
-                  <i-mdi-open-in-new />
+                  <i-mingcute-open-in-new-line />
                 </a>
               </div>
             </div>

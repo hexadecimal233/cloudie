@@ -12,6 +12,7 @@ export function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
+// Cover / Avatar sizes
 export function replaceImageUrl(
   url: string,
   size:
@@ -20,11 +21,21 @@ export function replaceImageUrl(
     | "120x120"
     | "200x200"
     | "500x500"
-    | "1080x1080" // Cover / Avatar sizes
-    | "1240x260"
-    | "2480x520" = "500x500", // Visual sizes
+    | "1080x1080" = "500x500", // Visual sizes
 ): string {
   return url.replace("-large", `-t${size}`)
+}
+
+export function getBestVisual(track: Track): string | null {
+  if (track.visuals?.enabled && track.visuals.visuals.length > 0) {
+    const bestVisual = track.visuals.visuals.reduce((prev, curr) => {
+      if (curr.visual_url.includes("1240x260")) return curr
+      if (prev.visual_url.includes("2480x520")) return prev
+      return curr.visual_url > prev.visual_url ? curr : prev
+    })
+    return bestVisual.visual_url
+  }
+  return null
 }
 
 // get transcodings in descending order of priority
@@ -86,6 +97,22 @@ export function isPossibleFreeDownload(track: Track) {
   }
 
   return isFreeDownload
+}
+
+import dayjs from "dayjs"
+import relativeTime from "dayjs/plugin/relativeTime"
+dayjs.extend(relativeTime)
+
+export function formatFromNow(date: Date | string) {
+  return dayjs(date).fromNow()
+}
+
+export function formatTimeDetail(date: Date | string) {
+  return dayjs(date).format("YYYY-MM-DD HH:mm:ss")
+}
+
+export function formatDate(date: Date | string) {
+  return dayjs(date).format("YYYY-MM-DD")
 }
 
 export function formatMillis(millis: number): string {
@@ -161,11 +188,6 @@ export function getArtist(track: Track): string {
 
 export function getCoverUrl(track: Track): string {
   return track.artwork_url ?? track.user?.avatar_url ?? ""
-}
-
-export function formatDate(date: Date | string): string {
-  const d = new Date(date)
-  return d.toLocaleDateString()
 }
 
 export function formatNumber(num: number | null | undefined): string {

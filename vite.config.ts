@@ -24,20 +24,7 @@ export default defineConfig(async () => ({
       components: {
         resolvers: [IconsResolver()], // "unplugin-vue-components/vite"
       },
-      ui: {
-        card: {
-          variants: {
-            variant: {
-              solid: {
-                root: "bg-inverted/50 text-inverted",
-              },
-              outline: {
-                root: "bg-default/50 ring ring-default divide-y divide-default",
-              },
-            },
-          },
-        },
-      },
+      ui: {},
     }),
     vueDevTools(),
   ],
