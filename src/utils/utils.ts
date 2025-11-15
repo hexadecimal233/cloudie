@@ -15,15 +15,13 @@ export function capitalizeFirstLetter(str: string): string {
 // Cover / Avatar sizes
 export function replaceImageUrl(
   url: string,
-  size:
-    | "20x20"
-    | "50x50"
-    | "120x120"
-    | "200x200"
-    | "500x500"
-    | "1080x1080" = "500x500", // Visual sizes
+  size: "20x20" | "50x50" | "120x120" | "200x200" | "500x500" | "1080x1080" = "500x500", // Visual sizes
 ): string {
   return url.replace("-large", `-t${size}`)
+}
+
+export function getPlaylistType(playlist: UserPlaylist): string {
+  return playlist.type === "user" ? "user" : "public"
 }
 
 export function getBestVisual(track: Track): string | null {

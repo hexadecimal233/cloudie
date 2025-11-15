@@ -221,8 +221,16 @@ export function useHistory() {
   return useCollection<TrackLike>("/me/play-history/tracks", 500)
 }
 
-export function useTrackComments(id: number) {
-  return useCollection<Comment>(`/tracks/${id}/comments`, 10, { threaded: 0 })
+export function useTrackComments(
+  id: number,
+  includeReplies: boolean = true,
+  sort: "newest" | "oldest" | "track-timestamp" = "newest",
+) {
+  return useCollection<Comment>(`/tracks/${id}/comments`, 20, {
+    threaded: includeReplies ? 1 : 0,
+    sort,
+    offset: 0,
+  })
 }
 
 export function useTrackAlbums(id: number) {
@@ -620,15 +628,19 @@ async function resolveUrl<T>(url: string) {
 function useCollection<T>(
   url: string,
   limit: number = 30,
-  params: Record<string, any> = {}, // Only adds to the first request
+  params: Record<string, any> = {}, // Only adds to the first request, and is not reactive, use reset to update
 ) {
   const data = shallowRef<T[]>([])
   const loading = shallowRef(false)
   const error = shallowRef<any | null>(null)
-  const hasNext = shallowRef(false)
+  const hasNext = shallowRef(true)
+  const pageSize = shallowRef(limit)
 
   let nextHref: string | null = null
 
+  /**
+   * A loading-safe function to fetches the next page of data.
+   */
   const fetchNext = async () => {
     if (loading.value) return
 
@@ -653,11 +665,21 @@ function useCollection<T>(
     }
   }
 
-  const reset = () => {
+  /**
+   * A loading-safe function to fetches the data till the specified page.
+   */
+  const fetchTillPage = async (page: number) => {
+    while (pageSize.value * page > data.value.length) {
+      await fetchNext()
+    }
+  }
+
+  const reset = (newParams: Record<string, any>) => {
     data.value = []
     nextHref = null
-    hasNext.value = false
+    hasNext.value = true
     error.value = null
+    params = { ...params, ...newParams }
   }
 
   return {
@@ -665,7 +687,10 @@ function useCollection<T>(
     loading,
     error,
     hasNext,
+    pageSize,
+
     fetchNext,
+    fetchTillPage,
     reset,
   }
 }
@@ -682,7 +707,7 @@ function useSearchCollection<T extends Track | UserPlaylist | SCUser>(
   const facets = shallowRef<FacetItem[]>([])
   const loading = shallowRef(false)
   const error = shallowRef<any | null>(null)
-  const hasNext = shallowRef(false)
+  const hasNext = shallowRef(true)
 
   let nextHref: string | null = null
 
@@ -716,7 +741,7 @@ function useSearchCollection<T extends Track | UserPlaylist | SCUser>(
   const reset = () => {
     data.value = []
     nextHref = null
-    hasNext.value = false
+    hasNext.value = true
     error.value = null
   }
 

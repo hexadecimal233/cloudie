@@ -1,5 +1,6 @@
 <template>
-  <div class="flex flex-col">
+ <div class="bg-default border-t border-accented max-w-3xl mx-auto">
+  <div class="flex flex-col gap-3">
     <div v-if="streamItem" class="flex items-center gap-2 text-muted">
       <UAvatar :src="streamItem.user.avatar_url" class="size-8" />
       <ULink :to="`/user/${streamItem.user.id}`" class="text-lg font-bold text-highlighted truncate">
@@ -10,12 +11,10 @@
       }}
     </div>
 
-    <span v-if="streamItem" class="text-sm line-clamp-1">
-      {{ streamItem.caption }}
-    </span>
+    <RichText v-if="streamItem?.caption" :content="streamItem.caption" class="text-sm line-clamp-1" />
 
-    <div class="flex items-start gap-3 p-3">
-      <div class="relative size-36 flex-shrink-0">
+    <div class="flex items-start gap-3">
+      <div class="relative size-28 flex-shrink-0">
         <div @click="() => {
           if (player.isPlayingTrack(props.track) && !player.isPaused) { player.pause() } else { player.play(props.track) }
         }
@@ -26,12 +25,12 @@
           <i-mingcute-play-fill v-else class="text-2xl text-white" />
         </div>
         <img :src="replaceImageUrl(getCoverUrl(props.track))" :alt="props.track.title"
-          class="size-36 rounded-sm object-cover" />
+          class="size-28 rounded-sm object-cover" />
       </div>
 
-      <div class="flex-1 min-w-0 flex flex-col gap-2 h-36 bg-cover bg-fixed rounded-sm bg-center px-4 pt-2"
+      <div class="flex-1 min-w-0 flex flex-col gap-2 h-28 bg-cover bg-fixed rounded-sm bg-center px-4 pt-2"
         :style="{ backgroundImage: `url('${visual}')` }">
-        <div class="flex min-w-0">
+        <div class="flex min-w-0 items-start justify-between">
           <div class="flex flex-col min-w-0 flex-1 gap-1">
             <UTooltip :text="props.track.title">
               <ULink :to="`/track/${props.track.id}`"
@@ -59,28 +58,27 @@
         </div>
 
         <Waveform class="flex-1" :track="props.track"></Waveform>
-
-        <div class="bg-muted rounded-sm">
-          <div class="flex max-w-xl items-center justify-around gap-3 ">
-          <UButton :icon="user.isLikedTrack(track.id) ? 'i-mingcute-heart-fill' : 'i-mingcute-heart-line'"
-            :color="user.isLikedTrack(track.id) ? 'primary' : 'neutral'" variant="ghost"
-            :label="track.likes_count ? track.likes_count.toString() : '0'" @click="user.toggleLikeTrack(track.id)" />
-          <UButton :icon="user.isRepostedTrack(track.id) ? 'i-mingcute-share-3-fill' : 'i-mingcute-share-3-line'"
-            :color="user.isRepostedTrack(track.id) ? 'primary' : 'neutral'" variant="ghost"
-            :label="track.reposts_count.toString()" @click="user.toggleRepostTrack(track.id)" />
-          <UButton icon="i-mingcute-share-2-line" color="neutral" variant="ghost"
-            @click=";/* TODO: Share Track */" />
-          <UButton icon="i-mingcute-comment-line" color="neutral" variant="ghost"
-            @click=";/* TODO: Comment Track */" > 
-            {{ formatViews(track.comment_count ?? 0) }}
-            </UButton>
-          <UButton disabled icon="i-mingcute-play-line" color="neutral" variant="ghost">
-            {{formatViews(track.playback_count ?? 0) }} </UButton>
-          </div>
-        </div>
       </div>
     </div>
+
+    <div class="flex max-w-xl items-center gap-3 ml-32">
+          <UButton :icon="user.isLikedTrack(track.id) ? 'i-mingcute-heart-fill' : 'i-mingcute-heart-line'"
+            :color="user.isLikedTrack(track.id) ? 'primary' : 'neutral'" variant="soft"
+            :label="track.likes_count ? track.likes_count.toString() : '0'" @click="user.toggleLikeTrack(track.id)" />
+          <UButton :icon="user.isRepostedTrack(track.id) ? 'i-mingcute-share-3-fill' : 'i-mingcute-share-3-line'"
+            :color="user.isRepostedTrack(track.id) ? 'primary' : 'neutral'" variant="soft"
+            :label="track.reposts_count.toString()" @click="user.toggleRepostTrack(track.id)" />
+          <UButton icon="i-mingcute-comment-line" color="neutral" variant="soft"
+            @click=";/* TODO: Comment Track */" > 
+            {{ formatViews(track.comment_count ?? 0) }}
+          </UButton>
+          <UButton icon="i-mingcute-play-line" color="neutral" variant="soft">
+            {{formatViews(track.playback_count ?? 0) }} </UButton>
+          <UButton icon="i-mingcute-share-2-line" color="neutral" variant="soft"
+            @click=";/* TODO: Share Track */" />
+          </div>
   </div>
+ </div>
 </template>
 
 <script setup lang="ts">

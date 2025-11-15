@@ -33,7 +33,7 @@
                   {{ $t("cloudie.trackList.download") }}
                 </button>
                 <a class="btn btn-ghost" :href="track.permalink_url" target="_blank">
-                  <i-mingcute-open-in-new-line />
+                  <i-mingcute-external-link-line />
                 </a>
               </div>
             </div>
@@ -100,37 +100,7 @@
       </div>
 
       <!-- Comments Section -->
-      <div class="card bg-base-100 shadow-xl mt-6">
-        <div class="card-body">
-          <h2 class="text-xl font-bold mb-4">{{ $t("cloudie.trackView.comments") }}</h2>
-          <div v-if="comments.loading.value" class="flex justify-center items-center h-32">
-            <div class="loading loading-spinner loading-md"></div>
-          </div>
-          <div v-else-if="comments.data.value.length === 0" class="text-center py-8">
-            <div class="text-lg">{{ $t("cloudie.common.empty") }}</div>
-            <div class="text-base-content/70 text-sm">{{ $t("cloudie.trackView.noComments") }}</div>
-          </div>
-          <div v-else class="space-y-4">
-            <div v-for="comment in comments.data.value" :key="comment.id" class="chat chat-start">
-              <div class="chat-image avatar">
-                <div class="w-10 rounded-full">
-                  <img :src="comment.user.avatar_url" :alt="comment.user.username" />
-                </div>
-              </div>
-              <div class="chat-header">
-                {{ comment.user.username }}
-                <time class="text-xs opacity-50 ml-2">{{ formatDate(comment.created_at) }}</time>
-              </div>
-              <div class="chat-bubble">{{ comment.body }}</div>
-            </div>
-            <div v-if="comments.hasNext.value" class="text-center mt-4">
-              <button class="btn" @click="comments.fetchNext">
-                {{ $t("cloudie.common.loadMore") }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <CommentSection :track="track" />
     </div>
   </div>
 
@@ -144,7 +114,6 @@ import { eq } from "drizzle-orm"
 import {
   getTracks,
   getRelatedTracks,
-  useTrackComments,
   useTrackAlbums,
   useTrackPlaylistsWithoutAlbum,
 } from "@/utils/api"
@@ -171,9 +140,6 @@ const relatedTracks = ref<Track[]>([])
 // Get related albums and playlists
 const relatedAlbums = ref<any[]>([])
 const relatedPlaylists = ref<any[]>([])
-
-// Get comments
-const comments = useTrackComments(trackId.value)
 
 // Functions
 async function fetchTrackFromDb(id: number) {
@@ -233,9 +199,6 @@ async function loadTrack() {
 
     relatedAlbums.value = albums.data.value
     relatedPlaylists.value = playlists.data.value
-
-    // Load comments
-    await comments.fetchNext()
   } catch (err) {
     console.error("Error loading track:", err)
     error.value = "Failed to load track"

@@ -47,7 +47,7 @@ function onTimeUpdate(_event: Event) {
     // 修复 NaN/Infinity 错误: 仅当 duration 是有效数字时才更新
     const duration = mediaRef.value.duration
     if (isFinite(duration) && duration > 0) {
-    playerState.currentTime = mediaRef.value.currentTime
+      playerState.currentTime = mediaRef.value.currentTime
       playerState.duration = duration
     } else {
       console.warn("Invalid duration value:", duration)

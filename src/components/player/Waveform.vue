@@ -111,15 +111,8 @@ function waveformClick(event: MouseEvent) {
   const clickX = event.clientX - rect.left
   const percent = clickX / rect.width
 
-  const targetTime = percent * props.track.duration / 1000 
-
-  if (!player.isPlayingTrack(props.track)) {
-    player.pendingDuration = targetTime
-    player.play(props.track)
-  } else {
-    player.resume()
-    player.seek(targetTime)
-  }
+  const targetTime = (percent * props.track.duration) / 1000
+  player.playAtPosition(props.track, targetTime)
   // emit("click", percent)
 }
 

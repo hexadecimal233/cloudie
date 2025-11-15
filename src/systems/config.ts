@@ -15,13 +15,17 @@ export const THEMES = [
   "nuxt-dark",
 ] as const
 
+export const FEED_STYLES = ["soundcloud", "twitter"]
+
 type Theme = (typeof THEMES)[number]
+type FeedStyle = (typeof FEED_STYLES)[number]
 
 class Config {
   noHistory: boolean = false // TODO: no history
   // 外观
   language: (typeof LANGUAGE_OPTIONS)[number] = "en"
   theme: Theme = "cloudie"
+  feedStyle: FeedStyle = "soundcloud"
   bg: string = ""
   bgBlur: boolean = false
   // 下载

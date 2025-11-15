@@ -271,6 +271,15 @@ export const usePlayerStore = defineStore("player", {
         console.error("HLS is not supported on this browser.")
       }
     },
+    async playAtPosition(track: Track, position: number) {
+      if (!this.isPlayingTrack(track)) {
+        this.pendingDuration = position
+        this.play(track)
+      } else {
+        this.resume()
+        this.seek(position)
+      }
+    },
     async play(track: Track, replacedTracklist?: Track[]) {
       if (this.track && this.track.id === track.id) {
         this.resume()

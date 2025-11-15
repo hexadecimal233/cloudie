@@ -1,8 +1,24 @@
 <template>
-  <component :is="renderContent()" />
+  <UContextMenu :items="items">
+    <div>
+    <component :is="renderContent()" />
+    </div>
+  </UContextMenu>
 </template>
 
 <script setup lang="tsx">
+import { computed } from "vue"
+import { useI18n } from "vue-i18n"
+
+const items = computed(() => [
+  {
+    label: useI18n().t("cloudie.common.copy"),
+    action: () => {
+      navigator.clipboard.writeText(props.content) // FIXME: Copy fails
+    },
+  },
+])
+
 const props = defineProps<{
   content: string
 }>()
@@ -19,7 +35,7 @@ function renderContent() {
           <ULink
             key={index}
             to={`/user/${part.username}`}
-            class="text-primary hover:text-primary-600 underline">
+            class="text-primary hover:text-primary-600">
             @{part.username}
           </ULink>
         )
@@ -57,7 +73,7 @@ function parseContent(content: string): Array<{
   }> = []
 
   // Regex patterns
-  const mentionPattern = /@(\w+)/g
+  const mentionPattern = /@([a-zA-Z0-9_-]+)/g
   const urlPattern = /(https?:\/\/[^\s]+)/g
 
   let lastIndex = 0

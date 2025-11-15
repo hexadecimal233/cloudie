@@ -7,19 +7,21 @@
                 height: `${virtualRow.size}px`,
                 transform: `translateY(${virtualRow.start}px)`,
             }">
-                <slot class="w-full h-full" name="item" :item="items[virtualRow.index]" :index="virtualRow.index" />
+                <div :ref="measureElement" class="w-full h-full">
+                    <slot name="item" :item="items[virtualRow.index]" :index="virtualRow.index" />
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue"
+import { ref, computed, VNodeRef } from "vue"
 import { useVirtualizer } from "@tanstack/vue-virtual"
 
 const props = defineProps<{
   items: any[]
-  estimateSize: (index: number) => number
+  estimateSize?: (index: number) => number
 }>()
 
 const parentRef = ref<HTMLElement | null>(null)
@@ -30,7 +32,7 @@ const rowVirtualizer = useVirtualizer(
     return {
       count: props.items.length, // this should be reactive
       getScrollElement: () => parentRef.value,
-      estimateSize: props.estimateSize,
+      estimateSize: props.estimateSize || (() => 50), // 提供默认值
       overscan: 5,
     }
   }),
@@ -38,6 +40,17 @@ const rowVirtualizer = useVirtualizer(
 
 const virtualRows = computed(() => rowVirtualizer.value.getVirtualItems())
 const totalSize = computed(() => rowVirtualizer.value.getTotalSize())
+
+// FIXME: dynamic height not working
+const measureElement = (el: any) => {
+  if (!el) {
+    return
+  }
+  
+  rowVirtualizer.value.measureElement(el)
+  
+  return undefined
+}
 
 function goToIndex(index: number) {
   rowVirtualizer.value.scrollToIndex(index, { align: "center" })

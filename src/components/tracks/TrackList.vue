@@ -109,6 +109,11 @@ function getOperationItems(track: Track) {
         icon: "i-mingcute-playlist-line",
         onClick: () => addTracksToPlaylist([track]),
       },
+      {
+        label: i18n.global.t("cloudie.trackList.download"),
+        icon: "i-mingcute-download-line",
+        onClick: () => download(track),
+      },
     ],
   ]
 }

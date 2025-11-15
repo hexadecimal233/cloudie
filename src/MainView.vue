@@ -1,28 +1,11 @@
 <template>
   <div class="mx-auto flex h-screen flex-col bg-muted relative overflow-hidden">
     <!-- Background -->
-    <div v-show="config.bg" class="absolute inset-0 bg-cover bg-fixed bg-center opacity-10 dark:opacity-10 background transition-all duration-700 ease-in-out z-[9999] pointer-events-none"
+    <div v-show="config.bg" class="absolute inset-0 bg-cover bg-fixed bg-center opacity-15 dark:opacity-10 background transition-all duration-700 ease-in-out z-[9999] pointer-events-none"
       :style="{ backgroundImage: `url(${config.bg})` }"
       :class="{'blur-sm scale-105': config.bgBlur}"></div>
 
-    <!-- Title Bar PS: data-tauri-drag-region doesn't work somehow -->
-    <div class="w-full px-2 py-1 flex from-primary/5 to-secondary/5 z-10 bg-gradient-to-r" @mousedown="Window.getCurrent().startDragging()">
-      <div class="flex items-center gap-2">
-        <i-mingcute-moon-cloudy-line class="text-primary" />
-        <span class="font-bold" :class="{'text-primary': windowStates.isFocused}">Cloudie</span>
-      </div>
-
-      <div class="flex-1"></div>
-
-      <div class="flex items-center gap-2" :class="{'opacity-50': !windowStates.isFocused}" @mousedown.stop>
-        <UButton class="cursor-pointer" icon="i-mingcute-minimize-line" color="neutral" variant="link"
-          @click="Window.getCurrent().minimize()" />
-        <UButton class="cursor-pointer" :icon="windowStates.isMaximized ? 'i-mingcute-restore-line' : 'i-mingcute-rectangle-line'"
-          color="neutral" variant="link" @click="Window.getCurrent().toggleMaximize()" />
-        <UButton class="cursor-pointer hover:bg-error hover:text-inverted" icon="i-mingcute-close-line" color="neutral"
-          variant="link" @click="Window.getCurrent().close()" />
-      </div>
-    </div>
+    <TitleBar />
 
     <!-- Main Area -->
     <div class="flex flex-1 overflow-hidden my-2">
@@ -95,7 +78,6 @@ import { useUserStore } from "@/systems/stores/user"
 import { getSearchSuggestions } from "@/utils/api"
 import { OverlayScrollbarsComponent } from "overlayscrollbars-vue"
 import { useColorMode, useDebounceFn } from "@vueuse/core"
-import { Window } from "@tauri-apps/api/window"
 import { config } from "./systems/config"
 
 const route = useRoute()
@@ -104,21 +86,6 @@ const i18n = useI18n()
 const loading = ref(true)
 const colorMode = useColorMode()
 const userInfo = useUserStore()
-
-const windowStates = ref({
-  isFocused: false,
-  isMaximized: false,
-})
-
-
-
-Window.getCurrent().onResized(async ({}) => {
-  windowStates.value.isMaximized = await Window.getCurrent().isMaximized()
-})
-
-Window.getCurrent().onFocusChanged(({ payload: focused }) => {
-  windowStates.value.isFocused = focused
-})
 
 // 计算滚动条主题
 const scrollbarTheme = computed(() => {

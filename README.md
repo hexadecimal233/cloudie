@@ -79,8 +79,12 @@ Pull Requests: [Pull Requests](https://github.com/hexadecimal233/cloudie/pulls)
 - [ ] Scrobbling support
 - [ ] DJ Support
 - [ ] Watch Router updates on dynamic views 
+- [ ] Ulink is glitcing
 - [ ] Lyrics service
 - [ ] icon start to load online again...
 - [ ] cloudie.common.loading cloudie.common.loadMore cloudie.common.noMore cloudie.common.empty cloudie.common.emptyDesc
 - [ ] music title loading animation
+- [ ] Make tags work
+- [ ] add share modal
+- [ ] add tooltips to icon-only buttons
 -->

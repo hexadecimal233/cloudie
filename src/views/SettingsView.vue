@@ -20,6 +20,13 @@
           }))" class="w-full max-w-1/3" />
         </UFormField>
 
+        <UFormField :label="$t('cloudie.settings.config.feedStyle')">
+          <USelect v-model="config.feedStyle" :items="FEED_STYLES.map((item) => ({
+            value: item,
+            label: capitalizeFirstLetter(item)
+          }))" class="w-full max-w-1/3" />
+        </UFormField>
+
         <UFormField :label="$t('cloudie.settings.config.bg')">
           <UFieldGroup class="w-full">
           <UInput :disabled="isLocalBg" v-model="bg" :placeholder="$t('cloudie.settings.config.bg')"
@@ -165,7 +172,7 @@
 </template>
 
 <script setup lang="ts" name="SettingsView">
-import { config, THEMES } from "@/systems/config"
+import { config, FEED_STYLES, THEMES } from "@/systems/config"
 import { open } from "@tauri-apps/plugin-dialog"
 import { refreshClientId } from "@/utils/api"
 import { getVersion } from "@tauri-apps/api/app"
@@ -190,7 +197,8 @@ const isLocalBg = computed(() => {
 
 const bg = computed({
   get: () => {
-    if (isLocalBg.value) return decodeURIComponent(config.value.bg.slice("http://asset.localhost/".length))
+    if (isLocalBg.value)
+      return decodeURIComponent(config.value.bg.slice("http://asset.localhost/".length))
     return config.value.bg
   },
   set: (val) => {

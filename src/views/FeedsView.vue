@@ -1,13 +1,13 @@
 <template>
+  <!-- FIXME: Scroll does not load-->
   <div class="h-full flex flex-col">
-    <UButton @click="$router.push('/test')"> go to components test </UButton>
-
     <VirtualList class="w-full flex-1" ref="virtualListRef"
       :items="data"
       :estimateSize="() => 235"
     >
    <template #item="{ item }">
-    <FullTrack v-if="item.type === 'track' || item.type === 'track-repost'" :track="item.track" :stream-item="item" />
+    <component :is="getFullTrackComponent()" v-if="item.type === 'track' || item.type === 'track-repost'" :track="item.track" :stream-item="item" />
+    <component :is="getFullPlaylistComponent()" v-else-if="item.type === 'playlist' || item.type === 'playlist-repost'" :playlist="item.playlist" :stream-item="item" />
     <span v-else>{{ item.type  }}</span> 
   </template>
   </VirtualList>
@@ -15,15 +15,40 @@
 </template>
 
 <script setup lang="ts" name="FeedsView">
+import { config } from "@/systems/config"
 import { useStream } from "@/utils/api"
 import { useInfiniteScroll } from "@vueuse/core"
 import { onMounted, ref } from "vue"
 
+// explicitly import the components to avoid tree-shaking
+import FullTrack from "@/components/full/FullTrack.vue"
+import TwitterFullTrack from "@/components/full/themes/TwitterFullTrack.vue"
+import FullPlaylist from "@/components/full/FullPlaylist.vue"
+import TwitterFullPlaylist from "@/components/full/themes/TwitterFullPlaylist.vue"
+
 const { data, loading, error, hasNext, fetchNext } = useStream()
 const virtualListRef = ref<InstanceType<typeof VirtualList> | null>(null)
 
+function getFullPlaylistComponent() {
+  switch (config.value.feedStyle) {
+    case "twitter":
+      return TwitterFullPlaylist
+    default:
+      return FullPlaylist
+  }
+}
+
+function getFullTrackComponent() {
+  switch (config.value.feedStyle) {
+    case "twitter":
+      return TwitterFullTrack
+    default:
+      return FullTrack
+  }
+}
+
 const infiniteScroll = useInfiniteScroll(virtualListRef.value?.scrollContainer, fetchNext, {
-  distance: 200, 
+  distance: 200,
   canLoadMore: () => {
     return hasNext && !loading
   },

@@ -136,7 +136,7 @@ export interface PublisherMetadata {
   c_line_for_display?: string
 }
 
-export type Sharing = "public"
+export type Sharing = "public" | "private"
 
 export type State = "finished"
 
@@ -215,7 +215,7 @@ export interface Badges {
   verified: boolean
 }
 
-export type UserKind = "user" | "track"
+export type UserKind = "user" | "track" | "playlist" | "system-playlist"
 
 export interface Visuals {
   urn: string
@@ -267,6 +267,14 @@ export class LocalPlaylist {
   }
 }
 
+export enum SetType {
+  Album = "album",
+  Compilation = "compilation",
+  Empty = "",
+  Ep = "ep",
+  Single = "single",
+}
+
 export interface UserPlaylist extends BasePlaylist {
   artwork_url: null | string
   created_at: Date
@@ -286,7 +294,7 @@ export interface UserPlaylist extends BasePlaylist {
   track_count: number
   uri: string
   user_id: number
-  set_type: string
+  set_type: SetType
   is_album: boolean
   published_at: Date | null
   release_date: Date | null
@@ -306,7 +314,7 @@ export interface SystemPlaylist extends BasePlaylist {
   description: string
   short_title: string
   short_description: null | string
-  tracking_feature_name: string
+  tracking_feature_name: TrackingFeatureName
   playlist_type: PlaylistType
   last_updated: Date | null
   artwork_url: string
@@ -320,6 +328,15 @@ export interface SystemPlaylist extends BasePlaylist {
   kind: SystemPlaylistKind
   id: string
 }
+
+export type TrackingFeatureName =
+  | "artist-stations"
+  | "track-stations"
+  | "liked-by"
+  | "new-for-you"
+  | "personalized-tracks"
+  | "weekly"
+  | "your-moods"
 
 export type SystemPlaylistKind = "system-playlist"
 

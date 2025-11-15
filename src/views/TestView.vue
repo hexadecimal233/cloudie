@@ -1,7 +1,10 @@
 <template>
   <div>
+    <CommentSection :track="track"></CommentSection>
     <FullTrack :track="track" :stream-item="trackRepost" />
-    <FullPlaylist :track="track" />
+    <FullPlaylist :playlist="playlist" :stream-items="undefined" />
+    <TwitterFullTrack :track="track" :stream-item="trackRepost" />
+    <TwitterFullPlaylist :playlist="playlist" :stream-items="undefined" />
     <MiniUser :user="user" />
     <MiniTrack :track="track" />
     <MiniPlaylist :playlist="playlist" />
@@ -2515,7 +2518,8 @@ const trackRepost = {
     station_permalink: "artist-stations:278435762",
   },
   uuid: "25",
-  caption: "If you're coming over from Tik-Tok, welcome to the family! 🦋sssssssssssssssssssssssss🦋sssssssssssssssssssssssss🦋sssssssssssssssssssssssss🦋sssssssssssssssssssssssss🦋sssssssssssssssssssssssss🦋sssssssssssssssssssssssss",
+  caption:
+    "If you're coming over from Tik-Tok, https://test.com/ @tewt welcome to the family! 🦋sssssssssssssssssssssssss🦋sssssssssssssssssssssssss🦋sssssssssssssssssssssssss🦋sssssssssssssssssssssssss🦋sssssssssssssssssssssssss🦋sssssssssssssssssssssssss",
   track,
 } as StreamItem
 </script>
