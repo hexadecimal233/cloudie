@@ -73,7 +73,7 @@ export const useUserStore = defineStore("user", {
         // TODO: some sort of log out logic (like cleaning the oauth token kinda brutal but wanna make sure its a 401 or 403 and we do this)
         useToast().add({
           color: "error",
-          title: i18n.global.t("cloudie.toasts.userInfoErr"),
+          title: i18n.global.t("skye.toasts.userInfoErr"),
           description: err as string,
         })
         return new UserState()
@@ -206,7 +206,7 @@ export const useUserStore = defineStore("user", {
       } catch (err) {
         useToast().add({
           color: "error",
-          title: i18n.global.t("cloudie.toasts.likeTrackErr"),
+          title: i18n.global.t("skye.toasts.likeTrackErr"),
           description: err as string,
         })
       }
@@ -231,7 +231,7 @@ export const useUserStore = defineStore("user", {
       } catch (err) {
         useToast().add({
           color: "error",
-          title: i18n.global.t("cloudie.toasts.likePlaylistErr"),
+          title: i18n.global.t("skye.toasts.likePlaylistErr"),
           description: err as string,
         })
       }
@@ -256,7 +256,7 @@ export const useUserStore = defineStore("user", {
       } catch (err) {
         useToast().add({
           color: "error",
-          title: i18n.global.t("cloudie.toasts.likeSystemPlaylistErr"),
+          title: i18n.global.t("skye.toasts.likeSystemPlaylistErr"),
           description: err as string,
         })
       }
@@ -281,7 +281,7 @@ export const useUserStore = defineStore("user", {
       } catch (err) {
         useToast().add({
           color: "error",
-          title: i18n.global.t("cloudie.toasts.followUserErr"),
+          title: i18n.global.t("skye.toasts.followUserErr"),
           description: err as string,
         })
       }
@@ -306,7 +306,7 @@ export const useUserStore = defineStore("user", {
       } catch (err) {
         useToast().add({
           color: "error",
-          title: i18n.global.t("cloudie.toasts.repostTrackErr"),
+          title: i18n.global.t("skye.toasts.repostTrackErr"),
           description: err as string,
         })
       }
@@ -331,7 +331,7 @@ export const useUserStore = defineStore("user", {
       } catch (err) {
         useToast().add({
           color: "error",
-          title: i18n.global.t("cloudie.toasts.repostPlaylistErr"),
+          title: i18n.global.t("skye.toasts.repostPlaylistErr"),
           description: err as string,
         })
       }

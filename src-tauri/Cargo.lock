@@ -645,28 +645,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cloudie"
-version = "0.1.0"
-dependencies = [
- "audiotags",
- "reqwest",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-dialog",
- "tauri-plugin-fs",
- "tauri-plugin-http",
- "tauri-plugin-log",
- "tauri-plugin-opener",
- "tauri-plugin-shell",
- "tauri-plugin-single-instance",
- "tauri-plugin-sql",
- "tauri-plugin-store",
- "tokio",
-]
-
-[[package]]
 name = "combine"
 version = "4.6.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4491,6 +4469,28 @@ name = "siphasher"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56199f7ddabf13fe5074ce809e7d3f42b42ae711800501b5b16ea82ad029c39d"
+
+[[package]]
+name = "skye"
+version = "0.1.0"
+dependencies = [
+ "audiotags",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-dialog",
+ "tauri-plugin-fs",
+ "tauri-plugin-http",
+ "tauri-plugin-log",
+ "tauri-plugin-opener",
+ "tauri-plugin-shell",
+ "tauri-plugin-single-instance",
+ "tauri-plugin-sql",
+ "tauri-plugin-store",
+ "tokio",
+]
 
 [[package]]
 name = "slab"

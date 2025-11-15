@@ -3,16 +3,16 @@
     <template v-if="track.commentable && track.comment_count">
       <div class="flex items-end gap-3 p-4">
         <UAvatar :src="useUserStore().avatar_url" size="md" />
-        <UTextarea class="flex-1" v-model="myComment" autoresize :placeholder="$t('cloudie.comment.placeholder')" />
+        <UTextarea class="flex-1" v-model="myComment" autoresize :placeholder="$t('skye.comment.placeholder')" />
         <UButton icon="i-mingcute-send-line" @click="postComment" :disabled="!myComment || myComment.trim() === ''">
-          {{ i18n.global.t("cloudie.comment.post") }}
+          {{ i18n.global.t("skye.comment.post") }}
         </UButton>
       </div>
       
       <div class="flex items-center gap-3">
         <div class="text-highlighted text-lg font-bold">{{ track.comment_count }} comments</div>
         <div class="flex-1"></div>
-        <span>{{ i18n.global.t("cloudie.comment.sortBy") }}</span>
+        <span>{{ i18n.global.t("skye.comment.sortBy") }}</span>
         <USelect v-model="sort" :items="sortTypes" />
       </div>
       
@@ -73,15 +73,15 @@ const props = defineProps<{
 
 const sortTypes = computed(() => [
   {
-    label: i18n.global.t("cloudie.comment.sort.newest"),
+    label: i18n.global.t("skye.comment.sort.newest"),
     value: "newest",
   },
   {
-    label: i18n.global.t("cloudie.comment.sort.oldest"),
+    label: i18n.global.t("skye.comment.sort.oldest"),
     value: "oldest",
   },
   {
-    label: i18n.global.t("cloudie.comment.sort.trackTimestamp"),
+    label: i18n.global.t("skye.comment.sort.trackTimestamp"),
     value: "track-timestamp",
   },
 ])

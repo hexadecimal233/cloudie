@@ -13,9 +13,9 @@
         <p class="truncate text-sm text-muted">{{ props.user.full_name || props.user.username }}</p>
       </UTooltip>
       <div class="flex items-center gap-3 text-xs text-muted">
-        <span>{{ props.user.followers_count }} {{ $t("cloudie.user.followers") }}</span>
+        <span>{{ props.user.followers_count }} {{ $t("skye.user.followers") }}</span>
         <span>•</span>
-        <span>{{ props.user.track_count }} {{ $t("cloudie.user.tracks") }}</span>
+        <span>{{ props.user.track_count }} {{ $t("skye.user.tracks") }}</span>
       </div>
     </div>
 

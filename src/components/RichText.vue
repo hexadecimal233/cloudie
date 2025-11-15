@@ -12,7 +12,7 @@ import { useI18n } from "vue-i18n"
 
 const items = computed(() => [
   {
-    label: useI18n().t("cloudie.common.copy"),
+    label: useI18n().t("skye.common.copy"),
     action: () => {
       navigator.clipboard.writeText(props.content) // FIXME: Copy fails
     },

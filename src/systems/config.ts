@@ -7,8 +7,8 @@ import { useColorMode, useDebounceFn } from "@vueuse/core"
 import dayjs from "dayjs"
 
 export const THEMES = [
-  "cloudie",
-  "cloudie-dark",
+  "skye",
+  "skye-dark",
   "cryolite",
   "cryolite-dark",
   "nuxt",
@@ -24,7 +24,7 @@ class Config {
   noHistory: boolean = false // TODO: no history
   // 外观
   language: (typeof LANGUAGE_OPTIONS)[number] = "en"
-  theme: Theme = "cloudie"
+  theme: Theme = "skye"
   feedStyle: FeedStyle = "soundcloud"
   bg: string = ""
   bgBlur: boolean = false

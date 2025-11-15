@@ -17,7 +17,7 @@
             {{
               item.playlist?.user.username ||
               (item.system_playlist!.made_for
-                ? $t("cloudie.library.madeFor", {
+                ? $t("skye.library.madeFor", {
                   name: item.system_playlist!.made_for?.username,
                 })
                 : item.system_playlist!.description)

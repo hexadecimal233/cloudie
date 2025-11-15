@@ -146,7 +146,7 @@ export async function addDownloadTask(track: Track, playlist: BasePlaylist) {
       console.error(": ", task)
       useToast().add({
         color: "error",
-        title: i18n.global.t("cloudie.toasts.addDownloadFailed"),
+        title: i18n.global.t("skye.toasts.addDownloadFailed"),
         description: err.message,
       })
     }

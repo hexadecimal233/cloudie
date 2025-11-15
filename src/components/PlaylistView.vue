@@ -79,7 +79,7 @@ onMounted(async () => {
     console.error("PlaylistList open error:", err)
     toast.add({
       color: "error",
-      title: i18n.global.t("cloudie.toasts.playlistOpenFailed"),
+      title: i18n.global.t("skye.toasts.playlistOpenFailed"),
       description: err.message,
     })
     return

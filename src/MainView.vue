@@ -35,7 +35,7 @@
             <UButton color="neutral" icon="i-mingcute-left-line" variant="subtle" @click="$router.back()" />
             <UFieldGroup >
               <UInputMenu leading-icon="i-mingcute-search-line" :items="searchSuggestions" v-model:search-term="searchTerm"
-                :placeholder="$t('cloudie.main.search')" @keydown.enter.prevent="handleSearch"
+                :placeholder="$t('skye.main.search')" @keydown.enter.prevent="handleSearch"
                 @update:model-value="(value) => searchTerm = value" class="w-64" />
               <UButton color="neutral" icon="i-mingcute-close-line" variant="outline" @click="searchTerm = ''" />
             </UFieldGroup>
@@ -104,7 +104,7 @@ function getPageTitle() {
 
   // Handle dynamic routes by using only the first segment (e.g., /playlist/:id)
   const firstSegment = pathSegments[0]
-  return i18n.t(`cloudie.main.${firstSegment}`)
+  return i18n.t(`skye.main.${firstSegment}`)
 }
 
 const searchTerm = ref("")
@@ -132,16 +132,16 @@ function handleSearch() {
 
 const items = computed(() => [
   [
-    { label: i18n.t("cloudie.main.feeds"), to: "/feeds", icon: "i-mingcute-rss-line" },
-    { label: i18n.t("cloudie.main.likes"), to: "/likes", icon: "i-mingcute-heart-line" },
-    { label: i18n.t("cloudie.main.library"), to: "/library", icon: "i-mingcute-playlist-line" },
-    { label: i18n.t("cloudie.main.radio"), to: "/radio", icon: "i-mingcute-radio-line" },
-    { label: i18n.t("cloudie.main.history"), to: "/history", icon: "i-mingcute-history-line" },
-    { label: i18n.t("cloudie.main.following"), to: "/following", icon: "i-mingcute-group-line" },
+    { label: i18n.t("skye.main.feeds"), to: "/feeds", icon: "i-mingcute-rss-line" },
+    { label: i18n.t("skye.main.likes"), to: "/likes", icon: "i-mingcute-heart-line" },
+    { label: i18n.t("skye.main.library"), to: "/library", icon: "i-mingcute-playlist-line" },
+    { label: i18n.t("skye.main.radio"), to: "/radio", icon: "i-mingcute-radio-line" },
+    { label: i18n.t("skye.main.history"), to: "/history", icon: "i-mingcute-history-line" },
+    { label: i18n.t("skye.main.following"), to: "/following", icon: "i-mingcute-group-line" },
   ],
   [
-    { label: i18n.t("cloudie.main.downloads"), to: "/downloads", icon: "i-mingcute-download-line" },
-    { label: i18n.t("cloudie.main.settings"), to: "/settings", icon: "i-mingcute-settings-3-line" },
+    { label: i18n.t("skye.main.downloads"), to: "/downloads", icon: "i-mingcute-download-line" },
+    { label: i18n.t("skye.main.settings"), to: "/settings", icon: "i-mingcute-settings-3-line" },
   ],
 ])
 </script>
