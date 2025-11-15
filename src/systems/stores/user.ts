@@ -87,7 +87,7 @@ export const useUserStore = defineStore("user", {
         do {
           await trackLikeCollection.fetchNext()
           ids.push(...trackLikeCollection.data.value)
-        } while (trackLikeCollection.hasNext.value)
+        } while (trackLikeCollection.hasNext.value && !trackLikeCollection.error.value)
         this.likedTrackIds = ids
       } catch (err) {
         console.error("Failed to update liked track IDs:", err)

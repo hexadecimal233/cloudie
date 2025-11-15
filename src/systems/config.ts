@@ -58,7 +58,7 @@ watch(config, saveConfig, { deep: true })
 
 // 读取配置属性值
 async function getConfigValue<T>(key: keyof Config): Promise<T> {
-  store = await load("cloudie.json", {
+  store = await load("config.json", {
     autoSave: false,
     defaults: new Config() as any,
   })
