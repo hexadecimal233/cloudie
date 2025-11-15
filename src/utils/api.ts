@@ -669,7 +669,7 @@ function useCollection<T>(
    * A loading-safe function to fetches the data till the specified page.
    */
   const fetchTillPage = async (page: number) => {
-    while (pageSize.value * page > data.value.length) {
+    while (pageSize.value * page > data.value.length && hasNext.value && !error.value) {
       await fetchNext()
     }
   }

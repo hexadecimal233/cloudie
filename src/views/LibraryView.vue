@@ -5,15 +5,15 @@
         <PlaylistList :items="getTab(item.slot)!">
           <template #bottom>
             <template v-if="collection.loading.value">
-              <span class="ml-2">{{ $t("cloudie.common.loading") }}</span>
+              <span class="ml-2">{{ $t("skye.common.loading") }}</span>
             </template>
 
             <template v-else-if="collection.hasNext.value">
-              <UButton @click="collection.fetchNext">{{ $t("cloudie.common.loadMore") }}</UButton>
+              <UButton @click="collection.fetchNext">{{ $t("skye.common.loadMore") }}</UButton>
             </template>
 
             <template v-else>
-              <span class="ml-2">{{ $t("cloudie.common.noMore") }}</span>
+              <span class="ml-2">{{ $t("skye.common.noMore") }}</span>
             </template>
           </template>
         </PlaylistList>
@@ -29,16 +29,16 @@ import { i18n } from "@/systems/i18n"
 
 const items = computed(() => [
   {
-    label: i18n.global.t("cloudie.library.playlist"),
+    label: i18n.global.t("skye.library.playlist"),
     icon: "i-mingcute-playlist-line",
     slot: "playlist",
   },
   {
-    label: i18n.global.t("cloudie.library.systemPlaylist"),
+    label: i18n.global.t("skye.library.systemPlaylist"),
     icon: "i-mingcute-server-line",
     slot: "system",
   },
-  { label: i18n.global.t("cloudie.library.album"), icon: "i-mingcute-album-line", slot: "album" },
+  { label: i18n.global.t("skye.library.album"), icon: "i-mingcute-album-line", slot: "album" },
 ])
 
 const collection = useLibrary()

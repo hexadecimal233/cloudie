@@ -82,7 +82,7 @@ export const usePlayerStore = defineStore("player", {
         })
       }
 
-      getCurrentWindow().setTitle(`${track.title} - ${getArtist(track)} - Cloudie`)
+      getCurrentWindow().setTitle(`${track.title} - ${getArtist(track)} - Skye`)
     },
 
     async nextTrack(offset: number = 1) {
@@ -157,7 +157,7 @@ export const usePlayerStore = defineStore("player", {
         this.loading = false
         useToast().add({
           color: "error",
-          title: i18n.global.t("cloudie.toasts.loadFailed"),
+          title: i18n.global.t("skye.toasts.loadFailed"),
           description: error instanceof Error ? error.message : String(error),
         })
 

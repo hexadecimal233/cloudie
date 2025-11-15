@@ -72,7 +72,7 @@ jobs:
       - name: upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: cloudie-${{ matrix.platform }}-${{ github.sha }}
+          name: skye-${{ matrix.platform }}-${{ github.sha }}
           path: |
             src-tauri/target/release/bundle/
           retention-days: 30

@@ -7,7 +7,7 @@
         {{ streamItem.user.username }}
       </ULink>
       <i-mingcute-repeat-line v-if="streamItem.type === 'track-repost'" />
-      {{ streamItem.type === 'track-repost' ? $t('cloudie.full.track.reposted', { time: formatFromNow(streamItem.created_at) }) : $t('cloudie.full.track.posted', { time: formatFromNow(streamItem.created_at) }) }}
+      {{ streamItem.type === 'track-repost' ? $t('skye.full.track.reposted', { time: formatFromNow(streamItem.created_at) }) : $t('skye.full.track.posted', { time: formatFromNow(streamItem.created_at) }) }}
     </div>
 
     <RichText v-if="streamItem?.caption" :content="streamItem.caption" class="text-sm line-clamp-1" />

@@ -3,29 +3,29 @@
     <div class="flex items-center gap-2">
       <div class="flex items-center gap-2">
         <UButton icon="i-mingcute-play-fill" label="test" @click="player.play(props.tracks[0], props.tracks)">{{
-          $t("cloudie.trackList.listenAll") }}</UButton>
+          $t("skye.trackList.listenAll") }}</UButton>
         <UButton icon="i-mingcute-playlist-line" variant="subtle" @click="addMultipleToListeningList(props.tracks)">{{
-          $t("cloudie.trackList.addAll") }}</UButton>
+          $t("skye.trackList.addAll") }}</UButton>
 
-        <UButton variant="subtle" @click="listenSelected">{{ $t("cloudie.trackList.listenSelected") }}</UButton>
-        <UButton variant="subtle" @click="addToListening">{{ $t("cloudie.trackList.addToListening") }}</UButton>
-        <UButton variant="subtle" @click="downloadSelected">{{ $t("cloudie.trackList.download") }}</UButton>
-        <UButton variant="subtle" @click="addToPlaylist">{{ $t("cloudie.trackList.addToPlaylist") }}</UButton>
+        <UButton variant="subtle" @click="listenSelected">{{ $t("skye.trackList.listenSelected") }}</UButton>
+        <UButton variant="subtle" @click="addToListening">{{ $t("skye.trackList.addToListening") }}</UButton>
+        <UButton variant="subtle" @click="downloadSelected">{{ $t("skye.trackList.download") }}</UButton>
+        <UButton variant="subtle" @click="addToPlaylist">{{ $t("skye.trackList.addToPlaylist") }}</UButton>
       </div>
 
       <div class="flex-1"></div>
       <div>
-        <UInput icon="i-mingcute-search-line" :placeholder="$t('cloudie.trackList.search')" v-model="searchQuery" />
+        <UInput icon="i-mingcute-search-line" :placeholder="$t('skye.trackList.search')" v-model="searchQuery" />
       </div>
     </div>
 
     <span v-if="searchQuery">
       {{
-        $t("cloudie.trackList.searchResult", { count: table?.tableApi?.getFilteredRowModel().rows.length || 0 })
+        $t("skye.trackList.searchResult", { count: table?.tableApi?.getFilteredRowModel().rows.length || 0 })
       }}
     </span>
     <span v-else>
-      {{ $t("cloudie.trackList.selected", {
+      {{ $t("skye.trackList.selected", {
         count: table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0
       }) }}
     </span>
@@ -88,29 +88,29 @@ function getOperationItems(track: Track) {
   return [
     [
       {
-        label: i18n.global.t("cloudie.trackList.addToListening"),
+        label: i18n.global.t("skye.trackList.addToListening"),
         icon: "i-mingcute-add-line",
         onClick: () => addMultipleToListeningList([track]),
       },
       {
-        label: i18n.global.t("cloudie.trackList.listenSelected"),
+        label: i18n.global.t("skye.trackList.listenSelected"),
         icon: "i-mingcute-play-line",
         onClick: () => player.play(track, props.tracks),
       },
       {
-        label: i18n.global.t("cloudie.trackList.openInNew"),
+        label: i18n.global.t("skye.trackList.openInNew"),
         icon: "i-mingcute-external-link-line",
         onClick: () => open(track.permalink_url),
       },
     ],
     [
       {
-        label: i18n.global.t("cloudie.trackList.addToPlaylist"),
+        label: i18n.global.t("skye.trackList.addToPlaylist"),
         icon: "i-mingcute-playlist-line",
         onClick: () => addTracksToPlaylist([track]),
       },
       {
-        label: i18n.global.t("cloudie.trackList.download"),
+        label: i18n.global.t("skye.trackList.download"),
         icon: "i-mingcute-download-line",
         onClick: () => download(track),
       },
@@ -183,13 +183,13 @@ const columns: TableColumn<Track>[] = [
   },
   {
     accessorKey: "title",
-    header: ({ column }) => getSortHeader(column, i18n.global.t("cloudie.trackList.track")),
+    header: ({ column }) => getSortHeader(column, i18n.global.t("skye.trackList.track")),
     cell: (info) => <TrackTitle track={info.row.original} tracks={props.tracks} />,
     enableSorting: true,
   },
   {
     accessorKey: "genre",
-    header: ({ column }) => getSortHeader(column, i18n.global.t("cloudie.trackList.genre")),
+    header: ({ column }) => getSortHeader(column, i18n.global.t("skye.trackList.genre")),
     cell: (info) => {
       return <UTooltip text={info.getValue() as string}>{info.getValue()}</UTooltip>
     },
@@ -205,7 +205,7 @@ const columns: TableColumn<Track>[] = [
   {
     // TODO: tag list tooltip
     accessorKey: "tag_list",
-    header: i18n.global.t("cloudie.trackList.tags"),
+    header: i18n.global.t("skye.trackList.tags"),
     cell: (info) => {
       return <Tags class="overflow-x-scroll" tags={info.getValue() as string} />
     },
@@ -219,7 +219,7 @@ const columns: TableColumn<Track>[] = [
   },
   {
     accessorKey: "full_duration",
-    header: ({ column }) => getSortHeader(column, i18n.global.t("cloudie.trackList.duration")),
+    header: ({ column }) => getSortHeader(column, i18n.global.t("skye.trackList.duration")),
     cell: (info) => formatMillis(info.getValue() as number),
     enableSorting: true,
     meta: {
@@ -232,21 +232,21 @@ const columns: TableColumn<Track>[] = [
   {
     id: "downloadability",
     header: ({ column }) =>
-      getSortHeader(column, i18n.global.t("cloudie.trackList.downloadability")),
+      getSortHeader(column, i18n.global.t("skye.trackList.downloadability")),
     cell: (info) => {
       const downloadability = getDownloadability(info.row.original)
       if (downloadability === Downloadability.FreeDL) {
-        return <UBadge color="success">{i18n.global.t("cloudie.trackList.freeDL")}</UBadge>
+        return <UBadge color="success">{i18n.global.t("skye.trackList.freeDL")}</UBadge>
       } else if (downloadability === Downloadability.Direct) {
-        return <UBadge color="info">{i18n.global.t("cloudie.trackList.direct")}</UBadge>
+        return <UBadge color="info">{i18n.global.t("skye.trackList.direct")}</UBadge>
       } else if (downloadability === Downloadability.Geo) {
-        return <UBadge color="error">{i18n.global.t("cloudie.trackList.geoRestrict")}</UBadge>
+        return <UBadge color="error">{i18n.global.t("skye.trackList.geoRestrict")}</UBadge>
       } else if (downloadability === Downloadability.Premium) {
-        return <UBadge color="warning">{i18n.global.t("cloudie.trackList.premium")}</UBadge>
+        return <UBadge color="warning">{i18n.global.t("skye.trackList.premium")}</UBadge>
       } else {
         return (
           <UBadge color="info">
-            {i18n.global.t("cloudie.trackList.source", {
+            {i18n.global.t("skye.trackList.source", {
               count: info.row.original.media.transcodings.length,
             })}
           </UBadge>

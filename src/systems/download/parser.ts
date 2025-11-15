@@ -104,7 +104,7 @@ async function getDownloadPathWithoutExt(task: DownloadTask) {
 // use ffmpeg to download aac stream
 async function downloadAac(m3u8Url: string): Promise<string> {
   const fileId = Math.random().toString(16).substring(2, 16)
-  const savePath = await path.join(await path.tempDir(), `cloudie_temp_${fileId}.m4a`)
+  const savePath = await path.join(await path.tempDir(), `skye_temp_${fileId}.m4a`)
   const cmd = Command.create("ffmpeg", [
     "-y",
     "-loglevel",

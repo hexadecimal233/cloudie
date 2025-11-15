@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
-@import "./assets/themes/cloudie.css";
+@import "./assets/themes/skye.css";
 @import "./assets/themes/cryolite.css";
 
 :root {

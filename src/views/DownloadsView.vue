@@ -19,17 +19,17 @@ const table = useTemplateRef("table")
 const activeTab = ref<"all" | "downloading" | "completed" | "paused" | "failed">("all")
 
 const tabs = computed(() => [
-  { label: i18n.global.t("cloudie.downloads.allDownloads"), value: "all" },
-  { label: i18n.global.t("cloudie.downloads.downloading"), value: "downloading" },
-  { label: i18n.global.t("cloudie.downloads.completed"), value: "completed" },
-  { label: i18n.global.t("cloudie.downloads.paused"), value: "paused" },
-  { label: i18n.global.t("cloudie.downloads.failed"), value: "failed" },
+  { label: i18n.global.t("skye.downloads.allDownloads"), value: "all" },
+  { label: i18n.global.t("skye.downloads.downloading"), value: "downloading" },
+  { label: i18n.global.t("skye.downloads.completed"), value: "completed" },
+  { label: i18n.global.t("skye.downloads.paused"), value: "paused" },
+  { label: i18n.global.t("skye.downloads.failed"), value: "failed" },
 ])
 
 const columns: TableColumn<DownloadTask>[] = [
   {
     accessorKey: "details.track",
-    header: ({}) => i18n.global.t("cloudie.downloads.track"),
+    header: ({}) => i18n.global.t("skye.downloads.track"),
     cell: (info: { row: { original: DownloadTask } }) => (
       <TrackTitle
         track={info.row.original.details.track}
@@ -39,7 +39,7 @@ const columns: TableColumn<DownloadTask>[] = [
   },
   {
     accessorKey: "details.playlistName",
-    header: ({}) => i18n.global.t("cloudie.downloads.playlist"),
+    header: ({}) => i18n.global.t("skye.downloads.playlist"),
     cell: (info: { row: { original: DownloadTask } }) =>
       info.row.original.details.playlistName ?? "-",
     meta: {
@@ -51,7 +51,7 @@ const columns: TableColumn<DownloadTask>[] = [
   },
   {
     accessorKey: "task.timestamp",
-    header: ({}) => i18n.global.t("cloudie.downloads.addedTime"),
+    header: ({}) => i18n.global.t("skye.downloads.addedTime"),
     cell: (info: { row: { original: DownloadTask } }) =>
       new Date(info.row.original.task.timestamp).toLocaleString(),
     meta: {
@@ -63,7 +63,7 @@ const columns: TableColumn<DownloadTask>[] = [
   },
   {
     accessorKey: "task.origFileName",
-    header: ({}) => i18n.global.t("cloudie.downloads.origName"),
+    header: ({}) => i18n.global.t("skye.downloads.origName"),
     cell: (info: { row: { original: DownloadTask } }) => info.row.original.task.origFileName ?? "-",
     meta: {
       class: {
@@ -74,7 +74,7 @@ const columns: TableColumn<DownloadTask>[] = [
   },
   {
     accessorKey: "task.status",
-    header: ({}) => i18n.global.t("cloudie.downloads.status"),
+    header: ({}) => i18n.global.t("skye.downloads.status"),
     cell: (info: { row: { original: DownloadTask } }) => (
       <div class="flex items-center gap-2">
         {info.row.original.downloadingState ? (
@@ -97,7 +97,7 @@ const columns: TableColumn<DownloadTask>[] = [
   },
   {
     id: "actions",
-    header: ({}) => i18n.global.t("cloudie.downloads.actions"),
+    header: ({}) => i18n.global.t("skye.downloads.actions"),
     cell: (info: { row: { original: DownloadTask } }) => (
       <div class="flex gap-1">
         {info.row.original.downloadingState && (
@@ -156,22 +156,22 @@ const filteredItems = computed(() => {
 
 function getStatusTranslation(item: DownloadTask) {
   if (item.downloadingState) {
-    return i18n.global.t(`cloudie.downloads.${item.downloadingState.name}`)
+    return i18n.global.t(`skye.downloads.${item.downloadingState.name}`)
   }
-  return i18n.global.t(`cloudie.downloads.${item.task.status}`)
+  return i18n.global.t(`skye.downloads.${item.task.status}`)
 }
 
 async function promptDelete(tasks: DownloadTask[]) {
-  const result = await message(i18n.global.t("cloudie.toasts.confirmDelete", { c: tasks.length }), {
+  const result = await message(i18n.global.t("skye.toasts.confirmDelete", { c: tasks.length }), {
     buttons: {
-      yes: i18n.global.t("cloudie.toasts.deleteLocalFiles"),
-      no: i18n.global.t("cloudie.toasts.keepLocalFiles"),
-      cancel: i18n.global.t("cloudie.toasts.cancel"),
+      yes: i18n.global.t("skye.toasts.deleteLocalFiles"),
+      no: i18n.global.t("skye.toasts.keepLocalFiles"),
+      cancel: i18n.global.t("skye.toasts.cancel"),
     },
   })
-  if (result === i18n.global.t("cloudie.toasts.deleteLocalFiles")) {
+  if (result === i18n.global.t("skye.toasts.deleteLocalFiles")) {
     await deleteTasks(tasks, true)
-  } else if (result === i18n.global.t("cloudie.toasts.keepLocalFiles")) {
+  } else if (result === i18n.global.t("skye.toasts.keepLocalFiles")) {
     await deleteTasks(tasks, false)
   }
 }
@@ -179,9 +179,9 @@ async function promptDelete(tasks: DownloadTask[]) {
 onMounted(async () => {
   const isInstalled = await checkFFmpeg()
   if (!isInstalled) {
-    await message(i18n.global.t("cloudie.toasts.ffmpegNotInstalled"), {
+    await message(i18n.global.t("skye.toasts.ffmpegNotInstalled"), {
       buttons: {
-        ok: i18n.global.t("cloudie.toasts.ok"),
+        ok: i18n.global.t("skye.toasts.ok"),
       },
     })
   }

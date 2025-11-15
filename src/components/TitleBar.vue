@@ -7,7 +7,7 @@
          <span class="font-bold transition-none" 
     :style="easterStyle" 
     :class="{ 'text-primary': windowStates.isFocused && easterClicks === 0, 'spin-active': false }">
-        Cloudie
+        Skye
       </span>
   </div>
 

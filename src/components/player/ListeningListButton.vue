@@ -4,15 +4,15 @@
 
     <template #content>
       <div class="flex flex-col gap-3 w-md overflow-y-auto p-3">
-        <span class="text-xl font-bold">{{ $t("cloudie.player.listening") }}</span>
+        <span class="text-xl font-bold">{{ $t("skye.player.listening") }}</span>
 
         <div class="flex items-center gap-2">
           <UCheckbox @change="selectAll"
             :checked="selectedIdxs.length === listeningList.length && listeningList.length > 0" />
           <UButton label="removeSelected" @click="removeSelected">
-            {{ $t("cloudie.player.removeSelected") }}
+            {{ $t("skye.player.removeSelected") }}
           </UButton>
-          <span>{{ $t("cloudie.trackList.selected", { count: selectedIdxs.length }) }}</span>
+          <span>{{ $t("skye.trackList.selected", { count: selectedIdxs.length }) }}</span>
 
           <div class="flex-1"></div>
 
@@ -40,10 +40,10 @@
         <!-- 空状态 -->
         <div v-if="listeningList.length === 0" class="py-8 text-center">
           <div class="mb-2 text-lg">
-            {{ $t("cloudie.common.empty") }}
+            {{ $t("skye.common.empty") }}
           </div>
           <div class="text-base-content/70 text-sm">
-            {{ $t("cloudie.common.emptyDesc") }}
+            {{ $t("skye.common.emptyDesc") }}
           </div>
         </div>
       </div>

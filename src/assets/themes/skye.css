@@ -3,7 +3,7 @@
 
 @layer components {
   /* https://www.tints.dev */
-  [data-theme="cloudie"] {
+  [data-theme="skye"] {
     --ui-radius: 0.5rem;
 
     --ui-color-primary-50: oklch(0.958 0.016 2.8);

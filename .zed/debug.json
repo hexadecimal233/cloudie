@@ -5,7 +5,7 @@
       "command": "cargo",
       "args": ["build", "--manifest-path=./src-tauri/Cargo.toml", "--no-default-features"]
     },
-    "program": "$ZED_WORKTREE_ROOT/src-tauri/target/debug/cloudie.exe",
+    "program": "$ZED_WORKTREE_ROOT/src-tauri/target/debug/skye.exe",
     "sourceLanguages": ["rust"],
     "request": "launch",
     "adapter": "CodeLLDB"
@@ -16,7 +16,7 @@
       "command": "cargo",
       "args": ["build", "--release", "--manifest-path=./src-tauri/Cargo.toml"]
     },
-    "program": "$ZED_WORKTREE_ROOT/src-tauri/target/release/cloudie.exe",
+    "program": "$ZED_WORKTREE_ROOT/src-tauri/target/release/skye.exe",
     "sourceLanguages": ["rust"],
     "request": "launch",
     "adapter": "CodeLLDB"

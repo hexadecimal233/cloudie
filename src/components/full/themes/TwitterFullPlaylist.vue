@@ -55,8 +55,8 @@
             </div>
             <!-- Added a bit of spacing here for the Twitter style -->
             <div class="mt-2 text-xs text-neutral-500">
-              <p>{{ $t('cloudie.full.playlist.tracks', { count: props.playlist.track_count ?? 0 }) }}</p>
-              <p>{{ $t('cloudie.full.playlist.duration', { duration: formatMillis(props.playlist.duration ?? 0) }) }}</p>
+              <p>{{ $t('skye.full.playlist.tracks', { count: props.playlist.track_count ?? 0 }) }}</p>
+              <p>{{ $t('skye.full.playlist.duration', { duration: formatMillis(props.playlist.duration ?? 0) }) }}</p>
             </div>
           </div>
         </div>

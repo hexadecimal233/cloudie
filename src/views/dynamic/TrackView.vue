@@ -3,7 +3,7 @@
     <div class="alert alert-warning">TODO: This is still a demo, translations and content experience might be bad</div>
     <div v-if="loading" class="flex justify-center items-center h-64">
       <div class="loading loading-spinner loading-lg"></div>
-      <span class="ml-2">{{ $t("cloudie.common.loading") }}</span>
+      <span class="ml-2">{{ $t("skye.common.loading") }}</span>
     </div>
 
     <div v-else-if="error" class="alert alert-error">
@@ -22,15 +22,15 @@
               <div class="flex gap-2 mt-2">
                 <button class="btn btn-primary" @click="playTrack">
                   <i-mingcute-play-fill />
-                  {{ $t("cloudie.common.play") }}
+                  {{ $t("skye.common.play") }}
                 </button>
                 <button class="btn btn-ghost" @click="addToListeningList">
                   <i-mingcute-plus-line />
-                  {{ $t("cloudie.trackList.addToListening") }}
+                  {{ $t("skye.trackList.addToListening") }}
                 </button>
                 <button class="btn btn-ghost" @click="downloadTrack">
                   <i-mingcute-download-line />
-                  {{ $t("cloudie.trackList.download") }}
+                  {{ $t("skye.trackList.download") }}
                 </button>
                 <a class="btn btn-ghost" :href="track.permalink_url" target="_blank">
                   <i-mingcute-external-link-line />
@@ -40,28 +40,28 @@
           </div>
 
           <div v-if="track.description" class="mt-4">
-            <h2 class="text-lg font-semibold mb-2">{{ $t("cloudie.trackView.description") }}</h2>
+            <h2 class="text-lg font-semibold mb-2">{{ $t("skye.trackView.description") }}</h2>
             <p class="whitespace-pre-wrap">{{ track.description }}</p>
           </div>
 
           <div class="stats stats-vertical lg:stats-horizontal shadow mt-4">
             <div class="stat">
-              <div class="stat-title">{{ $t("cloudie.trackView.playCount") }}</div>
+              <div class="stat-title">{{ $t("skye.trackView.playCount") }}</div>
               <div class="stat-value">{{ formatNumber(track.playback_count) }}</div>
             </div>
 
             <div class="stat">
-              <div class="stat-title">{{ $t("cloudie.trackView.likes") }}</div>
+              <div class="stat-title">{{ $t("skye.trackView.likes") }}</div>
               <div class="stat-value">{{ formatNumber(track.likes_count) }}</div>
             </div>
 
             <div class="stat">
-              <div class="stat-title">{{ $t("cloudie.trackView.reposts") }}</div>
+              <div class="stat-title">{{ $t("skye.trackView.reposts") }}</div>
               <div class="stat-value">{{ formatNumber(track.reposts_count) }}</div>
             </div>
 
             <div class="stat">
-              <div class="stat-title">{{ $t("cloudie.trackView.comments") }}</div>
+              <div class="stat-title">{{ $t("skye.trackView.comments") }}</div>
               <div class="stat-value">{{ formatNumber(track.comment_count) }}</div>
             </div>
           </div>
@@ -71,7 +71,7 @@
       <!-- Related Tracks Section -->
       <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
-          <h2 class="text-xl font-bold mb-4">{{ $t("cloudie.trackView.relatedTracks") }}</h2>
+          <h2 class="text-xl font-bold mb-4">{{ $t("skye.trackView.relatedTracks") }}</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <MiniTrack v-for="track in relatedTracks" :key="track.id" :track="track" :tracks="relatedTracks" />
           </div>
@@ -81,7 +81,7 @@
       <!-- Related Albums Section -->
       <div class="card bg-base-100 shadow-xl mt-6" v-if="relatedAlbums.length > 0">
         <div class="card-body">
-          <h2 class="text-xl font-bold mb-4">{{ $t("cloudie.trackView.relatedAlbums") }}</h2>
+          <h2 class="text-xl font-bold mb-4">{{ $t("skye.trackView.relatedAlbums") }}</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <MiniPlaylist v-for="album in relatedAlbums" :key="album.id" :playlist="album" :max-tracks="5" />
           </div>
@@ -91,7 +91,7 @@
       <!-- Related Playlists Section -->
       <div class="card bg-base-100 shadow-xl mt-6" v-if="relatedPlaylists.length > 0">
         <div class="card-body">
-          <h2 class="text-xl font-bold mb-4">{{ $t("cloudie.trackView.relatedPlaylists") }}</h2>
+          <h2 class="text-xl font-bold mb-4">{{ $t("skye.trackView.relatedPlaylists") }}</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <MiniPlaylist v-for="playlist in relatedPlaylists" :key="playlist.id" :playlist="playlist"
               :max-tracks="5" />

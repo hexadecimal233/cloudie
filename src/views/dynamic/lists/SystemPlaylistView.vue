@@ -30,7 +30,7 @@ onMounted(async () => {
   } catch (e) {
     useToast().add({
       color: "error",
-      title: i18n.global.t("cloudie.common.error"),
+      title: i18n.global.t("skye.common.error"),
     })
   }
 })
