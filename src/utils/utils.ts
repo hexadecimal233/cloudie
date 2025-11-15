@@ -176,8 +176,13 @@ export function getNetworkClassName(profile: WebProfile): string {
   return (profile.network || "").replace(/[^a-z]/g, "")
 }
 
-export function checkFFmpeg() {
-  // TODO: check if ffmpeg is installed
+export async function checkFFmpeg() {
+  try {
+    const result = await Command.create("ffmpeg", ["-version"]).execute()
+    return result.code === 0
+  } catch (_) {
+    return false
+  }
 }
 
 export function getArtist(track: Track): string {
@@ -205,6 +210,7 @@ export function openModal(component: any, props: any) {
 
 import * as fs from "@tauri-apps/plugin-fs"
 import { getM3U8Info } from "./api"
+import { Command } from "@tauri-apps/plugin-shell"
 
 export async function copyDir(srcDir: string, destDir: string, copyOptions?: fs.CopyFileOptions) {
   try {

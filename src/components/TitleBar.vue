@@ -40,7 +40,7 @@ const easterStyle = computed(() => {
     easterClicks.value = 0
     return { animation: "none" }
   }
-  if (easterClicks.value  === 4) {
+  if (easterClicks.value === 4) {
     return { animation: "oldschool-blink 0.1s step-end infinite" }
   } else {
     return { animation: "none" }

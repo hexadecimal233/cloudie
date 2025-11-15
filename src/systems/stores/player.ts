@@ -25,6 +25,9 @@ export enum PlayOrder {
   Shuffle = "shuffle",
 }
 
+// TODO: Overhaul Shuffle system
+// FIXME: sometime play state is messed up after reload
+
 class PlayerState {
   currentTime: number = 0
   duration: number = Infinity
@@ -130,7 +133,9 @@ export const usePlayerStore = defineStore("player", {
             try {
               if (mediaRef && this.track) {
                 // restore load
-                hlsPlayer!.startLoad(this.pendingDuration || this.currentTime)
+                hlsPlayer!.startLoad(
+                  this.pendingDuration === undefined ? this.currentTime : this.pendingDuration,
+                )
                 if (this.pendingDuration) {
                   this.pendingDuration = undefined
                 }
@@ -286,9 +291,13 @@ export const usePlayerStore = defineStore("player", {
         return
       }
 
+      this.pendingDuration = 0
+      this.pause()
+
       thePlay(track, replacedTracklist)
     },
     async playIndex(index: number) {
+      this.pendingDuration = 0
       thePlayIndex(index)
     },
   },

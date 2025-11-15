@@ -2,14 +2,14 @@
   <div class="flex gap-2 flex-col h-full">
     <div class="flex items-center gap-2">
       <div class="flex items-center gap-2">
-        <UButton label="test" @click="player.play(props.tracks[0], props.tracks)">{{
+        <UButton icon="i-mingcute-play-fill" label="test" @click="player.play(props.tracks[0], props.tracks)">{{
           $t("cloudie.trackList.listenAll") }}</UButton>
-        <UButton variant="subtle" @click="addMultipleToListeningList(props.tracks)">{{
+        <UButton icon="i-mingcute-playlist-line" variant="subtle" @click="addMultipleToListeningList(props.tracks)">{{
           $t("cloudie.trackList.addAll") }}</UButton>
 
-        <UButton @click="listenSelected">{{ $t("cloudie.trackList.listenSelected") }}</UButton>
+        <UButton variant="subtle" @click="listenSelected">{{ $t("cloudie.trackList.listenSelected") }}</UButton>
         <UButton variant="subtle" @click="addToListening">{{ $t("cloudie.trackList.addToListening") }}</UButton>
-        <UButton @click="downloadSelected">{{ $t("cloudie.trackList.download") }}</UButton>
+        <UButton variant="subtle" @click="downloadSelected">{{ $t("cloudie.trackList.download") }}</UButton>
         <UButton variant="subtle" @click="addToPlaylist">{{ $t("cloudie.trackList.addToPlaylist") }}</UButton>
       </div>
 
@@ -183,7 +183,7 @@ const columns: TableColumn<Track>[] = [
   },
   {
     accessorKey: "title",
-    header: ({ column }) => getSortHeader(column, i18n.global.t("cloudie.trackList.song")),
+    header: ({ column }) => getSortHeader(column, i18n.global.t("cloudie.trackList.track")),
     cell: (info) => <TrackTitle track={info.row.original} tracks={props.tracks} />,
     enableSorting: true,
   },

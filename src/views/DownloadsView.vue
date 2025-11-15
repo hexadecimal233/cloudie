@@ -7,12 +7,13 @@
 </template>
 
 <script setup lang="tsx" name="DownloadsView">
-import { ref, computed, useTemplateRef } from "vue"
+import { ref, computed, useTemplateRef, onMounted } from "vue"
 import { deleteTasks, downloadTasks, DownloadTask } from "@/systems/download/download"
 import { revealItemInDir } from "@tauri-apps/plugin-opener"
 import { i18n } from "@/systems/i18n"
 import { message } from "@tauri-apps/plugin-dialog"
 import { TableColumn } from "@nuxt/ui"
+import { checkFFmpeg } from "@/utils/utils"
 
 const table = useTemplateRef("table")
 const activeTab = ref<"all" | "downloading" | "completed" | "paused" | "failed">("all")
@@ -28,7 +29,7 @@ const tabs = computed(() => [
 const columns: TableColumn<DownloadTask>[] = [
   {
     accessorKey: "details.track",
-    header: ({}) => i18n.global.t("cloudie.downloads.songInfo"),
+    header: ({}) => i18n.global.t("cloudie.downloads.track"),
     cell: (info: { row: { original: DownloadTask } }) => (
       <TrackTitle
         track={info.row.original.details.track}
@@ -174,4 +175,15 @@ async function promptDelete(tasks: DownloadTask[]) {
     await deleteTasks(tasks, false)
   }
 }
+
+onMounted(async () => {
+  const isInstalled = await checkFFmpeg()
+  if (!isInstalled) {
+    await message(i18n.global.t("cloudie.toasts.ffmpegNotInstalled"), {
+      buttons: {
+        ok: i18n.global.t("cloudie.toasts.ok"),
+      },
+    })
+  }
+})
 </script>

@@ -8,7 +8,6 @@
    <template #item="{ item }">
     <component :is="getFullTrackComponent()" v-if="item.type === 'track' || item.type === 'track-repost'" :track="item.track" :stream-item="item" />
     <component :is="getFullPlaylistComponent()" v-else-if="item.type === 'playlist' || item.type === 'playlist-repost'" :playlist="item.playlist" :stream-item="item" />
-    <span v-else>{{ item.type  }}</span> 
   </template>
   </VirtualList>
   </div>

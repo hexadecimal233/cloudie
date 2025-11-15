@@ -39,7 +39,7 @@ class UserState {
   repostedTrackIds: number[] = []
   repostedPlaylistIds: number[] = []
   // auto data update
-  timer: any = null // the vscode wanted me to set the type as nodejs.timeout
+  timer: number | null = null // the vscode wanted me to set the type as nodejs.timeout
   lastUpdateTime: number = 0
   updateIntervalMs: number = 10 * 60 * 1000
 }

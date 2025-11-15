@@ -78,6 +78,7 @@
       "removeSelected": "Remove Selected"
     },
     "downloads": {
+      "actions": "Actions",
       "deleteSelected": "Delete Selected",
       "allDownloads": "All Downloads",
       "downloading": "Downloading",
@@ -86,7 +87,7 @@
       "failed": "Failed",
       "paused": "Paused",
       "pending": "Pending",
-      "songInfo": "Song Info",
+      "track": "Track",
       "playlist": "Playlist",
       "addedTime": "Added Time",
       "origName": "Original Name",
@@ -99,7 +100,7 @@
       "search": "Search",
       "selected": "Selected: {count}",
       "searchResult": "1 item found | {count} items found",
-      "song": "Song",
+      "track": "Track",
       "genre": "Genre",
       "duration": "Duration",
       "downloadability": "Downloadability",
@@ -112,7 +113,12 @@
       "addToPlaylist": "Add To Playlist",
       "addToListening": "Add To Listening List",
       "deleteFromPlaylist": "Delete from Playlist",
-      "tags": "Tags"
+      "tags": "Tags",
+      "tracks": "{count} Tracks",
+      "listenAll": "Listen All",
+      "addAll": "Add All",
+      "listenSelected": "Listen Selected",
+      "openInNew": "Open in New Tab"
     },
     "library": {
       "playlist": "Playlist",
@@ -121,6 +127,8 @@
       "madeFor": "Made for {name}"
     },
     "common": {
+      "copy": "Copy",
+      "error": "Error",
       "loading": "Loading...",
       "noMore": "No More",
       "loadMore": "Load More",
@@ -130,6 +138,14 @@
       "play": "Play"
     },
     "toasts": {
+      "likeTrackErr": "Failed to like track",
+      "likePlaylistErr": "Failed to like playlist",
+      "likeSystemPlaylistErr": "Cannot like system playlist",
+      "followUserErr": "Failed to follow user",
+      "repostTrackErr": "Failed to repost track",
+      "repostPlaylistErr": "Failed to repost playlist",
+      "ffmpegNotInstalled": "FFmpeg not installed",
+      "ok": "OK",
       "playlistOpenFailed": "Failed to open playlist",
       "downloadFailed": "Download failed",
       "loginFailed": "Login failed",
@@ -158,6 +174,7 @@
     },
     "settings": {
       "config": {
+        "feedStyle": "Feed Style",
         "savePath": "Save Path",
         "parallelDownloads": "Parallel Downloads",
         "playlistSeparateDir": "Separate Playlist Download Folder",
@@ -203,7 +220,28 @@
     },
     "playlistSelectModal": {
       "all": "All",
-      "create": "Create"
+      "create": "Create",
+      "title": "Select Playlist"
+    },
+    "full": {
+      "playlist": {
+        "tracks": "{count} Tracks",
+        "duration": "Duration: {duration}"
+      },
+      "track": {
+        "reposted": "Reposted",
+        "posted": "Posted"
+      }
+    },
+    "comment": {
+      "placeholder": "Write a comment...",
+      "post": "Post Comment",
+      "sortBy": "Sort By:",
+      "sort": {
+        "newest": "Newest",
+        "oldest": "Oldest",
+        "trackTimestamp": "Track Timestamp"
+      }
     }
   }
 }

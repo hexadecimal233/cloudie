@@ -15,8 +15,9 @@
           {{ props.playlist.user.username }}
         </ULink>
       </UTooltip>
-      <p class="truncate text-sm text-muted">{{ (props.playlist.tracks || []).length }} {{ $t("cloudie.trackList.song")
-        }}</p>
+      <p class="truncate text-sm text-muted">{{ $t("cloudie.trackList.tracks", {
+          count: (props.playlist.tracks ||
+            []).length})}}</p>
     </div>
     </div>
 

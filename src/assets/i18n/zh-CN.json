@@ -45,6 +45,7 @@
       "onTrack": "在单曲"
     },
     "downloads": {
+      "actions": "操作",
       "deleteSelected": "删除选中",
       "allDownloads": "所有下载",
       "downloading": "下载中",
@@ -53,10 +54,11 @@
       "failed": "失败",
       "paused": "已暂停",
       "pending": "排队中",
-      "songInfo": "歌曲信息",
+      "track": "歌曲",
       "playlist": "歌单",
       "addedTime": "添加时间",
       "origFileName": "原文件名",
+      "origName": "原文件名",
       "status": "状态",
       "tag": "添加音频元数据"
     },
@@ -65,7 +67,7 @@
       "search": "搜索",
       "selected": "选中: {count}",
       "searchResult": "{count} 项结果",
-      "song": "歌曲",
+      "track": "歌曲",
       "genre": "流派",
       "duration": "时长",
       "downloadability": "可下载性",
@@ -78,9 +80,15 @@
       "addToListening": "添加到试听列表",
       "addToPlaylist": "添加到歌单",
       "deleteFromPlaylist": "从歌单中删除",
-      "tags": "标签"
+      "tags": "标签",
+      "tracks": "{count} 首歌曲",
+      "listenAll": "播放全部",
+      "addAll": "添加全部",
+      "listenSelected": "播放选中",
+      "openInNew": "在新标签页打开"
     },
     "player": {
+      "listening": "试听列表",
       "ordered-no-repeat": "有序播放 (不循环)",
       "ordered": "有序播放",
       "single-repeat": "单曲循环",
@@ -94,6 +102,14 @@
       "madeFor": "为 {name} 推荐"
     },
     "toasts": {
+      "likeTrackErr": "喜欢歌曲失败",
+      "likePlaylistErr": "喜欢歌单失败",
+      "likeSystemPlaylistErr": "不能喜欢系统歌单",
+      "followUserErr": "关注用户失败",
+      "repostTrackErr": "转发歌曲失败",
+      "repostPlaylistErr": "转发歌单失败",
+      "ffmpegNotInstalled": "未安装 FFmpeg",
+      "ok": "确定",
       "playlistOpenFailed": "打开歌单失败",
       "downloadFailed": "下载失败",
       "loginFailed": "登录失败",
@@ -121,6 +137,8 @@
       "noComments": "暂无评论"
     },
     "common": {
+      "copy": "复制",
+      "error": "错误",
       "loading": "加载中...",
       "noMore": "没有更多了",
       "loadMore": "加载更多",
@@ -131,6 +149,7 @@
     },
     "settings": {
       "config": {
+        "feedStyle": "信息流样式",
         "savePath": "保存路径",
         "parallelDownloads": "并行下载数量",
         "playlistSeparateDir": "将播单下载保存到单独目录",
@@ -143,7 +162,9 @@
         "oauthToken": "Soundcloud OAuth 令牌",
         "theme": "主题",
         "language": "语言",
-        "noHistory": "禁用播放历史记录"
+        "noHistory": "禁用播放历史记录",
+        "bgBlur": "背景模糊",
+        "bg": "背景"
       },
       "fileNamingTypes": {
         "title": "标题",
@@ -168,7 +189,33 @@
       },
       "etc": {
         "loginSoundcloud": "登录 Soundcloud",
-        "clearCache": "清除缓存"
+        "clearCache": "清除缓存",
+        "invalidSavePath": "无效的保存路径"
+      }
+    },
+    "playlistSelectModal": {
+      "all": "全部",
+      "create": "创建",
+      "title": "选择歌单"
+    },
+    "full": {
+      "playlist": {
+        "tracks": "{count} 首歌曲",
+        "duration": "时长: {duration}"
+      },
+      "track": {
+        "reposted": "已转发",
+        "posted": "已发布"
+      }
+    },
+    "comment": {
+      "placeholder": "写一条评论...",
+      "post": "发表评论",
+      "sortBy": "排序方式:",
+      "sort": {
+        "newest": "最新",
+        "oldest": "最旧",
+        "trackTimestamp": "歌曲时间戳"
       }
     },
     "search": {

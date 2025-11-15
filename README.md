@@ -87,4 +87,5 @@ Pull Requests: [Pull Requests](https://github.com/hexadecimal233/cloudie/pulls)
 - [ ] Make tags work
 - [ ] add share modal
 - [ ] add tooltips to icon-only buttons
+- [ ] watch immediate options
 -->

@@ -40,7 +40,6 @@ class Config {
   virtualDjSupport: boolean = false // TODO: unimplemented
   // 登录
   clientId: string = ""
-  datadomeCookie: string = "" // TODO: unimplemented
   oauthToken: string = ""
 
   constructor(init?: Partial<Config>) {

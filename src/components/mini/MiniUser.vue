@@ -4,7 +4,7 @@
     <div class="flex flex-col min-w-0 flex-1">
       <UTooltip :text="props.user.username">
         <ULink :to="`/user/${props.user.id}`"
-          class="truncate font-bold cursor-pointer max-w-full inline-block text-highlighted flex items-center gap-1">
+          class="truncate font-bold cursor-pointer max-w-full inline-block text-highlighted items-center gap-1">
           {{ props.user.username }}
           <span v-if="props.user.verified" class="badge badge-info badge-xs">✓</span>
         </ULink>

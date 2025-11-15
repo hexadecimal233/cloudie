@@ -106,7 +106,7 @@
 
 </template>
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue"
+import { ref, onMounted } from "vue"
 import { useRoute } from "vue-router"
 import { db } from "@/systems/db/db"
 import * as schema from "@/systems/db/schema"
