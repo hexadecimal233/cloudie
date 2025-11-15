@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-accented transition-colors min-w-0 w-full">
+  <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-accented/50 transition-colors min-w-0 w-full">
     <TrackTitle class="flex-1 min-w-0" :track="track" :tracks="tracks" :listeningIndex="listeningIndex" />
 
     <div class="flex items-center gap-2">

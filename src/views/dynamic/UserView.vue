@@ -198,15 +198,15 @@ import {
   getRelatedArtists,
   getSpolight,
   getUser,
+  getUserFromName,
   getWebProfiles,
   useTracks,
   useUserComments,
 } from "@/utils/api"
 import { SCUser, Track, WebProfile } from "@/utils/types"
-import { toast } from "vue-sonner"
 import { useRoute } from "vue-router"
 
-const id = Number(useRoute().params.id)
+let id = -1
 
 const tabs = [
   { id: "tracks", label: "Tracks" },
@@ -256,7 +256,14 @@ const loadUser = async () => {
   userError.value = null
 
   try {
-    user.value = await getUser(id)
+    const routeId = useRoute().params.id
+    id = Number(routeId)
+    if (isNaN(id)) {
+      user.value = await getUserFromName(routeId as string)
+      return
+    } else {
+      user.value = await getUser(id)
+    }
   } catch (err: any) {
     console.error("Error loading user:", err)
     userError.value = err.message || "Failed to load user"
@@ -353,21 +360,8 @@ onMounted(() => {
   loadTracks()
 })
 
-// Helper functions
-const formatDuration = (seconds: number) => {
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = Math.floor(seconds % 60)
-  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
-}
-
 const formatDate = (date: Date) => {
   return new Date(date).toLocaleDateString()
-}
-
-const playTrack = (track: Track) => {
-  // This would need to be implemented based on the player system
-  // For now, just show a toast
-  toast.info(`Playing: ${track.title}`)
 }
 
 const openWebProfile = (url: string) => {

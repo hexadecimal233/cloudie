@@ -9,7 +9,6 @@ import { db } from "@/systems/db/db"
 import * as schema from "@/systems/db/schema"
 import { desc, DrizzleQueryError, eq, inArray } from "drizzle-orm"
 import { convertToMp3, downloadTrack, parseDownload } from "./parser"
-import { toast } from "vue-sonner"
 import { BasePlaylist, Track } from "@/utils/types"
 import { i18n } from "@/systems/i18n"
 import { invoke } from "@tauri-apps/api/core"
@@ -145,7 +144,9 @@ export async function addDownloadTask(track: Track, playlist: BasePlaylist) {
       console.warn("Duplicate download tasks: ", task)
     } else {
       console.error(": ", task)
-      toast.error(i18n.global.t("cloudie.toasts.addDownloadFailed"), {
+      useToast().add({
+        color: "error",
+        title: i18n.global.t("cloudie.toasts.addDownloadFailed"),
         description: err.message,
       })
     }

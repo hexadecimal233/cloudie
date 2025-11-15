@@ -4,9 +4,9 @@ import { refreshClientId } from "@/utils/api"
 import { i18n, LANGUAGE_OPTIONS } from "./i18n"
 import { PlayOrder } from "./player/listening-list"
 import { FileNaming } from "./download/parser"
-import { useColorMode, useDebounceFn, useThrottleFn } from "@vueuse/core"
+import { useColorMode, useDebounceFn } from "@vueuse/core"
 
-export const THEMES = ["cloudie", "cloudie-dark"] as const
+export const THEMES = ["cloudie", "cloudie-dark", "cryolite", "cryolite-dark"] as const
 
 type Theme = (typeof THEMES)[number]
 
@@ -18,6 +18,8 @@ class Config {
   // 外观
   language: (typeof LANGUAGE_OPTIONS)[number] = "en"
   theme: Theme = "cloudie"
+  bg: string = "https://t.mwm.moe/moez"
+  bgBlur: boolean = false
   // 下载
   savePath: string = ""
   parallelDownloads: number = 3
@@ -88,35 +90,13 @@ const writeConfig = useDebounceFn(async () => {
 async function saveConfig() {
   // Refresh display language
   i18n.global.locale.value = config.value.language
+
   // Update theme
-  switch (config.value.theme) {
-    case "cloudie":
-      colorMode.value = "light"
+  const isDark = config.value.theme.endsWith("-dark")
+  const theme = config.value.theme.replace("-dark", "")
+  colorMode.value = isDark ? "dark" : "light"
 
-      appConfig.ui.colors.primary = "cloudie-primary"
-      appConfig.ui.colors.secondary = "cloudie-secondary"
-      appConfig.ui.colors.info = "cloudie-info"
-      appConfig.ui.colors.success = "cloudie-success"
-      appConfig.ui.colors.warning = "cloudie-warning"
-      appConfig.ui.colors.error = "cloudie-error"
-
-      appConfig.ui.colors.neutral = "stone"
-      document.documentElement.style.setProperty("--ui-radius", `0.5rem`) // didnt find a way to set radius in appConfig
-      break
-    case "cloudie-dark":
-      colorMode.value = "dark"
-
-      appConfig.ui.colors.primary = "cloudie-primary"
-      appConfig.ui.colors.secondary = "cloudie-secondary"
-      appConfig.ui.colors.info = "cloudie-info"
-      appConfig.ui.colors.success = "cloudie-success"
-      appConfig.ui.colors.warning = "cloudie-warning"
-      appConfig.ui.colors.error = "cloudie-error"
-
-      appConfig.ui.colors.neutral = "stone"
-      document.documentElement.style.setProperty("--ui-radius", `0.5rem`) // didnt find a way to set radius in appConfig
-      break
-  }
+  document.documentElement.setAttribute("data-theme", theme)
 
   await writeConfig()
 }

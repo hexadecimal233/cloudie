@@ -11,7 +11,6 @@
 import { Track, UserPlaylist } from "@/utils/types"
 import { computed, onMounted, ref } from "vue"
 import { fetchUserPlaylist } from "@/systems/playlist-cache"
-import { toast } from "vue-sonner"
 import { i18n } from "@/systems/i18n"
 import { useRoute } from "vue-router"
 
@@ -24,7 +23,9 @@ onMounted(async () => {
     currentPlaylist.value = await fetchUserPlaylist(Number(useRoute().params.id))
     loading.value = false
   } catch (e) {
-    toast.error(i18n.global.t("cloudie.common.loadFail"), {
+    useToast().add({
+      color: "error",
+      title: i18n.global.t("cloudie.common.loadFail"),
       description: e instanceof Error ? e.message : String(e),
     })
   }

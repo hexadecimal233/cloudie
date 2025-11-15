@@ -1,5 +1,6 @@
 <template>
   <div class="flex flex-col gap-4">
+    <RichTextDemo />
     <UCard>
       <template #header>
         <p class="text-lg font-semibold">{{ $t("cloudie.settings.sections.appearance") }}</p>
@@ -19,6 +20,13 @@
             label: capitalizeFirstLetter(item)
           }))" class="w-full max-w-1/3" />
         </UFormField>
+
+        <UFormField :label="$t('cloudie.settings.config.bg')">
+          <UInput v-model="config.bg" :placeholder="$t('cloudie.settings.config.bg')"
+            class="w-full max-w-1/3" variant="outline" />
+        </UFormField>
+
+        <USwitch v-model="config.bgBlur" :label="$t('cloudie.settings.config.bgBlur')" />
       </div>
     </UCard>
 
@@ -156,10 +164,9 @@ import { config, THEMES } from "@/systems/config"
 import { open } from "@tauri-apps/plugin-dialog"
 import { refreshClientId } from "@/utils/api"
 import { getVersion } from "@tauri-apps/api/app"
-import { computed, onMounted, ref, watch } from "vue"
+import { onMounted, ref, watch } from "vue"
 import { invoke } from "@tauri-apps/api/core"
 import { openPath } from "@tauri-apps/plugin-opener"
-import { toast } from "vue-sonner"
 import { i18n, LANGUAGE_OPTIONS } from "@/systems/i18n"
 import * as fs from "@tauri-apps/plugin-fs"
 import { FileNaming } from "@/systems/download/parser"
@@ -196,10 +203,15 @@ onMounted(async () => {
 async function clearCache() {
   try {
     await M3U8_CACHE_MANAGER.clearCache()
-    toast.success(i18n.global.t("cloudie.toasts.clearCacheSuccess"))
+    useToast().add({
+      color: "success",
+      title: i18n.global.t("cloudie.toasts.clearCacheSuccess"),
+    })
   } catch (error) {
     console.error("Failed to clear cache: ", error)
-    toast.error(i18n.global.t("cloudie.toasts.clearCacheFailed"), {
+    useToast().add({
+      color: "error",
+      title: i18n.global.t("cloudie.toasts.clearCacheFailed"),
       description: error as string,
     })
   }
@@ -220,10 +232,15 @@ async function loginSoundcloud() {
   try {
     const token = await invoke<string>("login_soundcloud")
     config.value.oauthToken = token
-    toast.success(i18n.global.t("cloudie.toasts.loginSuccess"))
+    useToast().add({
+      color: "success",
+      title: i18n.global.t("cloudie.toasts.loginSuccess"),
+    })
   } catch (error) {
     console.error("Failed to login Soundcloud: ", error) // 打印错误信息
-    toast.error(i18n.global.t("cloudie.toasts.loginFailed"), {
+    useToast().add({
+      color: "error",
+      title: i18n.global.t("cloudie.toasts.loginFailed"),
       description: error as string,
     })
   }

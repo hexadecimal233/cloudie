@@ -1,7 +1,12 @@
 <template>
-  <div class="mx-auto flex h-screen flex-col bg-muted">
+  <div class="mx-auto flex h-screen flex-col bg-muted relative">
+    <!-- Background -->
+    <div v-if="config.bg" class="absolute inset-0 bg-cover bg-fixed bg-center opacity-20 background"
+      :style="{ backgroundImage: `url(${config.bg})` }"
+      :class="{'blur-sm': config.bgBlur}"></div>
+
     <!-- Title Bar PS: data-tauri-drag-region doesn't work somehow -->
-    <div class="w-full px-2 py-1 flex from-primary/5 to-secondary/5"
+    <div class="w-full px-2 py-1 flex from-primary/5 to-secondary/5 z-10"
       :class="{ 'bg-gradient-to-r': windowStates.isFocused }" @mousedown="Window.getCurrent().startDragging()">
       <div class="flex items-center gap-2 text-primary">
         <i-lucide-cloud />
@@ -21,9 +26,9 @@
     </div>
 
     <!-- Main Area -->
-    <div class="flex flex-1 overflow-hidden my-2 mr-4">
+    <div class="flex flex-1 overflow-hidden my-2">
       <!-- Left Side: Navigation Menu -->
-      <div class="w-full max-w-48 flex-shrink-0 flex flex-col px-4">
+      <div class="w-full max-w-48 flex-shrink-0 flex flex-col px-4 bg-default rounded-r-lg">
         <!--
         <img src="/logo.png" alt="cloudie" class="h-20 object-contain" />
         -->
@@ -36,7 +41,7 @@
           </template>
 
           <template v-else>
-            <USkeleton class="size-8 rounded-full ring" />
+            <USkeleton class="size-8 ring" />
             <USkeleton class="h-6 w-24" />
           </template>
         </div>
@@ -46,7 +51,7 @@
 
       <!-- Right Side: Content Browser -->
       <div class="flex flex-col flex-1">
-        <div class="bg-default rounded-md flex flex-1 flex-col gap-4 px-8 py-4 overflow-hidden">
+        <div class="bg-default rounded-lg flex flex-1 flex-col gap-4 px-8 py-4 overflow-hidden mx-2">
           <!-- Search Bar -->
           <UFieldGroup class="w-full">
             <UButton color="neutral" icon="i-lucide-chevron-left" variant="subtle" @click="$router.back()" />
@@ -76,9 +81,7 @@
               </UContainer>
             </OverlayScrollbarsComponent>
           </router-view>
-
         </div>
-
       </div>
     </div>
 
@@ -96,6 +99,7 @@ import { getSearchSuggestions } from "@/utils/api"
 import { OverlayScrollbarsComponent } from "overlayscrollbars-vue"
 import { useColorMode, useDebounceFn } from "@vueuse/core"
 import { Window } from "@tauri-apps/api/window"
+import { config } from "./systems/config"
 
 const route = useRoute()
 const router = useRouter()
@@ -175,3 +179,9 @@ const items = computed(() => [
   ],
 ])
 </script>
+
+<style scoped>
+.background {
+  transition: filter 0.3s ease-in-out;
+}
+</style>

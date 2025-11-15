@@ -9,7 +9,6 @@ import {
 } from "../player/listening-list"
 import type { Track } from "@/utils/types"
 import Hls, { ErrorData } from "hls.js"
-import { toast } from "vue-sonner"
 import { i18n } from "../i18n"
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { getArtist, getCoverUrl, replaceImageUrl } from "@/utils/utils"
@@ -126,7 +125,9 @@ export const usePlayerStore = defineStore("player", {
       } catch (error) {
         console.error("Failed to get track link:", error)
         this.loading = false
-        toast.error(i18n.global.t("cloudie.toasts.loadFailed"), {
+        useToast().add({
+          color: "error",
+          title: i18n.global.t("cloudie.toasts.loadFailed"),
           description: error instanceof Error ? error.message : String(error),
         })
 

@@ -5,6 +5,8 @@
 import Database from "@tauri-apps/plugin-sql"
 import { drizzle } from "drizzle-orm/sqlite-proxy"
 import * as schema from "./schema"
+import { Track } from "@/utils/types"
+import { sql } from "drizzle-orm"
 
 let tauriDb: Database
 export const db = drizzle(
@@ -43,4 +45,19 @@ export async function initDb() {
   tauriDb = await Database.load("sqlite:soundcloud.db")
 
   await tauriDb.execute("PRAGMA optimize;")
+}
+
+export async function addLocalTracks(tracks: Track[]) {
+  await db
+    .insert(schema.localTracks)
+    .values(
+      tracks.map((t) => ({
+        trackId: t.id,
+        meta: t,
+      })),
+    )
+    .onConflictDoUpdate({
+      target: schema.localTracks.trackId,
+      set: { meta: sql`excluded.meta` }, // Update old track meta
+    })
 }

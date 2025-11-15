@@ -37,8 +37,7 @@
     "tailwindcss": "^4.1.13",
     "vue": "^3.5.13",
     "vue-i18n": "11",
-    "vue-router": "^4.5.1",
-    "vue-sonner": "^2.0.9"
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.1",

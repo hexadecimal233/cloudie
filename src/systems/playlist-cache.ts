@@ -9,7 +9,7 @@ import {
 } from "@/utils/types"
 import * as schema from "@/systems/db/schema"
 import { eq, inArray, sql } from "drizzle-orm"
-import { db } from "@/systems/db/db"
+import { addLocalTracks, db } from "@/systems/db/db"
 import * as API from "@/utils/api"
 
 export async function tryGetPlaylist(playlistId: string | number): Promise<ExactPlaylist | null> {
@@ -62,19 +62,10 @@ export async function savePlaylist(playlist: ExactPlaylist) {
         throw new Error("Cannot save PartialTrack to localTracks")
       }
 
-      return {
-        trackId: t.id,
-        meta: t,
-      }
+      return t
     })
 
-    await db
-      .insert(schema.localTracks)
-      .values(data)
-      .onConflictDoUpdate({
-        target: schema.localTracks.trackId,
-        set: { meta: sql`excluded.meta` }, // Update old track meta
-      })
+    await addLocalTracks(data)
 
     omittedPlaylist = {
       ...playlist,

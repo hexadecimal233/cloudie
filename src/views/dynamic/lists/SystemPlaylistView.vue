@@ -13,7 +13,6 @@
 import { UserPlaylist } from "@/utils/types"
 import { computed, onMounted, ref } from "vue"
 import { fetchUserPlaylist } from "@/systems/playlist-cache"
-import { toast } from "vue-sonner"
 import { i18n } from "@/systems/i18n"
 
 const props = defineProps<{
@@ -29,7 +28,10 @@ onMounted(async () => {
     currentPlaylist.value = await fetchUserPlaylist(props.playlistId)
     loading.value = false
   } catch (e) {
-    toast.error(i18n.global.t("cloudie.common.error"))
+    useToast().add({
+      color: "error",
+      title: i18n.global.t("cloudie.common.error"),
+    })
   }
 })
 </script>

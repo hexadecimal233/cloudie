@@ -1,6 +1,6 @@
 import type { Track } from "@/utils/types"
 import { ref } from "vue"
-import { db } from "@/systems/db/db"
+import { addLocalTracks, db } from "@/systems/db/db"
 import * as schema from "@/systems/db/schema"
 import { asc, inArray } from "drizzle-orm"
 import { config } from "@/systems/config"
@@ -64,6 +64,9 @@ async function refreshTrackIds() {
       .delete(schema.listeningList)
       .where(inArray(schema.listeningList.trackId, tracksToDelete))
   }
+
+  
+  await addLocalTracks(listeningList.value)
 
   // 只插入或更新当前播放列表中的曲目索引
   await db

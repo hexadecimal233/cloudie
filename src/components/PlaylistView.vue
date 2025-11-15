@@ -14,10 +14,10 @@ import { ExactPlaylist, SystemPlaylist, UserPlaylist } from "@/utils/types"
 import { computed, onMounted, ref } from "vue"
 import { usePlaylistsStore } from "@/systems/stores/playlists"
 import { fetchPlaylistUpdates, savePlaylist, tryGetPlaylist } from "@/systems/playlist-cache"
-import { toast } from "vue-sonner"
 import { i18n } from "@/systems/i18n"
 
 const playlistsStore = usePlaylistsStore()
+const toast = useToast()
 
 // 从store获取当前播单
 const playlistRef = playlistsStore.currentResp
@@ -77,7 +77,9 @@ onMounted(async () => {
     }
   } catch (err: any) {
     console.error("PlaylistList open error:", err)
-    toast.error(i18n.global.t("cloudie.toasts.playlistOpenFailed"), {
+    toast.add({
+      color: "error",
+      title: i18n.global.t("cloudie.toasts.playlistOpenFailed"),
       description: err.message,
     })
     return

@@ -19,7 +19,6 @@ import {
   unrepostPlaylist,
 } from "@/utils/api"
 import { defineStore } from "pinia"
-import { toast } from "vue-sonner"
 import { i18n } from "../i18n"
 
 class UserState {
@@ -60,7 +59,11 @@ export const useUserStore = defineStore("user", {
       } catch (err) {
         console.error("Get UserInfo Error", err)
         // TODO: some sort of log out logic (like cleaning the oauth token kinda brutal but wanna make sure its a 401 or 403 and we do this)
-        toast.error(i18n.global.t("cloudie.toasts.userInfoErr"), { description: err as string })
+        useToast().add({
+          color: "error",
+          title: i18n.global.t("cloudie.toasts.userInfoErr"),
+          description: err as string,
+        })
         return new UserState()
       }
     },

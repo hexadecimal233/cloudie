@@ -1,8 +1,6 @@
 import { fetch } from "@tauri-apps/plugin-http"
-import { ref, shallowRef } from "vue"
-import { toast } from "vue-sonner"
+import { shallowRef } from "vue"
 import { config } from "@/systems/config"
-import { i18n } from "@/systems/i18n"
 import type {
   CollectionResp,
   Comment,
@@ -278,12 +276,12 @@ export async function useMePlaylistLikeIds() {
 }
 
 export async function useMeTrackRepostIds() {
-  return (await getV2ApiJson<CollectionResp<number>>(`/me/track_reposts/ids`, { limit: 5000 }))
+  return (await getV2ApiJson<CollectionResp<number>>(`/me/track_reposts/ids`, { limit: 200 }))
     .collection
 }
 
 export async function useMePlaylistRepostIds() {
-  return (await getV2ApiJson<CollectionResp<number>>(`/me/playlist_reposts/ids`, { limit: 5000 }))
+  return (await getV2ApiJson<CollectionResp<number>>(`/me/playlist_reposts/ids`, { limit: 200 }))
     .collection
 }
 
@@ -351,6 +349,10 @@ export async function getRelatedArtists(id: number) {
     limit: 12,
   })
   return response.collection
+}
+
+export async function getUserFromName(name: string) {
+  return await resolveUrl<SCUser>(`https://soundcloud.com/${name}`)
 }
 
 export async function getTrackStation(id: number) {
