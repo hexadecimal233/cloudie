@@ -28,7 +28,7 @@ const rowVirtualizer = useVirtualizer({
   count: props.items.length,
   getScrollElement: () => parentRef.value,
   estimateSize: props.estimateSize,
-  overscan: 10,
+  overscan: 5,
 })
 
 const virtualRows = computed(() => rowVirtualizer.value.getVirtualItems())

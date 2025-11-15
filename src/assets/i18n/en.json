@@ -91,7 +91,8 @@
       "addedTime": "Added Time",
       "origName": "Original Name",
       "status": "Status",
-      "tag": "Applying Metadata"
+      "tag": "Applying Metadata",
+      "origFileName": "Original File Name"
     },
     "trackList": {
       "download": "Download",
@@ -169,7 +170,9 @@
         "oauthToken": "Soundcloud OAuth Token",
         "theme": "Theme",
         "language": "Language",
-        "noHistory": "Disable Play History Logging"
+        "noHistory": "Disable Play History Logging",
+        "bgBlur": "Background Blur",
+        "bg": "Background"
       },
       "fileNamingTypes": {
         "title": "Title",
@@ -194,7 +197,9 @@
       },
       "etc": {
         "loginSoundcloud": "Login to Soundcloud",
-        "clearCache": "Clear Cache"
+        "clearCache": "Clear Cache",
+        "bgLocalFile": "<Local File>",
+        "invalidSavePath": "Invalid Save Path"
       }
     }
   }

@@ -433,6 +433,18 @@ export async function unlikePlaylist(id: number) {
   return true
 }
 
+export async function likeSystemPlaylist(urn: string) {
+  // API call to like a system playlist
+  // Implementation would depend on the actual API
+  return true
+}
+
+export async function unlikeSystemPlaylist(urn: string) {
+  // API call to unlike a system playlist
+  // Implementation would depend on the actual API
+  return true
+}
+
 export async function repostPlaylist(id: number) {
   // API call to repost a playlist
   // Implementation would depend on the actual API

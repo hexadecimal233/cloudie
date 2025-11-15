@@ -3,9 +3,9 @@ import { db } from "@/systems/db/db"
 import { m3u8Cache } from "@/systems/db/schema"
 import { Track } from "@/utils/types"
 
-import { parseHlsLink } from "@/systems/download/parser"
 import * as fs from "@tauri-apps/plugin-fs"
 import * as path from "@tauri-apps/api/path"
+import { parseHlsLink } from "@/utils/utils"
 
 export class M3U8CacheManager {
   async getTrackLink(track: Track, forceRefresh: boolean = false) {

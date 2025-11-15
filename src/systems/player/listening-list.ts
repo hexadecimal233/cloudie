@@ -3,17 +3,11 @@ import { ref } from "vue"
 import { addLocalTracks, db } from "@/systems/db/db"
 import * as schema from "@/systems/db/schema"
 import { asc, inArray } from "drizzle-orm"
-import { config } from "@/systems/config"
+import { PlayOrder, usePlayerStore } from "../stores/player"
 
 // FIXME: after delete current index should also be changed
 // FIXME: shffle list not persistient after restarting app
 
-export enum PlayOrder {
-  OrderedNoRepeat = "ordered-no-repeat",
-  Ordered = "ordered",
-  SingleRepeat = "single-repeat",
-  Shuffle = "shuffle",
-}
 
 export const listeningList = ref<Track[]>([])
 const shuffledIndexMapping = new Map<number, number>() // <shuffled index, original index>
@@ -90,7 +84,7 @@ export async function addMultipleToListeningList(tracks: Track[]) {
   if (!uniqueTracks.length) return
 
   // add right after current track
-  const insertPosition = config.value.listenIndex + 1
+  const insertPosition = usePlayerStore().listenIndex + 1
   listeningList.value.splice(insertPosition, 0, ...uniqueTracks)
 
   await refreshTrackIds()
@@ -105,7 +99,7 @@ export async function addToListeningList(track: Track) {
   }
 
   // add right after current track
-  listeningList.value.splice(config.value.listenIndex + 1, 0, track)
+  listeningList.value.splice(usePlayerStore().listenIndex + 1, 0, track)
 
   await refreshTrackIds()
 }
@@ -117,7 +111,7 @@ export function setTrackUpdateCallback(callback: (idx: number) => void) {
 }
 
 export async function playIndex(index: number) {
-  config.value.listenIndex = index
+  usePlayerStore().listenIndex = index
   trackUpdateCallback(index)
 }
 
@@ -134,8 +128,8 @@ export async function addAndPlay(track: Track, replacedTracklist?: Track[]) {
   }
 
   await addToListeningList(track) // this called when replace to ensure we are playing the upcoming track
-  config.value.listenIndex = await getNextTrackIndex(1, true)
-  trackUpdateCallback(config.value.listenIndex)
+  usePlayerStore().listenIndex = await getNextTrackIndex(1, true)
+  trackUpdateCallback(usePlayerStore().listenIndex)
 }
 
 export async function removeSong(idx: number) {
@@ -161,11 +155,11 @@ export function getNthTrack(idx: number) {
 }
 
 export function getCurrentTrack() {
-  return getNthTrack(config.value.listenIndex)
+  return getNthTrack(usePlayerStore().listenIndex)
 }
 
 export function setCurrentTrack(index: number) {
-  config.value.listenIndex = index
+  usePlayerStore().listenIndex = index
   trackUpdateCallback(index)
 }
 
@@ -179,7 +173,7 @@ function mod(a: number, n: number) {
  * @returns The offset track index in the listening list, -1 if there is no such track.
  */
 export async function getNextTrackIndex(offset: number = 1, ignoreShuffle: boolean = false) {
-  const { listenIndex: currentIndex, playOrder } = config.value
+  const { listenIndex: currentIndex, playOrder } = usePlayerStore()
 
   // back to first track if goes beyond the end
   const newIdx = mod(currentIndex + offset, listeningList.value.length)

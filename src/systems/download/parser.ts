@@ -1,12 +1,12 @@
 import { getDownload, getM3U8Info } from "@/utils/api"
 import { config } from "@/systems/config"
-import { Preset, PRESET_ORDER, Protocol, Track, Transcoding } from "@/utils/types"
+import { Preset, Protocol, Track } from "@/utils/types"
 import { DownloadTask } from "./download"
 import { path } from "@tauri-apps/api"
 import * as fs from "@tauri-apps/plugin-fs"
 import { Buffer } from "buffer"
 import { Command } from "@tauri-apps/plugin-shell"
-import { move } from "@/utils/utils"
+import { getArtist, move, sortTranscodings } from "@/utils/utils"
 
 interface ParsedDownload {
   finalUrl: string
@@ -18,27 +18,6 @@ export enum FileNaming {
   TitleArtist = "title-artist",
   ArtistTitle = "artist-title",
   Title = "title",
-}
-
-// get transcodings in descending order of priority
-function sortTranscodings(track: Track, protocols?: Protocol[]): Transcoding[] {
-  const transcodings = track.media.transcodings.sort((a: Transcoding, b: Transcoding) => {
-    return PRESET_ORDER.indexOf(a.preset) - PRESET_ORDER.indexOf(b.preset)
-  })
-  if (!protocols) return transcodings
-  return transcodings.filter((t: Transcoding) => protocols.includes(t.format.protocol))
-}
-
-// Does not support FairPlay & PlayReady rn
-export async function parseHlsLink(track: Track) {
-  const trans = sortTranscodings(track, ["hls"]).find(
-    (t: Transcoding) => t.preset === "abr_sq" || t.preset === "aac_256k" || t.preset === "aac_160k",
-  )
-  if (trans) {
-    const m3u8meta = await getM3U8Info(trans)
-    return m3u8meta.url
-  }
-  throw new Error("No available HLS streams")
 }
 
 // track_authorization only affects get stream from API, transcoding cache is not affected
@@ -92,15 +71,16 @@ interface DownloadResponse {
 
 // get download title according to fileNaming
 function getDownloadTitle(task: DownloadTask) {
+  const artist = getArtist(task.details.track)
   switch (config.value.fileNaming) {
     case FileNaming.Title:
-      return task.details.title
+      return task.details.track.title
     case FileNaming.ArtistTitle:
-      return `${task.details.artist} - ${task.details.title}`
+      return `${artist} - ${task.details.track.title}`
     case FileNaming.TitleArtist:
-      return `${task.details.title} - ${task.details.artist}`
+      return `${task.details.track.title} - ${artist}`
     default:
-      return task.details.title
+      return task.details.track.title
   }
 }
 

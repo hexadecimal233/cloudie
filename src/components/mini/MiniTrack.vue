@@ -3,10 +3,10 @@
     <TrackTitle class="flex-1 min-w-0" :track="track" :tracks="tracks" :listeningIndex="listeningIndex" />
 
     <div class="flex items-center gap-2">
-      <span class="text-sm opacity-50">{{ formatMillis(track.full_duration)
-      }}</span>
-      <UButton icon="i-mdi-plus" v-if="listeningIndex === undefined" variant="ghost" @click="addToListeningList" />
-      <UButton icon="i-mdi-download" variant="ghost" @click="downloadTrack" />
+      <span class="text-sm opacity-50">{{ formatMillis(track.full_duration) }}</span>
+      <UButton :icon="user.isLikedTrack(track.id) ? 'i-mingcute-heart-fill' : 'i-mingcute-heart-line'" variant="ghost" @click="user.toggleLikeTrack(track.id)" />
+      <UButton icon="i-mingcute-plus-fill" v-if="listeningIndex === undefined" variant="ghost" @click="addToListeningList" />
+      <UButton icon="i-mingcute-download-line" variant="ghost" @click="downloadTrack" />
     </div>
   </div>
 </template>
@@ -16,6 +16,9 @@ import { Track, LocalPlaylist } from "@/utils/types"
 import { formatMillis } from "@/utils/utils"
 import { addToListeningList as addTrackToListeningList } from "@/systems/player/listening-list"
 import { addDownloadTask } from "@/systems/download/download"
+import { useUserStore } from "@/systems/stores/user"
+
+const user = useUserStore()
 
 const props = defineProps<{
   track: Track

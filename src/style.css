@@ -4,9 +4,10 @@
 @import "./assets/themes/cryolite.css";
 
 :root {
-  @apply select-none;
-  font-size: 17px;
+  @apply select-none selection:bg-accented;
+  
   /* modify overall font size */
+  font-size: 17px;
 
   --ui-bg: white;
   --ui-bg-muted: var(--ui-color-neutral-50);

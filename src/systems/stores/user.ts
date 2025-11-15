@@ -17,6 +17,9 @@ import {
   unlikePlaylist,
   repostPlaylist,
   unrepostPlaylist,
+  useMeSystemPlaylistLikeUrns,
+  unlikeSystemPlaylist,
+  likeSystemPlaylist,
 } from "@/utils/api"
 import { defineStore } from "pinia"
 import { i18n } from "../i18n"
@@ -32,6 +35,7 @@ class UserState {
   followingIds: number[] = []
   likedTrackIds: number[] = []
   likedPlaylistIds: number[] = []
+  likedSystemPlaylistUrns: string[] = []
   repostedTrackIds: number[] = []
   repostedPlaylistIds: number[] = []
   // auto data update
@@ -46,6 +50,14 @@ export const useUserStore = defineStore("user", {
     return {
       ...new UserState(),
     }
+  },
+  getters: {
+    isLikedTrack: (state) => (id: number) => state.likedTrackIds.includes(id),
+    isLikedPlaylist: (state) => (id: number) => state.likedPlaylistIds.includes(id),
+    isLikedSystemPlaylist: (state) => (urn: string) => state.likedSystemPlaylistUrns.includes(urn),
+    isFollowingUser: (state) => (id: number) => state.followingIds.includes(id),
+    isRepostedTrack: (state) => (id: number) => state.repostedTrackIds.includes(id),
+    isRepostedPlaylist: (state) => (id: number) => state.repostedPlaylistIds.includes(id),
   },
   actions: {
     async updateUserInfo() {
@@ -87,6 +99,14 @@ export const useUserStore = defineStore("user", {
         this.likedPlaylistIds = await useMePlaylistLikeIds()
       } catch (err) {
         console.error("Failed to update liked playlist IDs:", err)
+      }
+    },
+
+    async updateLikedSystemPlaylistUrns() {
+      try {
+        this.likedSystemPlaylistUrns = await useMeSystemPlaylistLikeUrns()
+      } catch (err) {
+        console.error("Failed to update liked system playlist Urns:", err)
       }
     },
 
@@ -165,140 +185,154 @@ export const useUserStore = defineStore("user", {
       this.stopPeriodicUpdate()
     },
 
-    // TODO: Actual work
     // User action methods that call API functions and update local state
-    async followUser(id: number) {
+    async toggleLikeTrack(id: number) {
       try {
-        await follow(id)
-        if (!this.followingIds.includes(id)) {
-          this.followingIds.push(id)
+        if (this.isLikedTrack(id)) {
+          await unlikeTrack(id)
+
+          const index = this.likedTrackIds.indexOf(id)
+          if (index > -1) {
+            this.likedTrackIds.splice(index, 1)
+          }
+        } else {
+          await likeTrack(id)
+
+          if (!this.isLikedTrack(id)) {
+            this.likedTrackIds.push(id)
+          }
         }
-        return true
       } catch (err) {
-        console.error("Failed to follow user:", err)
-        return false
+        useToast().add({
+          color: "error",
+          title: i18n.global.t("cloudie.toasts.likeTrackErr"),
+          description: err as string,
+        })
       }
     },
 
-    async unfollowUser(id: number) {
+    async toggleLikePlaylist(id: number) {
       try {
-        await unfollow(id)
-        const index = this.followingIds.indexOf(id)
-        if (index > -1) {
-          this.followingIds.splice(index, 1)
+        if (this.isLikedPlaylist(id)) {
+          await unlikePlaylist(id)
+
+          const index = this.likedPlaylistIds.indexOf(id)
+          if (index > -1) {
+            this.likedPlaylistIds.splice(index, 1)
+          }
+        } else {
+          await likePlaylist(id)
+
+          if (!this.isLikedPlaylist(id)) {
+            this.likedPlaylistIds.push(id)
+          }
         }
-        return true
       } catch (err) {
-        console.error("Failed to unfollow user:", err)
-        return false
+        useToast().add({
+          color: "error",
+          title: i18n.global.t("cloudie.toasts.likePlaylistErr"),
+          description: err as string,
+        })
       }
     },
 
-    async likeTrackById(id: number) {
+    async toggleLikeSystemPlaylist(urn: string) {
       try {
-        await likeTrack(id)
-        if (!this.likedTrackIds.includes(id)) {
-          this.likedTrackIds.push(id)
+        if (this.isLikedSystemPlaylist(urn)) {
+          await unlikeSystemPlaylist(urn)
+
+          const index = this.likedSystemPlaylistUrns.indexOf(urn)
+          if (index > -1) {
+            this.likedSystemPlaylistUrns.splice(index, 1)
+          }
+        } else {
+          await likeSystemPlaylist(urn)
+
+          if (!this.isLikedSystemPlaylist(urn)) {
+            this.likedSystemPlaylistUrns.push(urn)
+          }
         }
-        return true
       } catch (err) {
-        console.error("Failed to like track:", err)
-        return false
+        useToast().add({
+          color: "error",
+          title: i18n.global.t("cloudie.toasts.likeSystemPlaylistErr"),
+          description: err as string,
+        })
       }
     },
 
-    async unlikeTrackById(id: number) {
+    async toggleFollowUser(id: number) {
       try {
-        await unlikeTrack(id)
-        const index = this.likedTrackIds.indexOf(id)
-        if (index > -1) {
-          this.likedTrackIds.splice(index, 1)
+        if (this.isFollowingUser(id)) {
+          await unfollow(id)
+
+          const index = this.followingIds.indexOf(id)
+          if (index > -1) {
+            this.followingIds.splice(index, 1)
+          }
+        } else {
+          await follow(id)
+
+          if (!this.isFollowingUser(id)) {
+            this.followingIds.push(id)
+          }
         }
-        return true
       } catch (err) {
-        console.error("Failed to unlike track:", err)
-        return false
+        useToast().add({
+          color: "error",
+          title: i18n.global.t("cloudie.toasts.followUserErr"),
+          description: err as string,
+        })
       }
     },
 
-    async repostTrackById(id: number) {
+    async toggleRepostTrack(id: number) {
       try {
-        await repostTrack(id)
-        if (!this.repostedTrackIds.includes(id)) {
-          this.repostedTrackIds.push(id)
+        if (this.isRepostedTrack(id)) {
+          await unrepostTrack(id)
+
+          const index = this.repostedTrackIds.indexOf(id)
+          if (index > -1) {
+            this.repostedTrackIds.splice(index, 1)
+          }
+        } else {
+          await repostTrack(id)
+
+          if (!this.isRepostedTrack(id)) {
+            this.repostedTrackIds.push(id)
+          }
         }
-        return true
       } catch (err) {
-        console.error("Failed to repost track:", err)
-        return false
+        useToast().add({
+          color: "error",
+          title: i18n.global.t("cloudie.toasts.repostTrackErr"),
+          description: err as string,
+        })
       }
     },
 
-    async unrepostTrackById(id: number) {
+    async toggleRepostPlaylist(id: number) {
       try {
-        await unrepostTrack(id)
-        const index = this.repostedTrackIds.indexOf(id)
-        if (index > -1) {
-          this.repostedTrackIds.splice(index, 1)
-        }
-        return true
-      } catch (err) {
-        console.error("Failed to unrepost track:", err)
-        return false
-      }
-    },
+        if (this.isRepostedPlaylist(id)) {
+          await unrepostPlaylist(id)
 
-    async likePlaylistById(id: number) {
-      try {
-        await likePlaylist(id)
-        if (!this.likedPlaylistIds.includes(id)) {
-          this.likedPlaylistIds.push(id)
-        }
-        return true
-      } catch (err) {
-        console.error("Failed to like playlist:", err)
-        return false
-      }
-    },
+          const index = this.repostedPlaylistIds.indexOf(id)
+          if (index > -1) {
+            this.repostedPlaylistIds.splice(index, 1)
+          }
+        } else {
+          await repostPlaylist(id)
 
-    async unlikePlaylistById(id: number) {
-      try {
-        await unlikePlaylist(id)
-        const index = this.likedPlaylistIds.indexOf(id)
-        if (index > -1) {
-          this.likedPlaylistIds.splice(index, 1)
+          if (!this.isRepostedPlaylist(id)) {
+            this.repostedPlaylistIds.push(id)
+          }
         }
-        return true
       } catch (err) {
-        console.error("Failed to unlike playlist:", err)
-        return false
-      }
-    },
-
-    async repostPlaylistById(id: number) {
-      try {
-        await repostPlaylist(id)
-        if (!this.repostedPlaylistIds.includes(id)) {
-          this.repostedPlaylistIds.push(id)
-        }
-        return true
-      } catch (err) {
-        console.error("Failed to repost playlist:", err)
-        return false
-      }
-    },
-
-    async unrepostPlaylistById(id: number) {
-      try {
-        await unrepostPlaylist(id)
-        const index = this.repostedPlaylistIds.indexOf(id)
-        if (index > -1) {
-          this.repostedPlaylistIds.splice(index, 1)
-        }
-        return true
-      } catch (err) {
-        console.error("Failed to unrepost playlist:", err)
-        return false
+        useToast().add({
+          color: "error",
+          title: i18n.global.t("cloudie.toasts.repostPlaylistErr"),
+          description: err as string,
+        })
       }
     },
   },

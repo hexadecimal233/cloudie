@@ -2,23 +2,19 @@ import { load, Store } from "@tauri-apps/plugin-store"
 import { ref, watch } from "vue"
 import { refreshClientId } from "@/utils/api"
 import { i18n, LANGUAGE_OPTIONS } from "./i18n"
-import { PlayOrder } from "./player/listening-list"
 import { FileNaming } from "./download/parser"
 import { useColorMode, useDebounceFn } from "@vueuse/core"
 
-export const THEMES = ["cloudie", "cloudie-dark", "cryolite", "cryolite-dark"] as const
+export const THEMES = ["cloudie", "cloudie-dark", "cryolite", "cryolite-dark", "nuxt", "nuxt-dark"] as const
 
 type Theme = (typeof THEMES)[number]
 
 class Config {
-  // Player
-  listenIndex: number = -1 // Visible via AudioPlayer
-  playOrder: PlayOrder = PlayOrder.Ordered // Visible via AudioPlayer
   noHistory: boolean = false // TODO: no history
   // 外观
   language: (typeof LANGUAGE_OPTIONS)[number] = "en"
   theme: Theme = "cloudie"
-  bg: string = "https://t.mwm.moe/moez"
+  bg: string = ""
   bgBlur: boolean = false
   // 下载
   savePath: string = ""
@@ -42,7 +38,6 @@ class Config {
 }
 
 let store: Store
-const appConfig = useAppConfig()
 const colorMode = useColorMode()
 
 // 响应式配置

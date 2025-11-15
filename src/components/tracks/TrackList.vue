@@ -167,7 +167,7 @@ const columns: TableColumn<Track>[] = [
     accessorFn: (_, i) => i,
     id: "index",
     header: ({ column }) => getSortHeader(column, "#"),
-    cell: (info) => (info.getValue() as number) + 1, // TODO: type casting
+    cell: (info) => (info.getValue() as number) + 1,
     enableSorting: true,
     meta: {
       class: {

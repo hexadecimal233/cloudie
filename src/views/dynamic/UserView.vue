@@ -206,7 +206,7 @@ import {
 import { SCUser, Track, WebProfile } from "@/utils/types"
 import { useRoute } from "vue-router"
 
-let id = -1
+let id = ref<number>(-1) // FIXME: 初始值为-1
 
 const tabs = [
   { id: "tracks", label: "Tracks" },
@@ -224,7 +224,7 @@ const {
   error: tracksError,
   loading: tracksLoading,
   fetchNext: fetchTracks,
-} = useTracks(id)
+} = useTracks(id.value)
 
 const user = ref<SCUser>()
 const userLoading = ref(false)
@@ -247,7 +247,7 @@ const {
   error: commentsError,
   loading: commentsLoading,
   fetchNext: fetchComments,
-} = useUserComments(id)
+} = useUserComments(id.value)
 
 const loadUser = async () => {
   if (user.value) return // Already loaded
@@ -257,12 +257,11 @@ const loadUser = async () => {
 
   try {
     const routeId = useRoute().params.id
-    id = Number(routeId)
-    if (isNaN(id)) {
-      user.value = await getUserFromName(routeId as string)
-      return
+    id.value = Number(routeId)
+    if (isNaN(id.value)) {
+      await getUserFromName(routeId as string)
     } else {
-      user.value = await getUser(id)
+      user.value = await getUser(id.value)
     }
   } catch (err: any) {
     console.error("Error loading user:", err)
@@ -286,7 +285,7 @@ const loadSpotlight = async () => {
   spotlightError.value = null
 
   try {
-    spotlight.value = await getSpolight(id)
+    spotlight.value = await getSpolight(id.value)
   } catch (err: any) {
     console.error("Error loading user spotlight:", err)
     spotlightError.value = err.message || "Failed to load spotlight"
@@ -302,7 +301,7 @@ const loadWebProfiles = async () => {
   webProfilesError.value = null
 
   try {
-    webProfiles.value = await getWebProfiles(id)
+    webProfiles.value = await getWebProfiles(id.value)
   } catch (err: any) {
     console.error("Error loading user web profiles:", err)
     webProfilesError.value = err.message || "Failed to load web profiles"
@@ -318,7 +317,7 @@ const loadRelatedArtists = async () => {
   relatedArtistsError.value = null
 
   try {
-    relatedArtists.value = await getRelatedArtists(id)
+    relatedArtists.value = await getRelatedArtists(id.value)
   } catch (err: any) {
     console.error("Error loading related artists:", err)
     relatedArtistsError.value = err.message || "Failed to load related artists"

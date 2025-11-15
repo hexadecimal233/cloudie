@@ -1,7 +1,6 @@
 import { defineStore } from "pinia"
 import { computed } from "vue"
 import { PlaylistLike, ExactPlaylist, UserPlaylist, Track } from "@/utils/types"
-import { savePlaylist } from "@/systems/playlist-cache"
 import { getPlaylist } from "@/utils/api"
 import { getCoverUrl } from "@/utils/utils"
 

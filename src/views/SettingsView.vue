@@ -1,6 +1,5 @@
 <template>
   <div class="flex flex-col gap-4">
-    <RichTextDemo />
     <UCard>
       <template #header>
         <p class="text-lg font-semibold">{{ $t("cloudie.settings.sections.appearance") }}</p>
@@ -22,8 +21,13 @@
         </UFormField>
 
         <UFormField :label="$t('cloudie.settings.config.bg')">
-          <UInput v-model="config.bg" :placeholder="$t('cloudie.settings.config.bg')"
+          <UFieldGroup class="w-full">
+          <UInput v-model="bg" :placeholder="$t('cloudie.settings.config.bg')"
             class="w-full max-w-1/3" variant="outline" />
+            
+          <UButton @click="changeBg" icon="i-mdi-folder-edit" variant="outline" />
+          <UButton @click="bg = 'https://t.mwm.moe/moez'" icon="i-mdi-dice" variant="outline" />
+          </UFieldGroup>
         </UFormField>
 
         <USwitch v-model="config.bgBlur" :label="$t('cloudie.settings.config.bgBlur')" />
@@ -54,7 +58,7 @@
 
         <USwitch v-model="config.addCover" :label="$t('cloudie.settings.config.addCover')" />
 
-        <UFormField :label="$t('cloudie.settings.config.savePath')" :error="!isPathValid ? 'Invalid path' : ''">
+        <UFormField :label="$t('cloudie.settings.config.savePath')" :error="!isPathValid ? $t('cloudie.settings.etc.invalidSavePath') : undefined">
           <UFieldGroup class="w-full">
             <UInput v-model="config.savePath" :placeholder="$t('cloudie.settings.config.savePath')"
               class="w-full max-w-1/3" variant="outline" />
@@ -164,8 +168,8 @@ import { config, THEMES } from "@/systems/config"
 import { open } from "@tauri-apps/plugin-dialog"
 import { refreshClientId } from "@/utils/api"
 import { getVersion } from "@tauri-apps/api/app"
-import { onMounted, ref, watch } from "vue"
-import { invoke } from "@tauri-apps/api/core"
+import { computed, onMounted, ref, watch } from "vue"
+import { convertFileSrc, invoke } from "@tauri-apps/api/core"
 import { openPath } from "@tauri-apps/plugin-opener"
 import { i18n, LANGUAGE_OPTIONS } from "@/systems/i18n"
 import * as fs from "@tauri-apps/plugin-fs"
@@ -178,6 +182,32 @@ const versionInfo = ref({
   version: "",
   latestVersion: "",
 })
+
+const bg = computed({
+  get: () => {
+    if (config.value.bg.startsWith("http://asset.localhost"))
+      return i18n.global.t("cloudie.settings.etc.bgLocalFile")
+    return config.value.bg
+  },
+  set: (val) => {
+    config.value.bg = val
+  },
+})
+
+async function changeBg() {
+  const file = await open({
+    multiple: false,
+    directory: false,
+    filters: [{
+      name: "Image",
+      extensions: ["jpg", "jpeg", "png", "gif", "webp"],
+    }],
+  })
+
+  if (file) {
+    bg.value = convertFileSrc(file)
+  }
+}
 
 const knownExts = ref(["m4a", "aac", "flac", "wav", "ogg", "opus"])
 

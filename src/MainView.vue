@@ -6,16 +6,15 @@
       :class="{'blur-sm': config.bgBlur}"></div>
 
     <!-- Title Bar PS: data-tauri-drag-region doesn't work somehow -->
-    <div class="w-full px-2 py-1 flex from-primary/5 to-secondary/5 z-10"
-      :class="{ 'bg-gradient-to-r': windowStates.isFocused }" @mousedown="Window.getCurrent().startDragging()">
-      <div class="flex items-center gap-2 text-primary">
-        <i-lucide-cloud />
-        <span class="font-bold">Cloudie</span>
+    <div class="w-full px-2 py-1 flex from-primary/5 to-secondary/5 z-10 bg-gradient-to-r" @mousedown="Window.getCurrent().startDragging()">
+      <div class="flex items-center gap-2">
+        <i-lucide-cloud class="text-primary" />
+        <span class="font-bold" :class="{'text-primary': windowStates.isFocused}">Cloudie</span>
       </div>
 
       <div class="flex-1"></div>
 
-      <div class="flex items-center gap-2" @mousedown.stop>
+      <div class="flex items-center gap-2" :class="{'opacity-50': !windowStates.isFocused}" @mousedown.stop>
         <UButton class="cursor-pointer" icon="i-lucide-minus" color="neutral" variant="link"
           @click="Window.getCurrent().minimize()" />
         <UButton class="cursor-pointer" :icon="windowStates.isMaximized ? 'i-lucide-minimize' : 'i-lucide-maximize'"
@@ -51,22 +50,24 @@
 
       <!-- Right Side: Content Browser -->
       <div class="flex flex-col flex-1">
-        <div class="bg-default rounded-lg flex flex-1 flex-col gap-4 px-8 py-4 overflow-hidden mx-2">
+        <div class="bg-default rounded-lg flex flex-1 flex-col gap-4 px-6 py-4 overflow-y-hidden mx-2">
           <!-- Search Bar -->
-          <UFieldGroup class="w-full">
+          <div class="w-full flex items-center gap-2">
             <UButton color="neutral" icon="i-lucide-chevron-left" variant="subtle" @click="$router.back()" />
-            <UInputMenu :items="searchSuggestions" v-model:search-term="searchTerm"
-              :placeholder="$t('cloudie.main.search')" @keydown.enter.prevent="handleSearch"
-              @update:model-value="(value) => searchTerm = value" class="w-64" />
-            <UButton color="neutral" icon="i-lucide-search" variant="subtle" @click="handleSearch" />
-          </UFieldGroup>
+            <UFieldGroup >
+              <UInputMenu leading-icon="i-lucide-search" :items="searchSuggestions" v-model:search-term="searchTerm"
+                :placeholder="$t('cloudie.main.search')" @keydown.enter.prevent="handleSearch"
+                @update:model-value="(value) => searchTerm = value" class="w-64" />
+              <UButton color="neutral" icon="i-lucide-x" variant="outline" @click="searchTerm = ''" />
+            </UFieldGroup>
+          </div>
 
 
           <!-- Page -->
           <router-view v-slot="{ Component }">
             <OverlayScrollbarsComponent defer ref="scrollbarRef" :options="{ scrollbars: { theme: scrollbarTheme } }">
               <!-- Set H-full for virtualist to work properly -->
-              <UContainer class="flex-col flex h-full">
+              <UContainer class="flex-col flex h-full sm:px-0.5 lg:px-0.5 px-0.5">
                 <div class="my-2 text-2xl font-bold">
                   {{ getPageTitle() }}
                 </div>

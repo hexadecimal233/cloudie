@@ -18,11 +18,21 @@ import { Ref } from "vue"
 import { config } from "../config"
 import { addToHistory } from "@/utils/api"
 
+export enum PlayOrder {
+  OrderedNoRepeat = "ordered-no-repeat",
+  Ordered = "ordered",
+  SingleRepeat = "single-repeat",
+  Shuffle = "shuffle",
+}
+
 class PlayerState {
   currentTime: number = 0
   duration: number | undefined = undefined
   loading: boolean = false
   isPaused: boolean = true
+
+  listenIndex: number = -1
+  playOrder: PlayOrder = PlayOrder.Ordered
 }
 // Player stuff
 let mediaRef: Ref<HTMLVideoElement | null> | undefined
@@ -30,6 +40,9 @@ let hlsPlayer: Hls | undefined
 
 // FIXME: Clicking too fast cause audio stream mismatch
 export const usePlayerStore = defineStore("player", {
+  persist: {
+    omit: ["loading", "isPaused"],
+  },
   state: (): PlayerState => {
     return {
       ...new PlayerState(),
@@ -88,7 +101,6 @@ export const usePlayerStore = defineStore("player", {
       this.loading = true
       this.duration = undefined
 
-      const currentTime = mediaRef.value.currentTime ?? 0
 
       try {
         if (hlsPlayer) {
@@ -109,13 +121,13 @@ export const usePlayerStore = defineStore("player", {
             try {
               if (mediaRef && this.track) {
                 // restore load
-                hlsPlayer!.startLoad(forceRefreshM3U8 ? currentTime : 0)
+                hlsPlayer!.startLoad(this.currentTime)
                 // 等待 HLS 解析完成后再播放
                 await mediaRef.value?.play()
 
                 // 当这首曲子加载完毕开始播放
                 if (config.value.noHistory) return
-                addToHistory(this.track) // FIXME: will also be called if m3u8 error
+                addToHistory(this.track)
               }
             } catch (error) {
               console.error("HLS Play Failed:", error)
@@ -210,6 +222,7 @@ export const usePlayerStore = defineStore("player", {
       // set track update callbacks
       setTrackUpdateCallback((idx) => {
         if (idx >= 0) {
+          this.seek(0)
           this.loadSong()
         }
       })

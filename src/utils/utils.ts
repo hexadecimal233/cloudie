@@ -1,5 +1,5 @@
 import { path } from "@tauri-apps/api"
-import { SOCIAL_NETWORKS, type Track, type WebProfile } from "./types"
+import { PRESET_ORDER, Protocol, SOCIAL_NETWORKS, Transcoding, type Track, type WebProfile } from "./types"
 
 export function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
@@ -18,6 +18,28 @@ export function replaceImageUrl(
     | "2480x520" = "500x500", // Visual sizes
 ): string {
   return url.replace("-large", `-t${size}`)
+}
+
+
+// get transcodings in descending order of priority
+export function sortTranscodings(track: Track, protocols?: Protocol[]): Transcoding[] {
+  const transcodings = track.media.transcodings.sort((a: Transcoding, b: Transcoding) => {
+    return PRESET_ORDER.indexOf(a.preset) - PRESET_ORDER.indexOf(b.preset)
+  })
+  if (!protocols) return transcodings
+  return transcodings.filter((t: Transcoding) => protocols.includes(t.format.protocol))
+}
+
+// Does not support FairPlay & PlayReady rn
+export async function parseHlsLink(track: Track) {
+  const trans = sortTranscodings(track, ["hls"]).find(
+    (t: Transcoding) => t.preset === "abr_sq" || t.preset === "aac_256k" || t.preset === "aac_160k",
+  )
+  if (trans) {
+    const m3u8meta = await getM3U8Info(trans)
+    return m3u8meta.url
+  }
+  throw new Error("No available HLS streams")
 }
 
 // Check if a track is possible to free download (e.g. official download link)
@@ -156,6 +178,7 @@ export function openModal(component: any, props: any) {
 // FS utils
 
 import * as fs from "@tauri-apps/plugin-fs"
+import { getM3U8Info } from "./api"
 
 export async function copyDir(srcDir: string, destDir: string, copyOptions?: fs.CopyFileOptions) {
   try {

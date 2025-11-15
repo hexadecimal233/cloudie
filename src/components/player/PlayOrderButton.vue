@@ -1,12 +1,13 @@
 <template>
-  <UTooltip :text="$t(`cloudie.player.${config.playOrder}`)">
-    <UButton size="xl" :icon="getIcon(config.playOrder)" class="rounded-full cursor-pointer" variant="soft" @click="toggleOrder" />
+  <UTooltip :text="$t(`cloudie.player.${player.playOrder}`)">
+    <UButton size="xl" :icon="getIcon(player.playOrder)" class="rounded-full cursor-pointer" variant="soft" @click="toggleOrder" />
   </UTooltip>
 </template>
 
 <script setup lang="ts">
-import { config } from "@/systems/config"
-import { PlayOrder } from "@/systems/player/listening-list"
+import { PlayOrder, usePlayerStore } from "@/systems/stores/player"
+
+const player = usePlayerStore()
 
 const cycle: PlayOrder[] = [
   PlayOrder.OrderedNoRepeat,
@@ -29,17 +30,17 @@ function getIcon(order: PlayOrder) {
 }
 
 const toggleOrder = () => {
-  const currentOrder = config.value.playOrder as PlayOrder
+  const currentOrder = player.playOrder
 
   const currentIndex = cycle.indexOf(currentOrder)
 
   if (currentIndex === -1) {
-    config.value.playOrder = cycle[0]
+    player.playOrder = cycle[0]
     return
   }
 
   const nextIndex = (currentIndex + 1) % cycle.length
 
-  config.value.playOrder = cycle[nextIndex]
+  player.playOrder = cycle[nextIndex]
 }
 </script>

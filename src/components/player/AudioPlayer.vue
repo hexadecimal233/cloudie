@@ -40,7 +40,6 @@ const playerState = usePlayerStore()
 const mediaRef = ref<HTMLVideoElement | null>(null)
 
 onMounted(() => {
-  // TODO: Refactor this to use playerState
   playerState.init(mediaRef)
 })
 
