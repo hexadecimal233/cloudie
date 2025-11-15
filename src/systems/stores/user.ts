@@ -142,20 +142,21 @@ export const useUserStore = defineStore("user", {
       }
     },
 
-    async updateAllUserData() {
+    updateAllUserData() {
       if (!this.isLoggedIn) return
 
-      await Promise.all([
+      Promise.all([
         this.updateUserInfo(),
         this.updateLikedTrackIds(),
         this.updateLikedPlaylistIds(),
+        this.updateLikedSystemPlaylistUrns(),
         this.updateFollowingIds(),
         this.updateRepostedTrackIds(),
         this.updateRepostedPlaylistIds(),
-      ])
-
-      this.lastUpdateTime = Date.now()
-      console.log("User data updated at", new Date(this.lastUpdateTime))
+      ]).then(() => {
+        this.lastUpdateTime = Date.now()
+        console.log("User data updated at", new Date(this.lastUpdateTime))
+      })
     },
 
     async initializeUserState() {

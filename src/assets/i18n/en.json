@@ -201,6 +201,10 @@
         "bgLocalFile": "<Local File>",
         "invalidSavePath": "Invalid Save Path"
       }
+    },
+    "playlistSelectModal": {
+      "all": "All",
+      "create": "Create"
     }
   }
 }

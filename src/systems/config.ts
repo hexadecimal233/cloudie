@@ -5,7 +5,14 @@ import { i18n, LANGUAGE_OPTIONS } from "./i18n"
 import { FileNaming } from "./download/parser"
 import { useColorMode, useDebounceFn } from "@vueuse/core"
 
-export const THEMES = ["cloudie", "cloudie-dark", "cryolite", "cryolite-dark", "nuxt", "nuxt-dark"] as const
+export const THEMES = [
+  "cloudie",
+  "cloudie-dark",
+  "cryolite",
+  "cryolite-dark",
+  "nuxt",
+  "nuxt-dark",
+] as const
 
 type Theme = (typeof THEMES)[number]
 
@@ -28,6 +35,7 @@ class Config {
   virtualDjSupport: boolean = false // TODO: unimplemented
   // 登录
   clientId: string = ""
+  datadomeCookie: string = "" // TODO: unimplemented
   oauthToken: string = ""
 
   constructor(init?: Partial<Config>) {

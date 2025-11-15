@@ -26,7 +26,7 @@
                     </div>
                 </template>
                 <template #create>
-
+                    
                 </template>
             </UTabs>
         </template>
@@ -34,14 +34,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick, onUnmounted } from "vue"
-import { usePlaylists } from "@/utils/api"
+import { ref, computed, onMounted } from "vue"
+import { changePlaylist, usePlaylists } from "@/utils/api"
 import MiniPlaylist from "@/components/mini/MiniPlaylist.vue"
 import { i18n } from "@/systems/i18n"
 import { useInfiniteScroll } from "@vueuse/core"
 import { useUserStore } from "@/systems/stores/user"
+import { Track, UserPlaylist } from "@/utils/types"
 
 const emit = defineEmits(["close", "select"])
+
+const props = defineProps<{
+  tracks: Track[]
+}>()
 
 const userInfo = useUserStore()
 const scrollContainer = ref<HTMLElement | null>(null)
@@ -58,7 +63,12 @@ const items = computed(() => [
   { slot: "create", label: i18n.global.t("cloudie.playlistSelectModal.create") },
 ])
 
-const selectPlaylist = (playlist: any) => {}
+function selectPlaylist(playlist: UserPlaylist) {
+  changePlaylist(playlist.id, [
+    ...(playlist.tracks?.map((track) => track.id) || []),
+    ...props.tracks.map((track) => track.id),
+  ])
+}
 
 onMounted(() => {
   fetchNext()

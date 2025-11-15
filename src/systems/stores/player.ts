@@ -101,7 +101,6 @@ export const usePlayerStore = defineStore("player", {
       this.loading = true
       this.duration = undefined
 
-
       try {
         if (hlsPlayer) {
           // disable HLS load to prevent multiple segments loading

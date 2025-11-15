@@ -323,7 +323,7 @@ export interface SystemPlaylist extends BasePlaylist {
 
 export type SystemPlaylistKind = "system-playlist"
 
-export type PlaylistType = "PLAYLIST" | "TRACK_STATION"
+export type PlaylistType = "PLAYLIST" | "TRACK_STATION" | "ARTIST_STATION"
 
 export interface Seed {
   urn: string

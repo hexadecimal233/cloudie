@@ -8,7 +8,6 @@ import { PlayOrder, usePlayerStore } from "../stores/player"
 // FIXME: after delete current index should also be changed
 // FIXME: shffle list not persistient after restarting app
 
-
 export const listeningList = ref<Track[]>([])
 const shuffledIndexMapping = new Map<number, number>() // <shuffled index, original index>
 
@@ -59,7 +58,6 @@ async function refreshTrackIds() {
       .where(inArray(schema.listeningList.trackId, tracksToDelete))
   }
 
-  
   await addLocalTracks(listeningList.value)
 
   // 只插入或更新当前播放列表中的曲目索引

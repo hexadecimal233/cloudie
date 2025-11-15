@@ -5,7 +5,7 @@
 
 :root {
   @apply select-none selection:bg-accented;
-  
+
   /* modify overall font size */
   font-size: 17px;
 

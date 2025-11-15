@@ -198,10 +198,12 @@ async function changeBg() {
   const file = await open({
     multiple: false,
     directory: false,
-    filters: [{
-      name: "Image",
-      extensions: ["jpg", "jpeg", "png", "gif", "webp"],
-    }],
+    filters: [
+      {
+        name: "Image",
+        extensions: ["jpg", "jpeg", "png", "gif", "webp"],
+      },
+    ],
   })
 
   if (file) {

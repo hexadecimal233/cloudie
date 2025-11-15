@@ -1,6 +1,6 @@
 <template>
-  <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-accented/50 transition-colors min-w-0 w-full">
-    <div class="flex items-center gap-3">
+  <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-accented/50 transition-colors min-w-0 w-full h-18">
+    <div class="flex items-center gap-3 flex-1 min-w-0">
     <img :src="artworkUrl" :alt="props.playlist.title" class="size-14 rounded-sm object-cover flex-shrink-0" />
     <div class="flex flex-col min-w-0 flex-1">
       <UTooltip :text="props.playlist.title">
@@ -21,7 +21,7 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <UButton :icon="user.isLikedPlaylist(props.playlist.id) ? 'i-mingcute-heart-fill' : 'i-mingcute-heart-line'" variant="ghost" @click="user.toggleLikePlaylist(props.playlist.id)" />
+      <UButton color="neutral" :icon="user.isLikedPlaylist(props.playlist.id) ? 'i-mingcute-heart-fill' : 'i-mingcute-heart-line'" variant="ghost" @click="user.toggleLikePlaylist(props.playlist.id)" />
     </div>
   </div>
 </template>

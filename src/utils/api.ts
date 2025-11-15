@@ -25,22 +25,43 @@ import { useUserStore } from "@/systems/stores/user"
 let clientIdRefreshing = false
 const v2Url = "https://api-v2.soundcloud.com"
 
-// 发出v2 api json请求
-async function getV2ApiJson<T>(endpoint: string, params: Record<string, any> = {}): Promise<T> {
-  const finalUrl = `${endpoint}?${new URLSearchParams(params).toString()}`
+function getSignature(target: string) {
+  const version = 1 // __FOLLOWS_SIGNATURE_VERSION__
+  const key = "5Dpr3ubBw8LFtbvQcd4Hx6hU" //__FOLLOWS_SIGNATURE_SECRET__
 
-  return (await requestV2Api("GET", finalUrl)).json()
-}
+  const userId = useUserStore().id
+  const clientId = config.value.clientId
+  // 1. 获取 userAgent 数组片段
+  var a = window.navigator.userAgent.split(/[ /]/)
 
-// 发出鉴权Json get请求
-async function getJson(url: string) {
-  return (await requestV2Api("GET", url, undefined, true)).json()
+  var s = version + key + clientId + key + target + userId + a[a[0].length % a.length] // 重点：使用 userAgent 数组的某个元素作为盐值
+
+  // 3. 对原始字符串进行 URL 解码
+  var l = unescape(encodeURIComponent(s))
+
+  // 4. 初始化一个哈希值和异或/位移操作
+  var u = 7996111 // 0x799c7f - 一个固定的初始值
+  var c = 0
+
+  // 5. 循环计算哈希
+  // 使用简单的位移和异或操作，结合字符串 l 的每个字符的 ASCII 码进行累加
+  for (; c < l.length; c += 1) {
+    // u = (u >> 1) + ((1 & u) << 23)  // 循环右移 1 位 (24位哈希)
+    u = (u >> 1) + ((1 & u) << 23)
+    u += l.charCodeAt(c)
+    u &= 16777215 // 限制为 24 位 (0xFFFFFF)
+  }
+
+  // 6. 格式化输出
+  // 返回 "版本号" + ":" + "24位哈希值的16进制表示"
+  return `${version}:${u.toString(16)}`
 }
 
 // Generic v2 API request
 async function requestV2Api(
   method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
   endpoint: string,
+  queries?: Record<string, any>,
   body?: Record<string, any>,
   endpointAsFullUrl = false,
 ): Promise<Response> {
@@ -53,6 +74,13 @@ async function requestV2Api(
     ? `&client_id=${config.value.clientId}`
     : `?client_id=${config.value.clientId}`
 
+  // Add queries to endpoint
+  if (queries) {
+    endpoint += `&${new URLSearchParams({
+      ...queries,
+    }).toString()}`
+  }
+
   const finalUrl = `${endpointAsFullUrl ? "" : v2Url}${endpoint}`
 
   const sendRequest = async () => {
@@ -60,7 +88,11 @@ async function requestV2Api(
       method,
       headers: {
         Authorization: `OAuth ${config.value.oauthToken}`,
-        ...(body ? { "Content-Type": "application/json" } : {}),
+        ...(body ? { Accept: "application/json" } : {}),
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+        "x-datadome-clientid":
+          "VBqh_8DiipIwEqJYtY_Ow_rrJlSPvQznBMTFNQ6Db9cQBrgRaGj1MDlxIAyxK4jtlzZDeZWB7vFedjzRH7N1WDhCLBikwOr7fM9ztzfq8rJozqxj2UadeJCeI8xwMGqL",
       },
       body: body ? JSON.stringify(body) : undefined,
     })
@@ -85,24 +117,41 @@ async function requestV2Api(
   return response
 }
 
-async function postV2Api(endpoint: string, params: Record<string, any> = {}): Promise<Response> {
-  return await requestV2Api("POST", endpoint, params)
+// 发出v2 api json请求
+async function getV2ApiJson<T>(endpoint: string, params: Record<string, any> = {}): Promise<T> {
+  const finalUrl = `${endpoint}?${new URLSearchParams(params).toString()}`
+
+  return (await requestV2Api("GET", finalUrl)).json()
+}
+
+// 发出鉴权Json get请求
+async function getJson(url: string) {
+  return (await requestV2Api("GET", url, undefined, undefined, true)).json()
+}
+
+async function postWithQueryV2Api(
+  endpoint: string,
+  queries?: Record<string, any>,
+  body?: Record<string, any>,
+): Promise<Response> {
+  return await requestV2Api("POST", endpoint, queries, body)
+}
+
+async function postV2Api(endpoint: string, body?: Record<string, any>): Promise<Response> {
+  return await requestV2Api("POST", endpoint, undefined, body)
 }
 
 async function putV2Api(endpoint: string, body?: Record<string, any>): Promise<Response> {
-  return await requestV2Api("PUT", endpoint, body)
+  return await requestV2Api("PUT", endpoint, undefined, body)
 }
 
 async function deleteV2Api(endpoint: string, params: Record<string, any> = {}): Promise<Response> {
-  return await requestV2Api("DELETE", endpoint, params)
+  return await requestV2Api("DELETE", endpoint, undefined, params)
 }
 
-async function patchV2Api(endpoint: string, body?: Record<string, any>): Promise<Response> {
-  return await requestV2Api("PATCH", endpoint, body)
+async function _patchV2Api(endpoint: string, body?: Record<string, any>): Promise<Response> {
+  return await requestV2Api("PATCH", endpoint, undefined, body)
 }
-
-// Export the new API functions
-export { putV2Api, deleteV2Api, patchV2Api, requestV2Api }
 
 /**
  * Public methods
@@ -196,6 +245,14 @@ export async function useTrackLikers(id: number) {
 
 export async function useTrackReposters(id: number) {
   return useCollection<SCUser>(`/tracks/${id}/reposters`, 9)
+}
+
+export async function usePlaylistLikers(id: number) {
+  return useCollection<SCUser>(`/playlists/${id}/likers`, 50)
+}
+
+export async function usePlaylistReposters(id: number) {
+  return useCollection<SCUser>(`/playlists/${id}/reposters`, 50)
 }
 
 export function useFollowings(userId: number, followedBy?: number, notFollowedBy: boolean = false) {
@@ -385,80 +442,69 @@ export async function getFeaturedProfiles(id: number) {
  * Operations
  */
 
+// TODO: Sometimes the firewall will be triggered, and the request will fail.
+
 export async function follow(id: number) {
-  // API call to follow a user
-  // Implementation would depend on the actual API
-  return true
+  await postWithQueryV2Api(`/me/followings/${id}`, {
+    signature: getSignature(id.toString()),
+  })
 }
 
 export async function unfollow(id: number) {
-  // API call to unfollow a user
-  // Implementation would depend on the actual API
-  return true
+  await deleteV2Api(`/me/followings/${id}`)
 }
 
 export async function likeTrack(id: number) {
-  // API call to like a track
-  // Implementation would depend on the actual API
-  return true
+  await putV2Api(`/users/${useUserStore().id}/track_likes/${id}`)
 }
 
 export async function unlikeTrack(id: number) {
-  // API call to unlike a track
-  // Implementation would depend on the actual API
-  return true
+  await deleteV2Api(`/users/${useUserStore().id}/track_likes/${id}`)
 }
 
 export async function repostTrack(id: number) {
-  // API call to repost a track
-  // Implementation would depend on the actual API
-  return true
+  await putV2Api(`/me/track_reposts/${id}`)
+}
+
+export async function repostCaption(id: number, caption: string) {
+  await putV2Api(`/me/track_reposts/${id}`, { caption })
 }
 
 export async function unrepostTrack(id: number) {
-  // API call to unrepost a track
-  // Implementation would depend on the actual API
-  return true
+  await deleteV2Api(`/me/track_reposts/${id}`)
 }
 
 export async function likePlaylist(id: number) {
-  // API call to like a playlist
-  // Implementation would depend on the actual API
-  return true
+  await putV2Api(`/users/${useUserStore().id}/playlist_likes/${id}`)
 }
 
 export async function unlikePlaylist(id: number) {
-  // API call to unlike a playlist
-  // Implementation would depend on the actual API
-  return true
+  await deleteV2Api(`/users/${useUserStore().id}/playlist_likes/${id}`)
 }
 
 export async function likeSystemPlaylist(urn: string) {
-  // API call to like a system playlist
-  // Implementation would depend on the actual API
-  return true
+  await putV2Api(`/users/${useUserStore().id}/system_playlist_likes/${urn}`)
 }
 
 export async function unlikeSystemPlaylist(urn: string) {
-  // API call to unlike a system playlist
-  // Implementation would depend on the actual API
-  return true
+  await deleteV2Api(`/users/${useUserStore().id}/system_playlist_likes/${urn}`)
 }
 
 export async function repostPlaylist(id: number) {
-  // API call to repost a playlist
-  // Implementation would depend on the actual API
-  return true
+  await putV2Api(`/me/playlist_reposts/${id}`)
 }
 
 export async function unrepostPlaylist(id: number) {
-  // API call to unrepost a playlist
-  // Implementation would depend on the actual API
-  return true
+  await deleteV2Api(`/me/playlist_reposts/${id}`)
 }
 
+// TODO: add playlist response type
 export async function changePlaylist(id: number, trackIds: number[]) {
-  throw new Error("Unimplemented")
+  await putV2Api(`/playlists/${id}`, {
+    playlist: {
+      trackIds,
+    },
+  })
 }
 
 export async function createPlaylist(title: string, tracks: number[], isPrivate: boolean) {
@@ -475,7 +521,7 @@ export async function createPlaylist(title: string, tracks: number[], isPrivate:
 
 export async function addToHistory(track: Track) {
   const userInfo = useUserStore()
-  const anonId = random6Digit() + "-" + random6Digit() + "-" + random6Digit() + "-" + random6Digit()
+  const anonId = `${random6Digit()}-${random6Digit()}-${random6Digit()}-${random6Digit()}`
   const uuid = uuidv4() // generate a v4 uuid
   const time = Date.now()
 
@@ -492,7 +538,7 @@ export async function addToHistory(track: Track) {
           host: "playback.media-streaming.soundcloud.cloud",
           format: "aac",
           app_state: "foreground",
-          track_urn: "soundcloud:tracks:" + track.id,
+          track_urn: `soundcloud:tracks:${track.id}`,
           player_version: "v24.2.0",
           player_build_number: "1203",
           preset: "aac_160k",
@@ -505,7 +551,7 @@ export async function addToHistory(track: Track) {
           url: "https://soundcloud.com/you/history",
           session_id: uuid,
           app_version: "1762854424",
-          user: "soundcloud:users:" + userInfo.id,
+          user: `soundcloud:users:${userInfo.id}`,
           referrer: "https://soundcloud.com/",
         },
       },
@@ -527,8 +573,8 @@ export async function addToHistory(track: Track) {
           policy: track.policy,
           monetization_model: track.monetization_model,
           query_position: 1, // sometimes 0
-          track: "soundcloud:tracks:" + track.id,
-          track_owner: "soundcloud:users:" + track.user_id,
+          track: `soundcloud:tracks:${track.id}`,
+          track_owner: `soundcloud:users:${track.user_id}`,
           playhead_position: 42, // a random number
           anonymous_id: anonId,
           client_id: 46941,
@@ -536,7 +582,7 @@ export async function addToHistory(track: Track) {
           url: "https://soundcloud.com/you/history",
           session_id: uuid,
           app_version: "1762854424",
-          user: "soundcloud:users:" + userInfo.id,
+          user: `soundcloud:users:${userInfo.id}`,
           referrer: "https://soundcloud.com/",
         },
       },
@@ -545,7 +591,7 @@ export async function addToHistory(track: Track) {
   }
 
   await postV2Api(`/me/play-history`, {
-    track_urn: "soundcloud:tracks:" + track.id,
+    track_urn: `soundcloud:tracks:${track.id}`,
   })
   await postV2Api(`/me`, event)
 }

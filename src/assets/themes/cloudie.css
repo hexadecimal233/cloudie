@@ -1,93 +1,93 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
-@layer components{
-/* https://www.tints.dev */
-[data-theme="cloudie"] {
-  --ui-radius: 0.5rem;
-  
-  --ui-color-primary-50: oklch(0.958 0.016 2.8);
-  --ui-color-primary-100: oklch(0.925 0.028 6.74);
-  --ui-color-primary-200: oklch(0.843 0.063 6.17);
-  --ui-color-primary-300: oklch(0.772 0.1 6.95);
-  --ui-color-primary-400: oklch(0.698 0.144 7.25);
-  --ui-color-primary-500: oklch(0.626 0.191 7.85);
-  --ui-color-primary-600: oklch(0.521 0.159 7.82);
-  --ui-color-primary-700: oklch(0.413 0.126 8.05);
-  --ui-color-primary-800: oklch(0.305 0.092 8.03);
-  --ui-color-primary-900: oklch(0.206 0.064 7.59);
-  --ui-color-primary-950: oklch(0.106 0.033 5.4);
-  
-  --ui-color-secondary-50: oklch(0.968 0.022 67.56);
-  --ui-color-secondary-100: oklch(0.944 0.04 67.32);
-  --ui-color-secondary-200: oklch(0.89 0.079 66.51);
-  --ui-color-secondary-300: oklch(0.833 0.121 64.42);
-  --ui-color-secondary-400: oklch(0.785 0.154 60.89);
-  --ui-color-secondary-500: oklch(0.745 0.179 55.42);
-  --ui-color-secondary-600: oklch(0.651 0.166 52.5);
-  --ui-color-secondary-700: oklch(0.526 0.132 53.99);
-  --ui-color-secondary-800: oklch(0.403 0.1 55.26);
-  --ui-color-secondary-900: oklch(0.26 0.06 61.8);
-  --ui-color-secondary-950: oklch(0.174 0.037 72.02);
-  
-  --ui-color-info-50: oklch(0.967 0.016 266.31);
-  --ui-color-info-100: oklch(0.923 0.035 264.4);
-  --ui-color-info-200: oklch(0.854 0.07 261.78);
-  --ui-color-info-300: oklch(0.777 0.111 258.29);
-  --ui-color-info-400: oklch(0.703 0.154 253.16);
-  --ui-color-info-500: oklch(0.612 0.164 249.89);
-  --ui-color-info-600: oklch(0.518 0.138 249.89);
-  --ui-color-info-700: oklch(0.423 0.112 249.63);
-  --ui-color-info-800: oklch(0.327 0.087 249.88);
-  --ui-color-info-900: oklch(0.231 0.062 250.44);
-  --ui-color-info-950: oklch(0.179 0.047 249.83);
-  
-  --ui-color-success-50: oklch(0.969 0.045 168.01);
-  --ui-color-success-100: oklch(0.937 0.093 168.41);
-  --ui-color-success-200: oklch(0.867 0.17 168.62);
-  --ui-color-success-300: oklch(0.816 0.16 168.62);
-  --ui-color-success-400: oklch(0.764 0.15 168.6);
-  --ui-color-success-500: oklch(0.657 0.129 168.59);
-  --ui-color-success-600: oklch(0.555 0.108 168.97);
-  --ui-color-success-700: oklch(0.445 0.087 168.52);
-  --ui-color-success-800: oklch(0.344 0.067 169.06);
-  --ui-color-success-900: oklch(0.235 0.046 168.22);
-  --ui-color-success-950: oklch(0.182 0.037 168.6);
-  
-  --ui-color-warning-50: oklch(0.975 0.019 72.57);
-  --ui-color-warning-100: oklch(0.949 0.041 74.46);
-  --ui-color-warning-200: oklch(0.899 0.09 78.14);
-  --ui-color-warning-300: oklch(0.849 0.163 84.23);
-  --ui-color-warning-400: oklch(0.795 0.16 84.87);
-  --ui-color-warning-500: oklch(0.683 0.138 84.97);
-  --ui-color-warning-600: oklch(0.581 0.117 85.22);
-  --ui-color-warning-700: oklch(0.467 0.095 85.24);
-  --ui-color-warning-800: oklch(0.355 0.071 84.49);
-  --ui-color-warning-900: oklch(0.25 0.05 83.37);
-  --ui-color-warning-950: oklch(0.189 0.039 86.53);
-  
-  --ui-color-error-50: oklch(0.958 0.016 12.9);
-  --ui-color-error-100: oklch(0.917 0.033 13.24);
-  --ui-color-error-200: oklch(0.837 0.072 15.52);
-  --ui-color-error-300: oklch(0.756 0.118 16.28);
-  --ui-color-error-400: oklch(0.677 0.172 18.18);
-  --ui-color-error-500: oklch(0.595 0.202 20.14);
-  --ui-color-error-600: oklch(0.504 0.171 20.38);
-  --ui-color-error-700: oklch(0.413 0.14 20.2);
-  --ui-color-error-800: oklch(0.324 0.11 20);
-  --ui-color-error-900: oklch(0.233 0.08 19.92);
-  --ui-color-error-950: oklch(0.184 0.061 19.69);
-  
-  --ui-color-neutral-50: var(--color-stone-50);
-  --ui-color-neutral-100: var(--color-stone-100);
-  --ui-color-neutral-200: var(--color-stone-200);
-  --ui-color-neutral-300: var(--color-stone-300);
-  --ui-color-neutral-400: var(--color-stone-400);
-  --ui-color-neutral-500: var(--color-stone-500);
-  --ui-color-neutral-600: var(--color-stone-600);
-  --ui-color-neutral-700: var(--color-stone-700);
-  --ui-color-neutral-800: var(--color-stone-800);
-  --ui-color-neutral-900: var(--color-stone-900);
-  --ui-color-neutral-950: var(--color-stone-950);
-}
+@layer components {
+  /* https://www.tints.dev */
+  [data-theme="cloudie"] {
+    --ui-radius: 0.5rem;
+
+    --ui-color-primary-50: oklch(0.958 0.016 2.8);
+    --ui-color-primary-100: oklch(0.925 0.028 6.74);
+    --ui-color-primary-200: oklch(0.843 0.063 6.17);
+    --ui-color-primary-300: oklch(0.772 0.1 6.95);
+    --ui-color-primary-400: oklch(0.698 0.144 7.25);
+    --ui-color-primary-500: oklch(0.626 0.191 7.85);
+    --ui-color-primary-600: oklch(0.521 0.159 7.82);
+    --ui-color-primary-700: oklch(0.413 0.126 8.05);
+    --ui-color-primary-800: oklch(0.305 0.092 8.03);
+    --ui-color-primary-900: oklch(0.206 0.064 7.59);
+    --ui-color-primary-950: oklch(0.106 0.033 5.4);
+
+    --ui-color-secondary-50: oklch(0.968 0.022 67.56);
+    --ui-color-secondary-100: oklch(0.944 0.04 67.32);
+    --ui-color-secondary-200: oklch(0.89 0.079 66.51);
+    --ui-color-secondary-300: oklch(0.833 0.121 64.42);
+    --ui-color-secondary-400: oklch(0.785 0.154 60.89);
+    --ui-color-secondary-500: oklch(0.745 0.179 55.42);
+    --ui-color-secondary-600: oklch(0.651 0.166 52.5);
+    --ui-color-secondary-700: oklch(0.526 0.132 53.99);
+    --ui-color-secondary-800: oklch(0.403 0.1 55.26);
+    --ui-color-secondary-900: oklch(0.26 0.06 61.8);
+    --ui-color-secondary-950: oklch(0.174 0.037 72.02);
+
+    --ui-color-info-50: oklch(0.967 0.016 266.31);
+    --ui-color-info-100: oklch(0.923 0.035 264.4);
+    --ui-color-info-200: oklch(0.854 0.07 261.78);
+    --ui-color-info-300: oklch(0.777 0.111 258.29);
+    --ui-color-info-400: oklch(0.703 0.154 253.16);
+    --ui-color-info-500: oklch(0.612 0.164 249.89);
+    --ui-color-info-600: oklch(0.518 0.138 249.89);
+    --ui-color-info-700: oklch(0.423 0.112 249.63);
+    --ui-color-info-800: oklch(0.327 0.087 249.88);
+    --ui-color-info-900: oklch(0.231 0.062 250.44);
+    --ui-color-info-950: oklch(0.179 0.047 249.83);
+
+    --ui-color-success-50: oklch(0.969 0.045 168.01);
+    --ui-color-success-100: oklch(0.937 0.093 168.41);
+    --ui-color-success-200: oklch(0.867 0.17 168.62);
+    --ui-color-success-300: oklch(0.816 0.16 168.62);
+    --ui-color-success-400: oklch(0.764 0.15 168.6);
+    --ui-color-success-500: oklch(0.657 0.129 168.59);
+    --ui-color-success-600: oklch(0.555 0.108 168.97);
+    --ui-color-success-700: oklch(0.445 0.087 168.52);
+    --ui-color-success-800: oklch(0.344 0.067 169.06);
+    --ui-color-success-900: oklch(0.235 0.046 168.22);
+    --ui-color-success-950: oklch(0.182 0.037 168.6);
+
+    --ui-color-warning-50: oklch(0.975 0.019 72.57);
+    --ui-color-warning-100: oklch(0.949 0.041 74.46);
+    --ui-color-warning-200: oklch(0.899 0.09 78.14);
+    --ui-color-warning-300: oklch(0.849 0.163 84.23);
+    --ui-color-warning-400: oklch(0.795 0.16 84.87);
+    --ui-color-warning-500: oklch(0.683 0.138 84.97);
+    --ui-color-warning-600: oklch(0.581 0.117 85.22);
+    --ui-color-warning-700: oklch(0.467 0.095 85.24);
+    --ui-color-warning-800: oklch(0.355 0.071 84.49);
+    --ui-color-warning-900: oklch(0.25 0.05 83.37);
+    --ui-color-warning-950: oklch(0.189 0.039 86.53);
+
+    --ui-color-error-50: oklch(0.958 0.016 12.9);
+    --ui-color-error-100: oklch(0.917 0.033 13.24);
+    --ui-color-error-200: oklch(0.837 0.072 15.52);
+    --ui-color-error-300: oklch(0.756 0.118 16.28);
+    --ui-color-error-400: oklch(0.677 0.172 18.18);
+    --ui-color-error-500: oklch(0.595 0.202 20.14);
+    --ui-color-error-600: oklch(0.504 0.171 20.38);
+    --ui-color-error-700: oklch(0.413 0.14 20.2);
+    --ui-color-error-800: oklch(0.324 0.11 20);
+    --ui-color-error-900: oklch(0.233 0.08 19.92);
+    --ui-color-error-950: oklch(0.184 0.061 19.69);
+
+    --ui-color-neutral-50: var(--color-stone-50);
+    --ui-color-neutral-100: var(--color-stone-100);
+    --ui-color-neutral-200: var(--color-stone-200);
+    --ui-color-neutral-300: var(--color-stone-300);
+    --ui-color-neutral-400: var(--color-stone-400);
+    --ui-color-neutral-500: var(--color-stone-500);
+    --ui-color-neutral-600: var(--color-stone-600);
+    --ui-color-neutral-700: var(--color-stone-700);
+    --ui-color-neutral-800: var(--color-stone-800);
+    --ui-color-neutral-900: var(--color-stone-900);
+    --ui-color-neutral-950: var(--color-stone-950);
+  }
 }

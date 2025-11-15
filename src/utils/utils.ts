@@ -1,5 +1,12 @@
 import { path } from "@tauri-apps/api"
-import { PRESET_ORDER, Protocol, SOCIAL_NETWORKS, Transcoding, type Track, type WebProfile } from "./types"
+import {
+  PRESET_ORDER,
+  Protocol,
+  SOCIAL_NETWORKS,
+  Transcoding,
+  type Track,
+  type WebProfile,
+} from "./types"
 
 export function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
@@ -19,7 +26,6 @@ export function replaceImageUrl(
 ): string {
   return url.replace("-large", `-t${size}`)
 }
-
 
 // get transcodings in descending order of priority
 export function sortTranscodings(track: Track, protocols?: Protocol[]): Transcoding[] {
