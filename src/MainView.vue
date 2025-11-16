@@ -15,16 +15,9 @@
         <!-- Left Side: Navigation Menu -->
         <div class="w-full max-w-48 shrink-0 flex flex-col px-4 bg-default rounded-r-lg">
           <!-- Matches the right section text to make the spacing consistent -->
-          <div class="flex items-center gap-2 mt-4 mb-8">
-            <template v-if="!loading && userInfo.isLoggedIn">
-              <UAvatar :src="userInfo.avatar_url" size="lg" />
-              <div class="font-bold">{{ userInfo.username }}</div>
-            </template>
-
-            <template v-else>
-              <USkeleton class="size-8 ring" />
-              <USkeleton class="h-6 w-24" />
-            </template>
+          <div class="flex items-center gap-2 my-4">
+            <UAvatar text="User" alt="User" :src="userInfo.avatar_url" size="lg" />
+            <div class="font-bold">{{ userInfo.isLoggedIn ? userInfo.username : "User" }}</div>
           </div>
 
           <UNavigationMenu :items="items" orientation="vertical" />
@@ -89,7 +82,6 @@ import { config } from "./systems/config"
 const route = useRoute()
 const router = useRouter()
 const i18n = useI18n()
-const loading = ref(true)
 const colorMode = useColorMode()
 const userInfo = useUserStore()
 
@@ -100,7 +92,6 @@ const scrollbarTheme = computed(() => {
 
 onMounted(async () => {
   await userInfo.initializeUserState()
-  loading.value = false
 })
 
 function getPageTitle() {
