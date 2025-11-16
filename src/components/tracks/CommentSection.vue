@@ -3,29 +3,44 @@
     <template v-if="track.commentable && track.comment_count">
       <div class="flex items-end gap-3 p-4">
         <UAvatar :src="useUserStore().avatar_url" size="md" />
-        <UTextarea class="flex-1" v-model="myComment" autoresize :placeholder="$t('cloudie.comment.placeholder')" />
-        <UButton icon="i-mingcute-send-line" @click="postComment" :disabled="!myComment || myComment.trim() === ''">
-          {{ i18n.global.t("cloudie.comment.post") }}
+        <UTextarea
+          class="flex-1"
+          v-model="myComment"
+          autoresize
+          :placeholder="$t('skye.comment.placeholder')" />
+        <UButton
+          icon="i-mingcute-send-line"
+          @click="postComment"
+          :disabled="!myComment || myComment.trim() === ''">
+          {{ i18n.global.t("skye.comment.post") }}
         </UButton>
       </div>
-      
+
       <div class="flex items-center gap-3">
-        <div class="text-highlighted text-lg font-bold">{{ track.comment_count }} comments</div>
+        <div class="text-highlighted text-lg font-bold">{{ track.comment_count }}comments</div>
         <div class="flex-1"></div>
-        <span>{{ i18n.global.t("cloudie.comment.sortBy") }}</span>
+        <span>{{ i18n.global.t("skye.comment.sortBy") }}</span>
         <USelect v-model="sort" :items="sortTypes" />
       </div>
-      
+
       <div class="flex flex-col gap-2">
-        <div v-for="comment in currentPageComments" :key="comment.id" class="flex gap-3 transition-all duration-300"
+        <div
+          v-for="comment in currentPageComments"
+          :key="comment.id"
+          class="flex gap-3 transition-all duration-300"
           :class="{ 'ml-10': isReply(comment) }">
-          <UAvatar class="flex-shrink-0 mt-1" :src="comment.user.avatar_url" size="md" />
+          <UAvatar class="shrink-0 mt-1" :src="comment.user.avatar_url" size="md" />
 
           <div class="flex flex-col flex-1 min-w-0">
             <div class="flex items-center text-sm mb-1">
-              <span class="font-semibold text-gray-900 dark:text-white mr-2">{{ comment.user.username }}</span>
+              <span class="font-semibold text-gray-900 dark:text-white mr-2"
+                >{{ comment.user.username }}</span
+              >
 
-              <UButton variant="link" size="sm" class="font-bold text-primary p-0 cursor-pointer"
+              <UButton
+                variant="link"
+                size="sm"
+                class="font-bold text-primary p-0 cursor-pointer"
                 @click="player.playAtPosition(track, comment.timestamp / 1000)">
                 {{ formatMillis(comment.timestamp) }}
               </UButton>
@@ -37,7 +52,9 @@
               </span>
             </div>
 
-            <RichText :content="comment.body" class="text-base text-gray-700 dark:text-gray-300 mb-2" />
+            <RichText
+              :content="comment.body"
+              class="text-base text-gray-700 dark:text-gray-300 mb-2" />
 
             <div class="text-sm text-gray-500 dark:text-gray-400">
               <span>{{ "TODO: Likes" }}</span>
@@ -46,14 +63,15 @@
         </div>
       </div>
 
-
       <div class="flex justify-center mt-6">
         <UPagination v-model:page="page" :items-per-page="pageSize" :total="track.comment_count" />
       </div>
-
     </template>
     <div v-else>
-      <UAlert color="warning" title="Comments are disabled for this track" icon="i-mingcute-warning-line" />
+      <UAlert
+        color="warning"
+        title="Comments are disabled for this track"
+        icon="i-mingcute-warning-line" />
     </div>
   </div>
 </template>
@@ -73,15 +91,15 @@ const props = defineProps<{
 
 const sortTypes = computed(() => [
   {
-    label: i18n.global.t("cloudie.comment.sort.newest"),
+    label: i18n.global.t("skye.comment.sort.newest"),
     value: "newest",
   },
   {
-    label: i18n.global.t("cloudie.comment.sort.oldest"),
+    label: i18n.global.t("skye.comment.sort.oldest"),
     value: "oldest",
   },
   {
-    label: i18n.global.t("cloudie.comment.sort.trackTimestamp"),
+    label: i18n.global.t("skye.comment.sort.trackTimestamp"),
     value: "track-timestamp",
   },
 ])
@@ -103,7 +121,7 @@ function isReply(comment: Comment) {
   }
 }
 
-const { data, loading, error, hasNext, pageSize, fetchTillPage, reset } = useTrackComments(
+const { data, loading, hasNext, pageSize, fetchTillPage, reset } = useTrackComments(
   props.track.id,
   true,
   sort.value,

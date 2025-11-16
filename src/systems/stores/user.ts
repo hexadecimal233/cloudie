@@ -73,7 +73,7 @@ export const useUserStore = defineStore("user", {
         // TODO: some sort of log out logic (like cleaning the oauth token kinda brutal but wanna make sure its a 401 or 403 and we do this)
         useToast().add({
           color: "error",
-          title: i18n.global.t("cloudie.toasts.userInfoErr"),
+          title: i18n.global.t("skye.toasts.userInfoErr"),
           description: err as string,
         })
         return new UserState()
@@ -87,7 +87,7 @@ export const useUserStore = defineStore("user", {
         do {
           await trackLikeCollection.fetchNext()
           ids.push(...trackLikeCollection.data.value)
-        } while (trackLikeCollection.hasNext.value)
+        } while (trackLikeCollection.hasNext.value && !trackLikeCollection.error.value)
         this.likedTrackIds = ids
       } catch (err) {
         console.error("Failed to update liked track IDs:", err)
@@ -142,10 +142,10 @@ export const useUserStore = defineStore("user", {
       }
     },
 
-    updateAllUserData() {
+    async updateAllUserData() {
       if (!this.isLoggedIn) return
 
-      Promise.all([
+      await Promise.all([
         this.updateUserInfo(),
         this.updateLikedTrackIds(),
         this.updateLikedPlaylistIds(),
@@ -153,10 +153,9 @@ export const useUserStore = defineStore("user", {
         this.updateFollowingIds(),
         this.updateRepostedTrackIds(),
         this.updateRepostedPlaylistIds(),
-      ]).then(() => {
-        this.lastUpdateTime = Date.now()
-        console.log("User data updated at", new Date(this.lastUpdateTime))
-      })
+      ])
+      this.lastUpdateTime = Date.now()
+      console.log("User data updated at", new Date(this.lastUpdateTime))
     },
 
     async initializeUserState() {
@@ -167,11 +166,13 @@ export const useUserStore = defineStore("user", {
     startPeriodicUpdate() {
       this.stopPeriodicUpdate()
 
-      this.timer = setInterval(async () => {
+      this.timer = window.setInterval(async () => {
         await this.updateAllUserData()
       }, this.updateIntervalMs)
 
-      console.log(`Periodic user data update started with interval: ${this.updateIntervalMs}ms`)
+      console.log(
+        `Periodic user data update started with interval: ${this.updateIntervalMs / 60000}min`,
+      )
     },
 
     stopPeriodicUpdate() {
@@ -206,7 +207,7 @@ export const useUserStore = defineStore("user", {
       } catch (err) {
         useToast().add({
           color: "error",
-          title: i18n.global.t("cloudie.toasts.likeTrackErr"),
+          title: i18n.global.t("skye.toasts.likeTrackErr"),
           description: err as string,
         })
       }
@@ -231,7 +232,7 @@ export const useUserStore = defineStore("user", {
       } catch (err) {
         useToast().add({
           color: "error",
-          title: i18n.global.t("cloudie.toasts.likePlaylistErr"),
+          title: i18n.global.t("skye.toasts.likePlaylistErr"),
           description: err as string,
         })
       }
@@ -256,7 +257,7 @@ export const useUserStore = defineStore("user", {
       } catch (err) {
         useToast().add({
           color: "error",
-          title: i18n.global.t("cloudie.toasts.likeSystemPlaylistErr"),
+          title: i18n.global.t("skye.toasts.likeSystemPlaylistErr"),
           description: err as string,
         })
       }
@@ -281,7 +282,7 @@ export const useUserStore = defineStore("user", {
       } catch (err) {
         useToast().add({
           color: "error",
-          title: i18n.global.t("cloudie.toasts.followUserErr"),
+          title: i18n.global.t("skye.toasts.followUserErr"),
           description: err as string,
         })
       }
@@ -306,7 +307,7 @@ export const useUserStore = defineStore("user", {
       } catch (err) {
         useToast().add({
           color: "error",
-          title: i18n.global.t("cloudie.toasts.repostTrackErr"),
+          title: i18n.global.t("skye.toasts.repostTrackErr"),
           description: err as string,
         })
       }
@@ -331,7 +332,7 @@ export const useUserStore = defineStore("user", {
       } catch (err) {
         useToast().add({
           color: "error",
-          title: i18n.global.t("cloudie.toasts.repostPlaylistErr"),
+          title: i18n.global.t("skye.toasts.repostPlaylistErr"),
           description: err as string,
         })
       }

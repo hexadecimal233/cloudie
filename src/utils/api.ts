@@ -145,11 +145,12 @@ async function putV2Api(endpoint: string, body?: Record<string, any>): Promise<R
   return await requestV2Api("PUT", endpoint, undefined, body)
 }
 
-async function deleteV2Api(endpoint: string, params: Record<string, any> = {}): Promise<Response> {
-  return await requestV2Api("DELETE", endpoint, undefined, params)
+async function deleteV2Api(endpoint: string, body?: Record<string, any>): Promise<Response> {
+  return await requestV2Api("DELETE", endpoint, undefined, body)
 }
 
-async function _patchV2Api(endpoint: string, body?: Record<string, any>): Promise<Response> {
+// @ts-ignore
+async function patchV2Api(endpoint: string, body?: Record<string, any>): Promise<Response> {
   return await requestV2Api("PATCH", endpoint, undefined, body)
 }
 
@@ -624,7 +625,13 @@ async function resolveUrl<T>(url: string) {
   return await getV2ApiJson<T>(`/resolve`, { url })
 }
 
-// Composable function for reactive collection handling
+/**
+ * Composable function for reactive collection handling
+ * @param url The API endpoint URL.
+ * @param limit The number of items to fetch per request. Default is 30.
+ * @param params Additional query parameters to include in the first request.
+ * @returns An object containing the reactive state and functions to handle pagination.
+ */
 function useCollection<T>(
   url: string,
   limit: number = 30,
@@ -669,7 +676,7 @@ function useCollection<T>(
    * A loading-safe function to fetches the data till the specified page.
    */
   const fetchTillPage = async (page: number) => {
-    while (pageSize.value * page > data.value.length) {
+    while (pageSize.value * page > data.value.length && hasNext.value && !error.value) {
       await fetchNext()
     }
   }

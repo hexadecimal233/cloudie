@@ -1,5 +1,10 @@
 <template>
-  <TrackList :tracks="playlist.tracks" :parentPlaylist="playlist" :loading="collection?.loading.value" :loadMore="collection?.fetchNext" :hasMore="collection?.hasNext.value" />
+  <TrackList
+    :tracks="playlist.tracks"
+    :playlistId="playlist.id"
+    :loading="collection?.loading.value"
+    :loadMore="collection?.fetchNext"
+    :hasMore="collection?.hasNext.value" />
 </template>
 
 <script setup lang="ts">

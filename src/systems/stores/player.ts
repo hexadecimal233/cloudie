@@ -34,7 +34,8 @@ class PlayerState {
   loading: boolean = false
   isPaused: boolean = true
   pendingDuration: number | undefined
-
+  isFullscreen: boolean = false
+  
   listenIndex: number = -1
   playOrder: PlayOrder = PlayOrder.Ordered
 }
@@ -45,7 +46,7 @@ let hlsPlayer: Hls | undefined
 // FIXME: Clicking too fast cause audio stream mismatch
 export const usePlayerStore = defineStore("player", {
   persist: {
-    omit: ["loading", "isPaused", "pendingDuration"],
+    omit: ["loading", "isPaused", "pendingDuration", "isFullscreen"],
   },
   state: (): PlayerState => {
     return {
@@ -82,7 +83,7 @@ export const usePlayerStore = defineStore("player", {
         })
       }
 
-      getCurrentWindow().setTitle(`${track.title} - ${getArtist(track)} - Cloudie`)
+      getCurrentWindow().setTitle(`${track.title} - ${getArtist(track)} - Skye`)
     },
 
     async nextTrack(offset: number = 1) {
@@ -157,12 +158,12 @@ export const usePlayerStore = defineStore("player", {
         this.loading = false
         useToast().add({
           color: "error",
-          title: i18n.global.t("cloudie.toasts.loadFailed"),
+          title: i18n.global.t("skye.toasts.loadFailed"),
           description: error instanceof Error ? error.message : String(error),
         })
 
         // automatically loads after a few seconds
-        setTimeout(async () => {
+        window.setTimeout(async () => {
           // TODO: abortable task
           await this.nextTrack()
         }, 5000)

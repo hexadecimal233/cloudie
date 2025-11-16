@@ -3,15 +3,15 @@
       <div class="alert alert-warning">TODO: This is still a demo, translations and content experience might be bad</div>
   <div v-if="loading" class="flex justify-center items-center py-8">
     <div class="loading loading-spinner loading-lg"></div>
-    <span class="ml-2">{{ $t("cloudie.common.loading") }}</span>
+    <span class="ml-2">{{ $t("skye.common.loading") }}</span>
   </div>
 
   <div v-else-if="error" class="alert alert-error">
-    <span>{{ $t("cloudie.common.loadFail") }}: {{ error }}</span>
+    <span>{{ $t("skye.common.loadFail") }}: {{ error }}</span>
   </div>
 
   <div v-else-if="followings.length === 0" class="text-center py-8">
-    <p>{{ $t("cloudie.common.empty") }}</p>
+    <p>{{ $t("skye.common.empty") }}</p>
   </div>
 
   <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -35,9 +35,9 @@
               {{ user.full_name || user.username }}
             </p>
             <div class="flex space-x-2 mt-1 text-xs text-gray-400">
-              <span>{{ $t("cloudie.following.followers", { count: user.followers_count }) }}</span>
+              <span>{{ $t("skye.following.followers", { count: user.followers_count }) }}</span>
               <span>•</span>
-              <span>{{ $t("cloudie.following.tracks", { count: user.track_count }) }}</span>
+              <span>{{ $t("skye.following.tracks", { count: user.track_count }) }}</span>
             </div>
           </div>
         </div>
@@ -50,7 +50,7 @@
 
   <div v-if="hasNext && !loading" class="flex justify-center mt-6">
     <button class="btn btn-primary" @click="fetchNext">
-      {{ $t("cloudie.common.loadMore") }}
+      {{ $t("skye.common.loadMore") }}
     </button>
   </div>
   </div>

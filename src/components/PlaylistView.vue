@@ -1,10 +1,11 @@
 <template>
   <div>
-    <div v-if="currentPlaylist" class="text-xl">
-      {{ currentPlaylist.title }}
-    </div>
+    <div v-if="currentPlaylist" class="text-xl">{{ currentPlaylist.title }}</div>
     <div>
-      <TrackList :tracks="currentPlaylist.tracks" :parentPlaylist="currentPlaylist" :loading="loading"/>
+      <TrackList
+        :tracks="currentPlaylist.tracks"
+        :playlistId="currentPlaylist.id.toString()"
+        :loading="loading" />
     </div>
   </div>
 </template>
@@ -79,7 +80,7 @@ onMounted(async () => {
     console.error("PlaylistList open error:", err)
     toast.add({
       color: "error",
-      title: i18n.global.t("cloudie.toasts.playlistOpenFailed"),
+      title: i18n.global.t("skye.toasts.playlistOpenFailed"),
       description: err.message,
     })
     return

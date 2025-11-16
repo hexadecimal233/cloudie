@@ -1,6 +1,11 @@
 <template>
-  <UTooltip :text="$t(`cloudie.player.${player.playOrder}`)">
-    <UButton size="xl" :icon="getIcon(player.playOrder)" class="rounded-full cursor-pointer" variant="soft" @click="toggleOrder" />
+  <UTooltip :text="$t(`skye.player.${player.playOrder}`)">
+    <UButton
+      size="xl"
+      :icon="getIcon(player.playOrder)"
+      class="rounded-full cursor-pointer"
+      variant="soft"
+      @click="toggleOrder" />
   </UTooltip>
 </template>
 

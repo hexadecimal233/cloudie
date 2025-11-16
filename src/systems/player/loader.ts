@@ -49,7 +49,7 @@ export class CachedLoader implements Loader<FragmentLoaderContext> {
       const cache = await M3U8_CACHE_MANAGER.getSegmentCache(trackId, context.url)
 
       if (cache) {
-        setTimeout(() => {
+        window.setTimeout(() => {
           callbacks.onSuccess({ url: context.url, data: cache }, this.loader.stats, context, null)
         }, 0)
         return
@@ -66,7 +66,7 @@ export class CachedLoader implements Loader<FragmentLoaderContext> {
       }
 
       this.loader.load(context, config, callbacks)
-    })().catch((error: any) => {
+    })().catch((error) => {
       callbacks.onError({ code: -1, text: error.message }, context, null, this.loader.stats)
     })
   }

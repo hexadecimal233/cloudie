@@ -1,15 +1,20 @@
 <template>
   <!-- FIXME: Scroll does not load-->
-  <div class="h-full flex flex-col">
-    <VirtualList class="w-full flex-1" ref="virtualListRef"
-      :items="data"
-      :estimateSize="() => 235"
-    >
-   <template #item="{ item }">
-    <component :is="getFullTrackComponent()" v-if="item.type === 'track' || item.type === 'track-repost'" :track="item.track" :stream-item="item" />
-    <component :is="getFullPlaylistComponent()" v-else-if="item.type === 'playlist' || item.type === 'playlist-repost'" :playlist="item.playlist" :stream-item="item" />
-  </template>
-  </VirtualList>
+  <div class="flex flex-col h-full">
+    <VirtualList class="w-full flex-1" ref="virtualListRef" :items="data" :estimateSize="() => 235">
+      <template #item="{ item }">
+        <component
+          :is="getFullTrackComponent()"
+          v-if="item.type === 'track' || item.type === 'track-repost'"
+          :track="item.track"
+          :stream-item="item" />
+        <component
+          :is="getFullPlaylistComponent()"
+          v-else-if="item.type === 'playlist' || item.type === 'playlist-repost'"
+          :playlist="item.playlist"
+          :stream-item="item" />
+      </template>
+    </VirtualList>
   </div>
 </template>
 
@@ -25,7 +30,7 @@ import TwitterFullTrack from "@/components/full/themes/TwitterFullTrack.vue"
 import FullPlaylist from "@/components/full/FullPlaylist.vue"
 import TwitterFullPlaylist from "@/components/full/themes/TwitterFullPlaylist.vue"
 
-const { data, loading, error, hasNext, fetchNext } = useStream()
+const { data, loading, hasNext, fetchNext } = useStream()
 const virtualListRef = ref<InstanceType<typeof VirtualList> | null>(null)
 
 function getFullPlaylistComponent() {
@@ -46,7 +51,7 @@ function getFullTrackComponent() {
   }
 }
 
-const infiniteScroll = useInfiniteScroll(virtualListRef.value?.scrollContainer, fetchNext, {
+useInfiniteScroll(virtualListRef.value?.scrollContainer, fetchNext, {
   distance: 200,
   canLoadMore: () => {
     return hasNext && !loading
