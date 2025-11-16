@@ -2,7 +2,7 @@
   <div class="p-4 border border-accented bg-default max-w-3xl mx-auto">
     <div class="flex gap-3">
       <!-- Left Column: Avatar -->
-      <UAvatar :src="streamItem?.user.avatar_url" class="size-10 flex-shrink-0" />
+      <UAvatar :src="streamItem?.user.avatar_url" class="size-10 shrink-0" />
 
       <!-- Right Column: Content -->
       <div class="flex-1 min-w-0 flex flex-col">
@@ -26,7 +26,7 @@
           class="flex items-start gap-3 p-3 border border-neutral-300 dark:border-neutral-700 rounded-xl overflow-hidden mb-3">
 
           <!-- Album Art & Play Overlay (Original size-24) -->
-          <div class="relative size-24 flex-shrink-0">
+          <div class="relative size-24 shrink-0">
             <div @click="() => {
               if (player.isPlayingTrack(props.track) && !player.isPaused) { player.pause() } else { player.play(props.track) }
             }" class="absolute inset-0 size-full flex items-center justify-center bg-highlighted/30 opacity-0 hover:opacity-100 transition-opacity cursor-pointer">

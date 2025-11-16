@@ -21,7 +21,7 @@
         class="text-sm line-clamp-1" />
 
       <div class="flex items-start gap-3">
-        <div class="relative size-28 flex-shrink-0">
+        <div class="relative size-28 shrink-0">
           <img
             :src="replaceImageUrl(usePlaylistsStore().getCoverCache(props.playlist.id).value)"
             :alt="props.playlist.title"

@@ -13,7 +13,7 @@
     <RichText v-if="streamItem?.caption" :content="streamItem.caption" class="text-sm line-clamp-1" />
 
     <div class="flex items-start gap-3">
-      <div class="relative size-28 flex-shrink-0">
+      <div class="relative size-28 shrink-0">
         <div @click="() => {
           if (player.isPlayingTrack(props.track) && !player.isPaused) { player.pause() } else { player.play(props.track) }
         }

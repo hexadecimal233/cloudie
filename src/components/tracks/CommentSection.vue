@@ -29,7 +29,7 @@
           :key="comment.id"
           class="flex gap-3 transition-all duration-300"
           :class="{ 'ml-10': isReply(comment) }">
-          <UAvatar class="flex-shrink-0 mt-1" :src="comment.user.avatar_url" size="md" />
+          <UAvatar class="shrink-0 mt-1" :src="comment.user.avatar_url" size="md" />
 
           <div class="flex flex-col flex-1 min-w-0">
             <div class="flex items-center text-sm mb-1">

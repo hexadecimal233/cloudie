@@ -4,8 +4,7 @@
     <div class="flex items-center gap-2" @mousedown.stop @click.stop="clicksFunc()">
       <i-mingcute-moon-cloudy-line class="text-primary" />
 
-      <span class="font-bold transition-none" :style="easterStyle"
-        :class="{ 'text-primary': windowStates.isFocused && easterClicks === 0, 'spin-active': false }">
+      <span class="font-bold transition-none" :style="easterStyle" :class="{ 'text-primary': windowStates.isFocused }">
         Skye
       </span>
     </div>
@@ -25,7 +24,7 @@
 </template>
 <script setup lang="ts">
 import { Window } from "@tauri-apps/api/window"
-import { ref, computed } from "vue" // 引入 onMounted 和 onUnmounted
+import { ref, computed } from "vue"
 import { useRouter } from "vue-router"
 
 const clicksFunc = () => {
@@ -39,11 +38,6 @@ const easterStyle = computed(() => {
     easterClicks.value = 0
     return { animation: "none" }
   }
-  if (easterClicks.value === 4) {
-    return { animation: "oldschool-blink 0.1s step-end infinite" }
-  } else {
-    return { animation: "none" }
-  }
 })
 
 const windowStates = ref({
@@ -51,7 +45,7 @@ const windowStates = ref({
   isMaximized: false,
 })
 
-Window.getCurrent().onResized(async ({ }) => {
+Window.getCurrent().onResized(async () => {
   windowStates.value.isMaximized = await Window.getCurrent().isMaximized()
 })
 
@@ -59,34 +53,3 @@ Window.getCurrent().onFocusChanged(({ payload: focused }) => {
   windowStates.value.isFocused = focused
 })
 </script>
-
-<style>
-@keyframes oldschool-blink {
-  0% {
-    color: #000;
-  }
-
-  50% {
-    color: #f00;
-  }
-
-  100% {
-    color: #000;
-  }
-}
-
-@keyframes spin-easter-egg {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.spin-active {
-  animation: spin-easter-egg 0.5s ease-in-out infinite;
-  transform-origin: center;
-}
-</style>

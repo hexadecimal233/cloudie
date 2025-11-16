@@ -34,7 +34,8 @@ class PlayerState {
   loading: boolean = false
   isPaused: boolean = true
   pendingDuration: number | undefined
-
+  isFullscreen: boolean = false
+  
   listenIndex: number = -1
   playOrder: PlayOrder = PlayOrder.Ordered
 }
@@ -45,7 +46,7 @@ let hlsPlayer: Hls | undefined
 // FIXME: Clicking too fast cause audio stream mismatch
 export const usePlayerStore = defineStore("player", {
   persist: {
-    omit: ["loading", "isPaused", "pendingDuration"],
+    omit: ["loading", "isPaused", "pendingDuration", "isFullscreen"],
   },
   state: (): PlayerState => {
     return {

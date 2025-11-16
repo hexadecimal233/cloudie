@@ -5,7 +5,7 @@
       <img
         :src="replaceImageUrl(props.playlist.artwork_url)"
         :alt="props.playlist.title"
-        class="size-14 rounded-sm object-cover flex-shrink-0" />
+        class="size-14 rounded-sm object-cover shrink-0" />
       <div class="flex flex-col min-w-0 flex-1">
         <UTooltip :text="props.playlist.title">
           <ULink

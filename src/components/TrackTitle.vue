@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center gap-3">
-    <div class="relative size-14 flex-shrink-0">
+    <div class="relative size-14 shrink-0">
               <div @click="() => {
           if (player.isPlayingTrack(props.track) && !player.isPaused) { player.pause() } else { player.play(props.track) }
         }
