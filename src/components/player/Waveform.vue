@@ -1,28 +1,47 @@
 <template>
   <div @click="waveformClick" class="relative py-0.5 w-full h-full cursor-pointer overflow-hidden">
-    <svg ref="waveformContainer" :width="elementWidth" :height="elementHeight" class="w-full h-full">
+    <svg
+      ref="waveformContainer"
+      :width="elementWidth"
+      :height="elementHeight"
+      class="w-full h-full">
       <defs>
         <mask :id="`progress-mask-${id}`">
-          <rect x="0" y="0" :width="playProgress * elementWidth" :height="elementHeight" fill="white" />
+          <rect
+            x="0"
+            y="0"
+            :width="playProgress * elementWidth"
+            :height="elementHeight"
+            fill="white" />
         </mask>
       </defs>
 
       <!-- Base -->
-      <path :d="waveformPath" class="fill-neutral-500 transition-opacity" :class="{ 'opacity-50': !isOutside }" />
+      <path
+        :d="waveformPath"
+        class="fill-neutral-500 transition-opacity"
+        :class="{ 'opacity-50': !isOutside }" />
 
       <!-- Played -->
-      <path :d="waveformPath" :mask="`url(#progress-mask-${id})`" class="fill-primary transition-opacity"
+      <path
+        :d="waveformPath"
+        :mask="`url(#progress-mask-${id})`"
+        class="fill-primary transition-opacity"
         :class="{ 'opacity-50': !isOutside && hoverProgress > playProgress }" />
 
-
       <!-- Unplayed -->
-      <rect v-if="!isOutside && (hoverProgress - playProgress) > 0"
-        :x="playProgress * elementWidth" y="0"
-        :width="(hoverProgress - playProgress) * elementWidth" :height="elementHeight"
+      <rect
+        v-if="!isOutside && (hoverProgress - playProgress) > 0"
+        :x="playProgress * elementWidth"
+        y="0"
+        :width="(hoverProgress - playProgress) * elementWidth"
+        :height="elementHeight"
         class="fill-primary opacity-20 transition-opacity" />
     </svg>
 
-    <div v-if="player.isPlayingTrack(props.track)" class="absolute top-0 bottom-0  opacity-0 bg-white rounded-md will-change-transform transition-all"
+    <div
+      v-if="player.isPlayingTrack(props.track)"
+      class="absolute top-0 bottom-0  opacity-0 bg-white rounded-md will-change-transform transition-all"
       :class="{ 'w-1 opacity-100': !isOutside }"
       :style="{ transform: `translateX(${(playProgress * elementWidth - 0.5)}px)` }" />
   </div>

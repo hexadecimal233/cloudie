@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div class="alert alert-warning">TODO: This is still a demo, translations and content experience might be bad</div>
+    <div class="alert alert-warning">
+      TODO: This is still a demo, translations and content experience might be bad
+    </div>
     <div v-if="loading" class="flex justify-center items-center h-64">
       <div class="loading loading-spinner loading-lg"></div>
       <span class="ml-2">{{ $t("skye.common.loading") }}</span>
@@ -14,7 +16,10 @@
       <div class="card bg-base-100 shadow-xl mb-6">
         <div class="card-body">
           <div class="flex items-center gap-4">
-            <img :src="getCoverUrl(track)" :alt="track.title" class="w-32 h-32 rounded-lg object-cover" />
+            <img
+              :src="getCoverUrl(track)"
+              :alt="track.title"
+              class="w-32 h-32 rounded-lg object-cover" />
             <div class="flex-1">
               <h1 class="text-2xl font-bold">{{ track.title }}</h1>
               <p class="text-lg opacity-70">{{ getArtist(track) }}</p>
@@ -73,7 +78,11 @@
         <div class="card-body">
           <h2 class="text-xl font-bold mb-4">{{ $t("skye.trackView.relatedTracks") }}</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <MiniTrack v-for="track in relatedTracks" :key="track.id" :track="track" :tracks="relatedTracks" />
+            <MiniTrack
+              v-for="track in relatedTracks"
+              :key="track.id"
+              :track="track"
+              :tracks="relatedTracks" />
           </div>
         </div>
       </div>
@@ -83,7 +92,11 @@
         <div class="card-body">
           <h2 class="text-xl font-bold mb-4">{{ $t("skye.trackView.relatedAlbums") }}</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <MiniPlaylist v-for="album in relatedAlbums" :key="album.id" :playlist="album" :max-tracks="5" />
+            <MiniPlaylist
+              v-for="album in relatedAlbums"
+              :key="album.id"
+              :playlist="album"
+              :max-tracks="5" />
           </div>
         </div>
       </div>
@@ -93,7 +106,10 @@
         <div class="card-body">
           <h2 class="text-xl font-bold mb-4">{{ $t("skye.trackView.relatedPlaylists") }}</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <MiniPlaylist v-for="playlist in relatedPlaylists" :key="playlist.id" :playlist="playlist"
+            <MiniPlaylist
+              v-for="playlist in relatedPlaylists"
+              :key="playlist.id"
+              :playlist="playlist"
               :max-tracks="5" />
           </div>
         </div>
@@ -103,7 +119,6 @@
       <CommentSection :track="track" />
     </div>
   </div>
-
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from "vue"
@@ -117,7 +132,7 @@ import {
   useTrackAlbums,
   useTrackPlaylistsWithoutAlbum,
 } from "@/utils/api"
-import { formatMillis, getArtist, getCoverUrl, formatNumber, formatDate } from "@/utils/utils"
+import { formatMillis, getArtist, getCoverUrl, formatNumber } from "@/utils/utils"
 import { addToListeningList as addTrackToListeningList } from "@/systems/player/listening-list"
 import { addDownloadTask } from "@/systems/download/download"
 import { usePlayerStore } from "@/systems/stores/player"

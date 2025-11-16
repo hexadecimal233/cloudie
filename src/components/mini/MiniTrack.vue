@@ -1,16 +1,30 @@
 <template>
-  <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-accented/50 transition-colors min-w-0 w-full h-18">
-    <TrackTitle class="flex-1 min-w-0" :track="track" :tracks="tracks" :listeningIndex="listeningIndex" />
+  <div
+    class="flex items-center gap-3 p-2 rounded-lg hover:bg-accented/50 transition-colors min-w-0 w-full h-18">
+    <TrackTitle
+      class="flex-1 min-w-0"
+      :track="track"
+      :tracks="tracks"
+      :listeningIndex="listeningIndex" />
 
     <div class="flex items-center gap-2">
       <span class="text-sm opacity-50">{{ formatMillis(track.full_duration) }}</span>
       <UButton
-      variant="ghost"
-        :icon="user.isLikedTrack(track.id) ? 'i-mingcute-heart-fill' : 'i-mingcute-heart-line'" 
+        variant="ghost"
+        :icon="user.isLikedTrack(track.id) ? 'i-mingcute-heart-fill' : 'i-mingcute-heart-line'"
         :color="user.isLikedTrack(track.id) ? 'primary' : 'neutral'"
-         @click="user.toggleLikeTrack(track.id)" />
-      <UButton color="neutral" icon="i-mingcute-add-line" v-if="listeningIndex === undefined" variant="ghost" @click="addToListeningList" />
-      <UButton color="neutral" icon="i-mingcute-download-line" variant="ghost" @click="downloadTrack" />
+        @click="user.toggleLikeTrack(track.id)" />
+      <UButton
+        color="neutral"
+        icon="i-mingcute-add-line"
+        v-if="listeningIndex === undefined"
+        variant="ghost"
+        @click="addToListeningList" />
+      <UButton
+        color="neutral"
+        icon="i-mingcute-download-line"
+        variant="ghost"
+        @click="downloadTrack" />
     </div>
   </div>
 </template>

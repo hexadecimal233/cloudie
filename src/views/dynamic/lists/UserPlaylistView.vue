@@ -1,10 +1,12 @@
 <template>
-    <div class="flex flex-col h-full">
-        <div v-if="currentPlaylist">
-            {{ currentPlaylist.title }}
-        </div>
-        <TrackList v-if="currentPlaylist" :tracks="(tracks as Track[])" :parent-playlist="currentPlaylist" :loading="loading" />
-    </div>
+  <div class="flex flex-col h-full">
+    <div v-if="currentPlaylist">{{ currentPlaylist.title }}</div>
+    <TrackList
+      v-if="currentPlaylist"
+      :tracks="(tracks as Track[])"
+      :parent-playlist="currentPlaylist"
+      :loading="loading" />
+  </div>
 </template>
 
 <script setup lang="ts" name="PlaylistView">

@@ -88,4 +88,5 @@ Pull Requests: [Pull Requests](https://github.com/hexadecimal233/skye/pulls)
 - [ ] add share modal
 - [ ] add tooltips to icon-only buttons
 - [ ] watch immediate options
+- [ ] universal loading & error handling
 -->

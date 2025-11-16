@@ -624,7 +624,13 @@ async function resolveUrl<T>(url: string) {
   return await getV2ApiJson<T>(`/resolve`, { url })
 }
 
-// Composable function for reactive collection handling
+/**
+ * Composable function for reactive collection handling
+ * @param url The API endpoint URL.
+ * @param limit The number of items to fetch per request. Default is 30.
+ * @param params Additional query parameters to include in the first request.
+ * @returns An object containing the reactive state and functions to handle pagination.
+ */
 function useCollection<T>(
   url: string,
   limit: number = 30,

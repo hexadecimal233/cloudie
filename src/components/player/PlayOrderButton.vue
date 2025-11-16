@@ -1,6 +1,11 @@
 <template>
   <UTooltip :text="$t(`skye.player.${player.playOrder}`)">
-    <UButton size="xl" :icon="getIcon(player.playOrder)" class="rounded-full cursor-pointer" variant="soft" @click="toggleOrder" />
+    <UButton
+      size="xl"
+      :icon="getIcon(player.playOrder)"
+      class="rounded-full cursor-pointer"
+      variant="soft"
+      @click="toggleOrder" />
   </UTooltip>
 </template>
 

@@ -1,12 +1,20 @@
 <template>
   <!-- FIXME: page changes doesnt active re-renderer and they are not unmounting-->
   <div ref="parentRef" class="overflow-auto">
-    <div ref="scrollContainer" :style="{ height: `${totalSize}px`, width: '100%', position: 'relative' }">
-      <div 
-        class="absolute w-full top-0 left-0" :style="{
+    <div
+      ref="scrollContainer"
+      :style="{ height: `${totalSize}px`, width: '100%', position: 'relative' }">
+      <div
+        class="absolute w-full top-0 left-0"
+        :style="{
           transform: `translateY(${virtualRows[0]?.start - rowVirtualizer.options.scrollMargin}px)`,
         }">
-        <div v-for="virtualRow in virtualRows" :data-index="virtualRow.index" :key="virtualRow.index" :ref="estimateSize === defaultEstimateSize ? undefined : measureElement" class="w-full h-full">
+        <div
+          v-for="virtualRow in virtualRows"
+          :data-index="virtualRow.index"
+          :key="virtualRow.index"
+          :ref="estimateSize === defaultEstimateSize ? undefined : measureElement"
+          class="w-full h-full">
           <slot name="item" :item="items[virtualRow.index]" :index="virtualRow.index" />
         </div>
       </div>

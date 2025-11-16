@@ -2,7 +2,11 @@
   <div>
     <!-- TODO: 更新删除UI，多选 -->
     <UTabs v-model="activeTab" :items="tabs" :content="false" class="w-full" />
-    <UTable ref="table" :ui="{ base: 'table-fixed w-full' }" :columns="columns" :data="filteredItems" />
+    <UTable
+      ref="table"
+      :ui="{ base: 'table-fixed w-full' }"
+      :columns="columns"
+      :data="filteredItems" />
   </div>
 </template>
 

@@ -1,12 +1,10 @@
 <template>
+  <div>
+    <div v-if="currentPlaylist" class="text-xl">{{ currentPlaylist.title }}</div>
     <div>
-        <div v-if="currentPlaylist" class="text-xl">
-            {{ currentPlaylist.title }}
-        </div>
-        <div>
-            <TrackList :tracks="tracks" :parentPlaylist="currentPlaylist" :loading="loading" />
-        </div>
+      <TrackList :tracks="tracks" :parentPlaylist="currentPlaylist" :loading="loading" />
     </div>
+  </div>
 </template>
 
 <script setup lang="ts" name="PlaylistView">

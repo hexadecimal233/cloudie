@@ -1,6 +1,13 @@
 <template>
-  <video @timeupdate="onTimeUpdate" @ended="onEnded" @loadedmetadata="onLoadedMetadata" @play="onPlay" @pause="onPause"
-    ref="mediaRef" autoplay hidden></video>
+  <video
+    @timeupdate="onTimeUpdate"
+    @ended="onEnded"
+    @loadedmetadata="onLoadedMetadata"
+    @play="onPlay"
+    @pause="onPause"
+    ref="mediaRef"
+    autoplay
+    hidden></video>
 
   <div class="bg-muted relative w-full transition-transform" v-if="playerState.track">
     <!-- TODO: Progress Bar and Needle than waveform -->
@@ -13,18 +20,35 @@
 
       <div class="flex items-center justify-center gap-4 w-1/3">
         <ListeningListButton />
-        <UButton size="xl" class="rounded-full cursor-pointer" icon="i-mingcute-skip-previous-line" variant="soft" @click="playerState.nextTrack(-1)" />
-        <UButton :loading="playerState.loading" :icon="playerState.isPaused ? 'i-mingcute-play-line' : 'i-mingcute-pause-line'" size="xl"
-          class="rounded-full cursor-pointer" @click="togglePlay" />
-        <UButton size="xl" class="rounded-full cursor-pointer" icon="i-mingcute-skip-forward-line" variant="soft"
+        <UButton
+          size="xl"
+          class="rounded-full cursor-pointer"
+          icon="i-mingcute-skip-previous-line"
+          variant="soft"
+          @click="playerState.nextTrack(-1)" />
+        <UButton
+          :loading="playerState.loading"
+          :icon="playerState.isPaused ? 'i-mingcute-play-line' : 'i-mingcute-pause-line'"
+          size="xl"
+          class="rounded-full cursor-pointer"
+          @click="togglePlay" />
+        <UButton
+          size="xl"
+          class="rounded-full cursor-pointer"
+          icon="i-mingcute-skip-forward-line"
+          variant="soft"
           @click="playerState.nextTrack()" />
         <PlayOrderButton />
       </div>
       <div class="flex items-center justify-end w-1/3">
         <div class="flex items-center gap-2">
-          <span class="text-sm">{{ formatSecs(isNaN(playerState.currentTime) ? 0 : playerState.currentTime) }}</span>
+          <span class="text-sm"
+            >{{ formatSecs(isNaN(playerState.currentTime) ? 0 : playerState.currentTime) }}</span
+          >
           <span class="text-sm">/</span>
-          <span class="text-sm">{{ formatSecs(isFinite(playerState.duration) ? playerState.duration : 0) }}</span>
+          <span class="text-sm"
+            >{{ formatSecs(isFinite(playerState.duration) ? playerState.duration : 0) }}</span
+          >
         </div>
       </div>
     </div>

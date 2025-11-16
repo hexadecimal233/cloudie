@@ -2,20 +2,41 @@
   <div class="flex gap-2 flex-col h-full">
     <div class="flex items-center gap-2">
       <div class="flex items-center gap-2">
-        <UButton icon="i-mingcute-play-fill" label="test" @click="player.play(props.tracks[0], props.tracks)">{{
-          $t("skye.trackList.listenAll") }}</UButton>
-        <UButton icon="i-mingcute-playlist-line" variant="subtle" @click="addMultipleToListeningList(props.tracks)">{{
-          $t("skye.trackList.addAll") }}</UButton>
+        <UButton
+          icon="i-mingcute-play-fill"
+          label="test"
+          @click="player.play(props.tracks[0], props.tracks)">
+          {{
+          $t("skye.trackList.listenAll") }}
+        </UButton>
+        <UButton
+          icon="i-mingcute-playlist-line"
+          variant="subtle"
+          @click="addMultipleToListeningList(props.tracks)">
+          {{
+          $t("skye.trackList.addAll") }}
+        </UButton>
 
-        <UButton variant="subtle" @click="listenSelected">{{ $t("skye.trackList.listenSelected") }}</UButton>
-        <UButton variant="subtle" @click="addToListening">{{ $t("skye.trackList.addToListening") }}</UButton>
-        <UButton variant="subtle" @click="downloadSelected">{{ $t("skye.trackList.download") }}</UButton>
-        <UButton variant="subtle" @click="addToPlaylist">{{ $t("skye.trackList.addToPlaylist") }}</UButton>
+        <UButton variant="subtle" @click="listenSelected">
+          {{ $t("skye.trackList.listenSelected") }}
+        </UButton>
+        <UButton variant="subtle" @click="addToListening">
+          {{ $t("skye.trackList.addToListening") }}
+        </UButton>
+        <UButton variant="subtle" @click="downloadSelected">
+          {{ $t("skye.trackList.download") }}
+        </UButton>
+        <UButton variant="subtle" @click="addToPlaylist">
+          {{ $t("skye.trackList.addToPlaylist") }}
+        </UButton>
       </div>
 
       <div class="flex-1"></div>
       <div>
-        <UInput icon="i-mingcute-search-line" :placeholder="$t('skye.trackList.search')" v-model="searchQuery" />
+        <UInput
+          icon="i-mingcute-search-line"
+          :placeholder="$t('skye.trackList.search')"
+          v-model="searchQuery" />
       </div>
     </div>
 
@@ -31,11 +52,18 @@
     </span>
 
     <UContextMenu :items="items">
-      <UTable class="h-full" ref="table" :ui="{ base: 'table-fixed w-full' }" :data="props.tracks" :columns="columns"
-        :global-filter="searchQuery || undefined" :loading="props.loading" :virtualize="{
+      <UTable
+        class="h-full"
+        ref="table"
+        :ui="{ base: 'table-fixed w-full' }"
+        :data="props.tracks"
+        :columns="columns"
+        :global-filter="searchQuery || undefined"
+        :loading="props.loading"
+        :virtualize="{
           estimateSize: 80
-        }" @contextmenu="(_e, row) => items = getOperationItems(row.original)">
-      </UTable>
+        }"
+        @contextmenu="(_e, row) => items = getOperationItems(row.original)"></UTable>
     </UContextMenu>
   </div>
 </template>
@@ -231,8 +259,7 @@ const columns: TableColumn<Track>[] = [
   },
   {
     id: "downloadability",
-    header: ({ column }) =>
-      getSortHeader(column, i18n.global.t("skye.trackList.downloadability")),
+    header: ({ column }) => getSortHeader(column, i18n.global.t("skye.trackList.downloadability")),
     cell: (info) => {
       const downloadability = getDownloadability(info.row.original)
       if (downloadability === Downloadability.FreeDL) {

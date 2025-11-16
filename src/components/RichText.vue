@@ -1,7 +1,7 @@
 <template>
   <UContextMenu :items="items">
     <div>
-    <component :is="renderContent()" />
+      <component :is="renderContent()" />
     </div>
   </UContextMenu>
 </template>
