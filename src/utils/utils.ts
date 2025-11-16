@@ -20,10 +20,6 @@ export function replaceImageUrl(
   return url.replace("-large", `-t${size}`)
 }
 
-export function getPlaylistType(playlist: UserPlaylist): string {
-  return playlist.type === "user" ? "user" : "public"
-}
-
 export function getBestVisual(track: Track): string | null {
   if (track.visuals?.enabled && track.visuals.visuals.length > 0) {
     const bestVisual = track.visuals.visuals.reduce((prev, curr) => {

@@ -26,7 +26,7 @@
                     </div>
                 </template>
                 <template #create>
-                    
+                    <!-- TODO: Create playlist -->
                 </template>
             </UTabs>
         </template>
@@ -51,7 +51,7 @@ const props = defineProps<{
 const userInfo = useUserStore()
 const scrollContainer = ref<HTMLElement | null>(null)
 const { data, error, loading, hasNext, fetchNext } = usePlaylists(userInfo.id)
-const infiniteScroll = useInfiniteScroll(scrollContainer, fetchNext, {
+useInfiniteScroll(scrollContainer, fetchNext, {
   distance: 200,
   canLoadMore: () => {
     return hasNext && !loading

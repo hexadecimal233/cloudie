@@ -72,7 +72,7 @@
 import { onMounted, ref, useTemplateRef } from "vue"
 import { formatMillis, isPossibleFreeDownload, openModal } from "@/utils/utils"
 import { addDownloadTask } from "@/systems/download/download"
-import { BasePlaylist, Track } from "@/utils/types"
+import { Track } from "@/utils/types"
 import { addMultipleToListeningList } from "@/systems/player/listening-list"
 import PlaylistSelectModal from "@/components/modals/PlaylistSelectModal.vue"
 
@@ -85,7 +85,7 @@ import { useInfiniteScroll } from "@vueuse/core"
 
 const props = defineProps<{
   tracks: Track[]
-  parentPlaylist: BasePlaylist
+  playlistId: string
   loading?: boolean
   loadMore?: () => void
   hasMore?: boolean
@@ -363,6 +363,6 @@ async function addToPlaylist() {
 }
 
 async function download(track: Track) {
-  await addDownloadTask(track, props.parentPlaylist)
+  await addDownloadTask(track, props.playlistId)
 }
 </script>

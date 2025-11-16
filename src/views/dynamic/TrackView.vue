@@ -236,9 +236,7 @@ function addToListeningList() {
 
 async function downloadTrack() {
   if (track.value) {
-    const playlist = new LocalPlaylist("single-track")
-    playlist.tracks = [track.value]
-    await addDownloadTask(track.value, playlist)
+    await addDownloadTask(track.value, "single-track")
   }
 }
 

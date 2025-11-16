@@ -142,10 +142,10 @@ export const useUserStore = defineStore("user", {
       }
     },
 
-    updateAllUserData() {
+    async updateAllUserData() {
       if (!this.isLoggedIn) return
 
-      Promise.all([
+      await Promise.all([
         this.updateUserInfo(),
         this.updateLikedTrackIds(),
         this.updateLikedPlaylistIds(),
@@ -153,10 +153,9 @@ export const useUserStore = defineStore("user", {
         this.updateFollowingIds(),
         this.updateRepostedTrackIds(),
         this.updateRepostedPlaylistIds(),
-      ]).then(() => {
-        this.lastUpdateTime = Date.now()
-        console.log("User data updated at", new Date(this.lastUpdateTime))
-      })
+      ])
+      this.lastUpdateTime = Date.now()
+      console.log("User data updated at", new Date(this.lastUpdateTime))
     },
 
     async initializeUserState() {
@@ -167,11 +166,13 @@ export const useUserStore = defineStore("user", {
     startPeriodicUpdate() {
       this.stopPeriodicUpdate()
 
-      this.timer = setInterval(async () => {
+      this.timer = window.setInterval(async () => {
         await this.updateAllUserData()
       }, this.updateIntervalMs)
 
-      console.log(`Periodic user data update started with interval: ${this.updateIntervalMs}ms`)
+      console.log(
+        `Periodic user data update started with interval: ${this.updateIntervalMs / 60000}min`,
+      )
     },
 
     stopPeriodicUpdate() {

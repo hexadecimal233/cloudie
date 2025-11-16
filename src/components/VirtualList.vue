@@ -33,7 +33,7 @@ const props = defineProps<{
 
 const parentRef = ref<HTMLElement | null>(null)
 const scrollContainer = ref<HTMLElement | null>(null)
-const defaultEstimateSize = (index: number) => 50
+const defaultEstimateSize = (_index: number) => 50
 
 const rowVirtualizer = useVirtualizer(
   computed(() => {

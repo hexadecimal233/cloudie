@@ -1,6 +1,6 @@
 <template>
   <!-- FIXME: Scroll does not load-->
-  <div class="h-full flex flex-col">
+  <div class="flex flex-col h-full">
     <VirtualList class="w-full flex-1" ref="virtualListRef" :items="data" :estimateSize="() => 235">
       <template #item="{ item }">
         <component

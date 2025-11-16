@@ -1,7 +1,7 @@
 <template>
   <TrackList
     :tracks="playlist.tracks"
-    :parentPlaylist="playlist"
+    :playlistId="playlist.id"
     :loading="collection?.loading.value"
     :loadMore="collection?.fetchNext"
     :hasMore="collection?.hasNext.value" />

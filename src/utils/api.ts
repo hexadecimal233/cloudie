@@ -145,11 +145,12 @@ async function putV2Api(endpoint: string, body?: Record<string, any>): Promise<R
   return await requestV2Api("PUT", endpoint, undefined, body)
 }
 
-async function deleteV2Api(endpoint: string, params: Record<string, any> = {}): Promise<Response> {
-  return await requestV2Api("DELETE", endpoint, undefined, params)
+async function deleteV2Api(endpoint: string, body?: Record<string, any>): Promise<Response> {
+  return await requestV2Api("DELETE", endpoint, undefined, body)
 }
 
-async function _patchV2Api(endpoint: string, body?: Record<string, any>): Promise<Response> {
+// @ts-ignore
+async function patchV2Api(endpoint: string, body?: Record<string, any>): Promise<Response> {
   return await requestV2Api("PATCH", endpoint, undefined, body)
 }
 

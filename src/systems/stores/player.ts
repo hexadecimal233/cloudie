@@ -162,7 +162,7 @@ export const usePlayerStore = defineStore("player", {
         })
 
         // automatically loads after a few seconds
-        setTimeout(async () => {
+        window.setTimeout(async () => {
           // TODO: abortable task
           await this.nextTrack()
         }, 5000)

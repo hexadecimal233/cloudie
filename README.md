@@ -82,7 +82,7 @@ Pull Requests: [Pull Requests](https://github.com/hexadecimal233/skye/pulls)
 - [ ] Ulink is glitcing
 - [ ] Lyrics service
 - [ ] icon start to load online again...
-- [ ] skye.common.loading skye.common.loadMore skye.common.noMore skye.common.empty skye.common.emptyDesc
+- [ ] skye.common.loading skye.common.loadMore skye.common.noMore skye.common.empty skye.common.emptyDesc 统一化
 - [ ] music title loading animation
 - [ ] Make tags work
 - [ ] add share modal

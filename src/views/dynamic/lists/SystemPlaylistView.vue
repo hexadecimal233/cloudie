@@ -2,28 +2,32 @@
   <div>
     <div v-if="currentPlaylist" class="text-xl">{{ currentPlaylist.title }}</div>
     <div>
-      <TrackList :tracks="tracks" :parentPlaylist="currentPlaylist" :loading="loading" />
+      <TrackList
+        :tracks="tracks"
+        :parentPlaylist="currentPlaylist.id.toString()"
+        :loading="loading" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts" name="PlaylistView">
-import { UserPlaylist } from "@/utils/types"
+import { SystemPlaylist, Track } from "@/utils/types"
 import { computed, onMounted, ref } from "vue"
 import { fetchUserPlaylist } from "@/systems/playlist-cache"
 import { i18n } from "@/systems/i18n"
+import { getTracks } from "@/utils/api"
 
 const props = defineProps<{
   playlistId: number
 }>()
 
 const loading = ref(true)
-const currentPlaylist = ref<UserPlaylist>()
-const tracks = computed(() => currentPlaylist.value?.tracks || [])
+const currentPlaylist = ref<SystemPlaylist>()
+const tracks = ref<Track[]>([])
 
 onMounted(async () => {
   try {
-    currentPlaylist.value = await fetchUserPlaylist(props.playlistId)
+    tracks.value = await getTracks(props.)
     loading.value = false
   } catch (e) {
     useToast().add({

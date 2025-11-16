@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { Track, LocalPlaylist } from "@/utils/types"
+import { Track } from "@/utils/types"
 import { formatMillis } from "@/utils/utils"
 import { addToListeningList as addTrackToListeningList } from "@/systems/player/listening-list"
 import { addDownloadTask } from "@/systems/download/download"
@@ -49,8 +49,6 @@ function addToListeningList() {
 }
 
 async function downloadTrack() {
-  const playlist = new LocalPlaylist("single-track")
-  playlist.tracks = [props.track]
-  await addDownloadTask(props.track, playlist)
+  await addDownloadTask(props.track, "single-track")
 }
 </script>

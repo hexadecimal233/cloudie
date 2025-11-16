@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="tsx" name="DownloadsView">
-import { ref, computed, useTemplateRef, onMounted } from "vue"
+import { ref, computed, onMounted } from "vue"
 import { deleteTasks, downloadTasks, DownloadTask } from "@/systems/download/download"
 import { revealItemInDir } from "@tauri-apps/plugin-opener"
 import { i18n } from "@/systems/i18n"
@@ -19,7 +19,6 @@ import { message } from "@tauri-apps/plugin-dialog"
 import { TableColumn } from "@nuxt/ui"
 import { checkFFmpeg } from "@/utils/utils"
 
-const table = useTemplateRef("table")
 const activeTab = ref<"all" | "downloading" | "completed" | "paused" | "failed">("all")
 
 const tabs = computed(() => [
@@ -33,7 +32,7 @@ const tabs = computed(() => [
 const columns: TableColumn<DownloadTask>[] = [
   {
     accessorKey: "details.track",
-    header: ({}) => i18n.global.t("skye.downloads.track"),
+    header: () => i18n.global.t("skye.downloads.track"),
     cell: (info: { row: { original: DownloadTask } }) => (
       <TrackTitle
         track={info.row.original.details.track}
@@ -43,7 +42,7 @@ const columns: TableColumn<DownloadTask>[] = [
   },
   {
     accessorKey: "details.playlistName",
-    header: ({}) => i18n.global.t("skye.downloads.playlist"),
+    header: () => i18n.global.t("skye.downloads.playlist"),
     cell: (info: { row: { original: DownloadTask } }) =>
       info.row.original.details.playlistName ?? "-",
     meta: {
@@ -55,7 +54,7 @@ const columns: TableColumn<DownloadTask>[] = [
   },
   {
     accessorKey: "task.timestamp",
-    header: ({}) => i18n.global.t("skye.downloads.addedTime"),
+    header: () => i18n.global.t("skye.downloads.addedTime"),
     cell: (info: { row: { original: DownloadTask } }) =>
       new Date(info.row.original.task.timestamp).toLocaleString(),
     meta: {
@@ -67,7 +66,7 @@ const columns: TableColumn<DownloadTask>[] = [
   },
   {
     accessorKey: "task.origFileName",
-    header: ({}) => i18n.global.t("skye.downloads.origName"),
+    header: () => i18n.global.t("skye.downloads.origName"),
     cell: (info: { row: { original: DownloadTask } }) => info.row.original.task.origFileName ?? "-",
     meta: {
       class: {
@@ -78,7 +77,7 @@ const columns: TableColumn<DownloadTask>[] = [
   },
   {
     accessorKey: "task.status",
-    header: ({}) => i18n.global.t("skye.downloads.status"),
+    header: () => i18n.global.t("skye.downloads.status"),
     cell: (info: { row: { original: DownloadTask } }) => (
       <div class="flex items-center gap-2">
         {info.row.original.downloadingState ? (
@@ -101,7 +100,7 @@ const columns: TableColumn<DownloadTask>[] = [
   },
   {
     id: "actions",
-    header: ({}) => i18n.global.t("skye.downloads.actions"),
+    header: () => i18n.global.t("skye.downloads.actions"),
     cell: (info: { row: { original: DownloadTask } }) => (
       <div class="flex gap-1">
         {info.row.original.downloadingState && (

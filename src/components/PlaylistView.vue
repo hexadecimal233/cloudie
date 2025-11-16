@@ -4,7 +4,7 @@
     <div>
       <TrackList
         :tracks="currentPlaylist.tracks"
-        :parentPlaylist="currentPlaylist"
+        :playlistId="currentPlaylist.id.toString()"
         :loading="loading" />
     </div>
   </div>

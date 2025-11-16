@@ -8,7 +8,7 @@ import {
   Track,
 } from "@/utils/types"
 import * as schema from "@/systems/db/schema"
-import { eq, inArray, sql } from "drizzle-orm"
+import { eq, inArray } from "drizzle-orm"
 import { addLocalTracks, db } from "@/systems/db/db"
 import * as API from "@/utils/api"
 

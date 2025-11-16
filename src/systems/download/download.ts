@@ -9,7 +9,7 @@ import { db } from "@/systems/db/db"
 import * as schema from "@/systems/db/schema"
 import { desc, DrizzleQueryError, eq, inArray } from "drizzle-orm"
 import { convertToMp3, downloadTrack, parseDownload } from "./parser"
-import { BasePlaylist, Track } from "@/utils/types"
+import { Track } from "@/utils/types"
 import { i18n } from "@/systems/i18n"
 import { invoke } from "@tauri-apps/api/core"
 import * as fs from "@tauri-apps/plugin-fs"
@@ -61,7 +61,7 @@ export class DownloadTask {
       return
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 100)) // simulated waiting TODO: implement pausing logic
+    await new Promise((resolve) => window.setTimeout(resolve, 100)) // simulated waiting TODO: implement pausing logic
 
     this.downloadingState = undefined
   }
@@ -81,13 +81,11 @@ class DownloadStat {
 
 class DownloadDetail {
   playlistName?: string
-  playlist: BasePlaylist
   track: Track
 
-  constructor(playlist: BasePlaylist, track: Track) {
-    this.playlistName = playlist.title || undefined
+  constructor(track: Track, playlistId?: string) {
+    this.playlistName = playlistId
     // metas
-    this.playlist = playlist
     this.track = track
   }
 }
@@ -99,16 +97,16 @@ export async function initDownload() {
     orderBy: [desc(schema.downloadTasks.timestamp)],
     with: {
       localTrack: true,
-      playlist: true,
+      // playlist: true, TODO: refactor to use playlistId
     },
   })
 
   const results: DownloadTask[] = rawResults.map((row) => {
     const track = row.localTrack.meta
 
-    const playlist = row.playlist.meta
+    //const playlist = row.playlist.meta
 
-    return new DownloadTask(row, new DownloadDetail(playlist, track))
+    return new DownloadTask(row, new DownloadDetail(track, row.playlistId))
   })
 
   downloadTasks.value = results
@@ -116,9 +114,7 @@ export async function initDownload() {
   tryRunTask()
 }
 
-export async function addDownloadTask(track: Track, playlist: BasePlaylist) {
-  const playlistId = playlist ? playlist.id.toString() : "liked" // playlist.id is number when its user
-
+export async function addDownloadTask(track: Track, playlistId: string) {
   const task: typeof schema.downloadTasks.$inferInsert = {
     trackId: track.id,
     playlistId,
@@ -131,7 +127,7 @@ export async function addDownloadTask(track: Track, playlist: BasePlaylist) {
   try {
     const pendingTask = new DownloadTask(
       (await db.insert(schema.downloadTasks).values(task).returning())[0],
-      new DownloadDetail(playlist, track),
+      new DownloadDetail(track, playlistId),
     )
 
     downloadTasks.value.unshift(pendingTask) // add to the most recent

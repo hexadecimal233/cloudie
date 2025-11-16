@@ -121,7 +121,7 @@ function isReply(comment: Comment) {
   }
 }
 
-const { data, loading, error, hasNext, pageSize, fetchTillPage, reset } = useTrackComments(
+const { data, loading, hasNext, pageSize, fetchTillPage, reset } = useTrackComments(
   props.track.id,
   true,
   sort.value,
