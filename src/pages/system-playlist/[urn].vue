@@ -27,7 +27,7 @@ const tracks = ref<Track[]>([])
 
 onMounted(async () => {
   try {
-    tracks.value = await getTracks(props.)
+    tracks.value = await getTracks(props.playlistId)
     loading.value = false
   } catch (e) {
     useToast().add({
